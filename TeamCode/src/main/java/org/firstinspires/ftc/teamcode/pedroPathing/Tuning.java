@@ -177,7 +177,7 @@ class LocalizationTest extends OpMode {
  * @version 1.0, 5/6/2024
  */
 class ForwardTuner extends OpMode {
-    public static double DISTANCE = 48;
+    public static double DISTANCE = 120;
 
     @Override
     public void init() {
@@ -428,7 +428,7 @@ class ForwardVelocityTuner extends OpMode {
 class LateralVelocityTuner extends OpMode {
     private final ArrayList<Double> velocities = new ArrayList<>();
 
-    public static double DISTANCE = 48;
+    public static double DISTANCE = 80;
     public static double RECORD_NUMBER = 10;
 
     private boolean end;
@@ -861,6 +861,7 @@ class HeadingTuner extends OpMode {
 class DriveTuner extends OpMode {
     public static double DISTANCE = 40;
     private boolean forward = true;
+    private boolean reset = false;
 
     private PathChain forwards;
     private PathChain backwards;
@@ -921,7 +922,24 @@ class DriveTuner extends OpMode {
             }
         }
 
+        if(gamepad1.aWasPressed()){
+            reset = true;
+        }else if(gamepad1.bWasPressed()){
+            reset = false;
+        }
+
+        if(reset){
+            follower.activateHeading();
+            follower.activateTranslational();
+        }else{
+            follower.deactivateAllPIDFs();
+            follower.activateDrive();
+        }
+
+
+
         telemetryM.debug("Driving forward?: " + forward);
+        telemetryM.debug("Reset active?: " + reset);
         telemetryM.update(telemetry);
     }
 }
@@ -1184,14 +1202,14 @@ class Circle extends OpMode {
  * @version 1.1, 5/19/2025
  */
 class Drawing {
-    public static final double ROBOT_RADIUS = 9; // woah
+    public static final double ROBOT_RADIUS = 17/2.0; // woah
     private static final FieldManager panelsField = PanelsField.INSTANCE.getField();
 
     private static final Style robotLook = new Style(
-            "", "#3F51B5", 0.0
+            "", "#3F51B5", 0.75
     );
     private static final Style historyLook = new Style(
-            "", "#4CAF50", 0.0
+            "", "#4CAF50", 0.25
     );
 
     /**
