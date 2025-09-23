@@ -9,6 +9,8 @@ import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.Encoder;
 import org.firstinspires.ftc.teamcode.pedroPathing.otosAprilTagLocalizer;
+import com.pedropathing.ftc.localization.constants.OTOSConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.otosAprilTagLocalizer;
 import com.pedropathing.ftc.localization.constants.ThreeWheelIMUConstants;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -43,10 +45,13 @@ public class Constants {
             .useSecondaryHeadingPIDF(dualPID)
             .useSecondaryDrivePIDF(dualPID);
 
-    public static ThreeWheelIMUConstants localizerConstants = new ThreeWheelIMUConstants()
-            .forwardTicksToInches(.003)
-            .strafeTicksToInches(.003)
-            .turnTicksToInches(.003)
+
+
+
+    public static ThreeWheelIMUConstants ThreeWheelImuLocalizerConstants = new ThreeWheelIMUConstants()
+            .forwardTicksToInches(-0.0030552567962607207)
+            .strafeTicksToInches(-0.003941643869723979)
+            .turnTicksToInches(-0.003941643869723979)
             .leftPodY(7.5)
             .rightPodY(-7.5)
             .strafePodX(-4.5)
