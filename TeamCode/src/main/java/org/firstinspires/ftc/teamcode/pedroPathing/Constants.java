@@ -8,8 +8,7 @@ import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.Encoder;
-import com.pedropathing.ftc.localization.constants.OTOSConstants;
-import com.pedropathing.ftc.localization.constants.ThreeWheelConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.otosAprilTagLocalizer;
 import com.pedropathing.ftc.localization.constants.ThreeWheelIMUConstants;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -44,13 +43,10 @@ public class Constants {
             .useSecondaryHeadingPIDF(dualPID)
             .useSecondaryDrivePIDF(dualPID);
 
-
-
-
-    public static ThreeWheelIMUConstants ThreeWheelImuLocalizerConstants = new ThreeWheelIMUConstants()
-            .forwardTicksToInches(-0.0030552567962607207)
-            .strafeTicksToInches(-0.003941643869723979)
-            .turnTicksToInches(-0.003941643869723979)
+    public static ThreeWheelIMUConstants localizerConstants = new ThreeWheelIMUConstants()
+            .forwardTicksToInches(.003)
+            .strafeTicksToInches(.003)
+            .turnTicksToInches(.003)
             .leftPodY(7.5)
             .rightPodY(-7.5)
             .strafePodX(-4.5)
@@ -63,8 +59,8 @@ public class Constants {
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
 
-    public static OTOSConstants otosLocalizerConstants = new OTOSConstants()
-            .hardwareMapName("otos")
+    public static otosAprilTagConstants otosLocalizerConstants = new otosAprilTagConstants()
+            .otosHardwareMapName("otos")
             .linearUnit(DistanceUnit.INCH)
             .angleUnit(AngleUnit.RADIANS)
             .offset(new SparkFunOTOS.Pose2D(-6.1, 4.9, Math.toRadians(90)))
@@ -79,8 +75,8 @@ public class Constants {
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
-                //.threeWheelIMULocalizer(ThreeWheelImuLocalizerConstants)
-                .OTOSLocalizer(otosLocalizerConstants)
+                .setLocalizer(new otosAprilTagLocalizer(hardwareMap, otosLocalizerConstants))
+                //.threeWheelIMULocalizer(localizerConstants)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
                 .build();
