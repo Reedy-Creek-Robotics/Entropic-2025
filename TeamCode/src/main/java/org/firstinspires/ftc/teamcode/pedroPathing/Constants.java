@@ -10,6 +10,8 @@ import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.Encoder;
 import com.pedropathing.ftc.localization.constants.OTOSConstants;
 import com.pedropathing.ftc.localization.constants.ThreeWheelConstants;
+import com.pedropathing.ftc.localization.constants.OTOSConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.otosAprilTagLocalizer;
 import com.pedropathing.ftc.localization.constants.ThreeWheelIMUConstants;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -51,6 +53,16 @@ public class Constants {
             .forwardTicksToInches(-0.0030552567962607207)
             .strafeTicksToInches(-0.003941643869723979)
             .turnTicksToInches(-0.003941643869723979)
+    public static otosAprilTagConstants otosLocalizerConstants = new otosAprilTagConstants()
+            .angleUnit(AngleUnit.RADIANS)
+            .linearUnit(DistanceUnit.INCH)
+            .angularScalar(1)
+            .linearScalar(1);
+
+    public static ThreeWheelIMUConstants localizerConstants = new ThreeWheelIMUConstants()
+            .forwardTicksToInches(.003)
+            .strafeTicksToInches(.003)
+            .turnTicksToInches(.003)
             .leftPodY(7.5)
             .rightPodY(-7.5)
             .strafePodX(-4.5)
@@ -79,8 +91,8 @@ public class Constants {
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
-                //.threeWheelIMULocalizer(ThreeWheelImuLocalizerConstants)
-                .OTOSLocalizer(otosLocalizerConstants)
+                .setLocalizer(new otosAprilTagLocalizer(hardwareMap, otosLocalizerConstants))
+                //.threeWheelIMULocalizer(localizerConstants)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
                 .build();
