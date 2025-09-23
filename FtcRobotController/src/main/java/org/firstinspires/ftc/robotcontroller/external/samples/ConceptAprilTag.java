@@ -65,8 +65,8 @@ import java.util.List;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
-@TeleOp(name = "Concept: AprilTag", group = "Concept")
 @Disabled
+@TeleOp(name = "Concept: AprilTag", group = "Concept")
 public class ConceptAprilTag extends LinearOpMode {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
@@ -126,8 +126,8 @@ public class ConceptAprilTag extends LinearOpMode {
         aprilTag = new AprilTagProcessor.Builder()
 
             // The following default settings are available to un-comment and edit as needed.
-            //.setDrawAxes(false)
-            //.setDrawCubeProjection(false)
+            //.setDrawAxes(true)
+            .setDrawCubeProjection(true)
             //.setDrawTagOutline(true)
             //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
             //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
@@ -151,7 +151,8 @@ public class ConceptAprilTag extends LinearOpMode {
         //aprilTag.setDecimation(3);
 
         // Create the vision portal by using a builder.
-        VisionPortal.Builder builder = new VisionPortal.Builder();
+        VisionPortal.Builder builder = new VisionPortal.Builder()
+                .setCameraResolution(new Size(1920, 1080));
 
         // Set the camera (webcam vs. built-in RC phone camera).
         if (USE_WEBCAM) {
