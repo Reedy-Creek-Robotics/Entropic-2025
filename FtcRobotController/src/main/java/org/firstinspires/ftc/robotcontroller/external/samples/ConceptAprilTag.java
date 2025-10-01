@@ -65,7 +65,7 @@ import java.util.List;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
-@Disabled
+
 @TeleOp(name = "Concept: AprilTag", group = "Concept")
 public class ConceptAprilTag extends LinearOpMode {
 
@@ -136,7 +136,7 @@ public class ConceptAprilTag extends LinearOpMode {
             // == CAMERA CALIBRATION ==
             // If you do not manually specify calibration parameters, the SDK will attempt
             // to load a predefined calibration for your camera.
-            //.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
+            .setLensIntrinsics(595.21, 595.21, 984.515, 599.035)
             // ... these parameters are fx, fy, cx, cy.
 
             .build();
@@ -148,18 +148,13 @@ public class ConceptAprilTag extends LinearOpMode {
         // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
         // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
         // Note: Decimation can be changed on-the-fly to adapt during a match.
-        //aprilTag.setDecimation(3);
+        aprilTag.setDecimation(1);
 
         // Create the vision portal by using a builder.
         VisionPortal.Builder builder = new VisionPortal.Builder()
-                .setCameraResolution(new Size(1920, 1080));
+                .setCameraResolution(new Size(1920, 1200));
 
-        // Set the camera (webcam vs. built-in RC phone camera).
-        if (USE_WEBCAM) {
-            builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
-        } else {
-            builder.setCamera(BuiltinCameraDirection.BACK);
-        }
+        builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
 
         // Choose a camera resolution. Not all cameras support all resolutions.
         //builder.setCameraResolution(new Size(640, 480));

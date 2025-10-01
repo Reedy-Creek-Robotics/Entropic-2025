@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import java.util.Arrays;
 import java.util.List;
 
+@TeleOp
 public class IntakeTeleOp extends LinearOpMode {
     DcMotorEx leftFront; // lf
     DcMotorEx rightFront; // rf
@@ -40,7 +42,7 @@ public class IntakeTeleOp extends LinearOpMode {
     }
 
     private void drive(){
-        double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
+        double y = -gamepad1.left_stick_y;
         double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
         double rx = gamepad1.right_stick_x;
 

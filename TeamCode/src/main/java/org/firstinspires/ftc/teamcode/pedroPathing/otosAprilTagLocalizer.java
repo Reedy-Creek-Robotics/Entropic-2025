@@ -160,6 +160,22 @@ public class otosAprilTagLocalizer implements Localizer {
     }
 
     /**
+     * This returns the current pose estimate.
+     *
+     * @return returns the current pose estimate as a Pose2D
+     */
+    public Pose2D getPose2D() {
+        Pose pose = new Pose(otosPose.x, otosPose.y, otosPose.h);
+
+        Vector vec = pose.getAsVector();
+        vec.rotateVector(startPose.getHeading());
+
+        Pose calc = startPose.plus(new Pose(vec.getXComponent(), vec.getYComponent(), pose.getHeading()));
+
+        return new Pose2D(calc.getX(), calc.getY(), calc.getHeading());
+    }
+
+    /**
      * This returns the current velocity estimate.
      *
      * @return returns the current velocity estimate as a Pose
@@ -203,9 +219,10 @@ public class otosAprilTagLocalizer implements Localizer {
         otos.setPosition(new SparkFunOTOS.Pose2D(setOTOSPose.getX(), setOTOSPose.getY(), setOTOSPose.getHeading()));
     }
 
-    public void updatePoseAprilTag(Pose newPose){
+    public void updatePoseAprilTag(){
         Pose2D blueGoal = new Pose2D(0, 0, Math.toRadians(0));
         Pose2D redGoal = new Pose2D(0, 0, Math.toRadians(0));
+        Pose2D calculated = getPose2D();
 
         List<AprilTagDetection> currentDetections = april.getDetections();
         // Remove all april tags that are not 20 (blue goal) or 24 (red goal)
@@ -215,14 +232,14 @@ public class otosAprilTagLocalizer implements Localizer {
             if(detection.id == 24)
                 pos = redGoal;
 
-            Pose2D calculated = new Pose2D(
-                    pos.x - detection.ftcPose.x,
+            calculated = new Pose2D(
                     pos.y - detection.ftcPose.y,
-                    detection.ftcPose.yaw);
+                    pos.x - detection.ftcPose.x,
+                    pos.h - detection.ftcPose.yaw);
         }
 
         resetOTOS();
-        otos.setPosition(new SparkFunOTOS.Pose2D(newPose.getX(), newPose.getY(), newPose.getHeading()));
+        otos.setPosition(calculated);
     }
 
     /**
