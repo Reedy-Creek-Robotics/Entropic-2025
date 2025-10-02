@@ -72,9 +72,14 @@ public abstract class BaseComponent implements Component {
     }
 
     public static RobotContext createRobotContext(OpMode opMode) {
+        return createRobotContext(opMode, -1);
+    }
+
+    public static RobotContext createRobotContext(OpMode opMode, int alliance) {
         return new RobotContext(
                 opMode,
-                new RobotDescriptor()
+                new RobotDescriptor(),
+                alliance
         );
     }
 

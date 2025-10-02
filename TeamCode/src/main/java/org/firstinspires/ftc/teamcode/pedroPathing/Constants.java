@@ -72,6 +72,14 @@ public class Constants {
             .linearScalar(0.98432063)
             .angularScalar(0.97384378);
 
+    public static OTOSConstants otosNormalLocalizerConstants = new OTOSConstants()
+            .hardwareMapName("otos")
+            .linearUnit(DistanceUnit.INCH)
+            .angleUnit(AngleUnit.RADIANS)
+            .offset(new SparkFunOTOS.Pose2D(-6.1, 4.9, Math.toRadians(90)))
+            .linearScalar(0.98432063)
+            .angularScalar(0.97384378);
+
     public static PathConstraints pathConstraints = new PathConstraints(
             0.99,
             100,
@@ -80,7 +88,8 @@ public class Constants {
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
-                .setLocalizer(new otosAprilTagLocalizer(hardwareMap, otosLocalizerConstants))
+                //.setLocalizer(new otosAprilTagLocalizer(hardwareMap, otosLocalizerConstants))
+                .OTOSLocalizer(otosNormalLocalizerConstants)
                 //.threeWheelIMULocalizer(localizerConstants)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)

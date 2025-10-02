@@ -115,7 +115,7 @@ public class otosAprilTagLocalizer implements Localizer {
                 .setCameraResolution(new Size(1920, 1080));
 
         // Set the camera (webcam vs. built-in RC phone camera).
-        builder.setCamera(map.get(WebcamName.class, "Webcam 1"));
+        builder.setCamera(map.get(WebcamName.class, "Webcam"));
 
         // Choose a camera resolution. Not all cameras support all resolutions.
         //builder.setCameraResolution(new Size(640, 480));

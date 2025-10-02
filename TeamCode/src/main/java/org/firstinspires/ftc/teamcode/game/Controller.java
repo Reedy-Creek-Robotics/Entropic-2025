@@ -249,6 +249,16 @@ public class Controller {
         }
     }
 
+    /**
+     * @return true if no buttons or analog sticks are pressed or moved
+     */
+    public boolean isRest(){
+        for(Button button : Button.values()){
+            if(isPressed(button)){return false;}
+        }
+        return gamepad.atRest();
+    }
+
     public boolean isPressed(Button button) {
         boolean buttonDown = isButtonDown(button);
         if (buttonDown) {

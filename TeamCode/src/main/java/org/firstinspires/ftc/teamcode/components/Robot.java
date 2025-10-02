@@ -8,18 +8,20 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.AprilTagTest;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
 
 import java.util.List;
 
-public class Robot extends BaseComponent{
+public class Robot extends BaseComponent {
     private static final double VOLTAGE_WARNING_THRESHOLD = 12.0;
 
     private List<LynxModule> lynxModules;
 
     private DriveTrain driveTrain;
+    private AprilTag aprilTag;
 
     private int updateCount;
     private ElapsedTime initTime;
@@ -31,8 +33,9 @@ public class Robot extends BaseComponent{
         this.lynxModules = hardwareMap.getAll(LynxModule.class);
 
         driveTrain = new DriveTrain(context);
+        aprilTag = new AprilTag(context);
 
-        addSubComponents(driveTrain);
+        addSubComponents(driveTrain, aprilTag);
 
         TelemetryHolder.telemetry = telemetry;
     }
@@ -139,9 +142,13 @@ public class Robot extends BaseComponent{
     }
 
     public static RobotContext createRobotContext(OpMode opMode) {
+        return createRobotContext(opMode, -1);
+    }
+    public static RobotContext createRobotContext(OpMode opMode, int alliance) {
         return new RobotContext(
                 opMode,
-                new RobotDescriptor()
+                new RobotDescriptor(),
+                alliance
         );
     }
 

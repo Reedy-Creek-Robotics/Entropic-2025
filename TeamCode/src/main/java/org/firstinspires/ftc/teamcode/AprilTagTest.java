@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.annotation.SuppressLint;
 import android.util.Size;
 
 import com.pedropathing.geometry.Pose;
@@ -68,6 +69,7 @@ public class AprilTagTest extends LinearOpMode {
         }
     }
 
+    @SuppressLint("DefaultLocale")
     public void updatePoseAprilTag(){
         Pose2D calculated = new SparkFunOTOS.Pose2D();
 
@@ -179,7 +181,7 @@ public class AprilTagTest extends LinearOpMode {
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG);
 
         // Set the camera (webcam vs. built-in RC phone camera).
-        builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+        builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam"));
 
         // Choose a camera resolution. Not all cameras support all resolutions.
         //builder.setCameraResolution(new Size(640, 480));
