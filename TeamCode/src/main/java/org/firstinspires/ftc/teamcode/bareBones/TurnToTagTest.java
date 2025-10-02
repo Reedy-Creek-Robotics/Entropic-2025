@@ -2,19 +2,15 @@ package org.firstinspires.ftc.teamcode.bareBones;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathBuilder;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.components.AprilTag;
 import org.firstinspires.ftc.teamcode.components.BaseComponent;
 import org.firstinspires.ftc.teamcode.components.DriveTrain;
-import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.game.Controller;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
