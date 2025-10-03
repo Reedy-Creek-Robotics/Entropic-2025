@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.game.Controller;
@@ -13,8 +14,12 @@ import org.firstinspires.ftc.teamcode.game.Controller;
 @TeleOp
 public class shooterTester extends OpMode {
 Controller controller;
+
 DcMotorEx shooter;
+
 VoltageSensor voltage;
+
+ElapsedTime shootTimer;
 
 double power = 1500;
 double avgInactiveCurrent = 1;
@@ -27,9 +32,7 @@ int velocityTolerance = 50;
 
     @Override
     public void init() {
-        telemetry.speak("Test");
-        telemetry.update();
-        telemetry.clear();
+        shootTimer = new ElapsedTime();
         controller = new Controller(gamepad1);
         voltage = hardwareMap.voltageSensor.iterator().next();
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
@@ -99,7 +102,14 @@ int velocityTolerance = 50;
         telemetry.addData("Voltage", voltage.getVoltage());
         telemetry.addData("Avg Inactive", avgInactiveCurrent);
 
-        if(shooter.getVelocity() > power - velocityTolerance && shooter.getVelocity() < power + velocityTolerance) {
+        // If the velocity is outside the tolerance, reset the timer
+        if(shooter.getVelocity() < power - velocityTolerance && shooter.getVelocity() > power + velocityTolerance) {
+            shootTimer.reset();
+        }
+
+        // If the velocity is within the tolerance for 750ms, run shooting code.
+        if(shootTimer.milliseconds() > 750) {
+            //ToDo Place holder, replace with transfer code.
             telemetry.addLine();
             telemetry.addLine();
             telemetry.addLine("SHOOT");

@@ -9,10 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.util.DriveUtil;
 
 import java.util.Arrays;
@@ -28,9 +26,6 @@ public class DriveTrain extends BaseComponent {
     private List<DcMotorEx> motors;
 
     private IMU imu;
-    private VoltageSensor batteryVoltageSensor;
-
-
 
     public static DriveTuner driveTuner;
     public static OdometryTuner odometryTuner;
@@ -42,8 +37,6 @@ public class DriveTrain extends BaseComponent {
         odometryTuner = descriptor.ODOMETRY_TUNER;
 
         //this.context.localizer = new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels, odometryTuner);
-
-        batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         // TODO: adjust the names of the following hardware devices to match your configuration
         /*

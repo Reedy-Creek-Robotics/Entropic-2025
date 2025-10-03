@@ -1,14 +1,12 @@
 package org.firstinspires.ftc.teamcode.components;
 
 import android.annotation.SuppressLint;
-import android.graphics.Point;
 import android.util.Size;
 
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -16,16 +14,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-import org.firstinspires.ftc.vision.apriltag.AprilTagMetadata;
-import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
-import org.firstinspires.ftc.vision.apriltag.AprilTagPoseRaw;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 
 @SuppressLint("DefaultLocale")
 public class AprilTag extends BaseComponent {
@@ -151,7 +144,7 @@ public class AprilTag extends BaseComponent {
     }
 
     /**
-     * Get a specific detection by id from a list of detections
+     * Get a specific detection by id from a fresh list of detections
      * @param id The id to search for
      * @return Returns the AprilTagDetection with the id provided if found, otherwise return null.
      */

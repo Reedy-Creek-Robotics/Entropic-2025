@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.components;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -14,6 +15,8 @@ import java.util.List;
 public abstract class BaseComponent implements Component {
 
     private OpMode opMode;
+
+    protected VoltageSensor batteryVoltageSensor;
 
     protected RobotContext context;
     protected RobotDescriptor descriptor;
@@ -38,6 +41,7 @@ public abstract class BaseComponent implements Component {
         this.commandTime = new ElapsedTime();
         this.currentCommand = null;
         this.nextCommands = new ArrayList<>();
+        this.batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
     }
 
     /**
