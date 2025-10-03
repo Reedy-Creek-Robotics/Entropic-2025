@@ -21,7 +21,10 @@ public class Robot extends BaseComponent {
     private DriveTrain driveTrain;
     private AprilTag aprilTag;
     private Intake intake;
-    private Shooter shooter;
+    private Shooter shooter1;
+    //private Shooter shooter2;
+    private Transfer transfer1;
+    //private  Transfer transfer2;
 
     private int updateCount;
     private ElapsedTime initTime;
@@ -35,9 +38,12 @@ public class Robot extends BaseComponent {
         driveTrain = new DriveTrain(context);
         aprilTag = new AprilTag(context);
         intake = new Intake(context);
-        shooter = new Shooter(context);
+        shooter1 = new Shooter(context);
+        //shooter2 = new Shooter(context);
+        transfer1 = new Transfer(context);
+        //transfer2 = new Transfer(context);
 
-        addSubComponents(driveTrain, aprilTag, intake, shooter);
+        addSubComponents(driveTrain, aprilTag, intake, shooter1, /*shooter2,*/ transfer1/*, transfer2*/);
 
         TelemetryHolder.telemetry = telemetry;
     }

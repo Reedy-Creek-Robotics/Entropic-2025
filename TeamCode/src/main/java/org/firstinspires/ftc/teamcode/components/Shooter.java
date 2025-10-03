@@ -9,6 +9,8 @@ public class Shooter extends BaseComponent {
 
     DcMotorEx shooter;
     int velocityTolerance = 50;
+    int stabilizationTime = 750;
+    int holdVelocity = 1600;
     ElapsedTime shootTimer;
     private int setVelocity;
 
@@ -52,6 +54,10 @@ public class Shooter extends BaseComponent {
         shooter.setVelocity(setVelocity);
     }
 
+    public void holdVelocity(){
+        shooter.setVelocity(holdVelocity);
+    }
+
     @Override
     public boolean isBusy() {
         // If the shooter velocity is outside of the tolerance, reset the timer.
@@ -59,7 +65,63 @@ public class Shooter extends BaseComponent {
             shootTimer.reset();
         }
 
-        // If the velocity is within the tolerance for 750ms, return false (not busy)
-        return !(shootTimer.milliseconds() > 750);
+        // If the velocity is within the tolerance for stabilizationTime milliseconds, return false (not busy)
+        return shootTimer.milliseconds() < stabilizationTime;
+    }
+
+    public void spinToVelocity(int velocity){
+        executeCommand(new SpinToVelocity(velocity));
+    }
+
+    public void shootAtVelocity(int velocity){
+        executeCommand(new ShootAtVelocity(velocity));
+    }
+
+    public class SpinToVelocity implements Command{
+
+        int velocity;
+
+        public SpinToVelocity(int velocity){
+            this.velocity = velocity;
+        }
+
+        @Override
+        public void start() {
+            setVelocity(velocity);
+        }
+
+        @Override
+        public void stop() {
+
+        }
+
+        @Override
+        public boolean update() {
+            return isBusy();
+        }
+    }
+
+    public class ShootAtVelocity implements Command{
+
+        int velocity;
+
+        public ShootAtVelocity(int velocity){
+            this.velocity = velocity;
+        }
+
+        @Override
+        public void start() {
+            setVelocity(velocity);
+        }
+
+        @Override
+        public void stop() {
+            //ToDo Add functionality to make transfer push artifact into shooter.
+        }
+
+        @Override
+        public boolean update() {
+            return isBusy();
+        }
     }
 }
