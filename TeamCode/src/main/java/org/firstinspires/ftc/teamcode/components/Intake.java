@@ -12,6 +12,10 @@ public class Intake extends BaseComponent{
         super(context);
 
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
+    }
+
+    @Override
+    public void init() {
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }

@@ -2,13 +2,11 @@ package org.firstinspires.ftc.teamcode.components;
 
 import android.annotation.SuppressLint;
 
-
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.AprilTagTest;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
@@ -22,6 +20,8 @@ public class Robot extends BaseComponent {
 
     private DriveTrain driveTrain;
     private AprilTag aprilTag;
+    private Intake intake;
+    private Shooter shooter;
 
     private int updateCount;
     private ElapsedTime initTime;
@@ -34,8 +34,10 @@ public class Robot extends BaseComponent {
 
         driveTrain = new DriveTrain(context);
         aprilTag = new AprilTag(context);
+        intake = new Intake(context);
+        shooter = new Shooter(context);
 
-        addSubComponents(driveTrain, aprilTag);
+        addSubComponents(driveTrain, aprilTag, intake, shooter);
 
         TelemetryHolder.telemetry = telemetry;
     }
