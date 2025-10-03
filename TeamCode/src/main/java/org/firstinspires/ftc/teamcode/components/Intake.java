@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.components;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Intake extends BaseComponent{
 
@@ -10,12 +11,11 @@ public class Intake extends BaseComponent{
 
     public Intake(RobotContext context) {
         super(context);
-
-        intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
     }
 
     @Override
     public void init() {
+        intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
@@ -48,5 +48,36 @@ public class Intake extends BaseComponent{
 
     public void driveIntake(int velocity){
         intakeMotor.setVelocity(velocity);
+    }
+
+    public void timedIntake(double power, double time){
+        executeCommand(new TimedIntake(power, time));
+    }
+
+    public class TimedIntake implements Command{
+
+        double power, time;
+        ElapsedTime timer;
+
+        public TimedIntake(double power, double time) {
+            this.power = power;
+            this.time = time;
+        }
+
+        @Override
+        public void start() {
+            driveIntake(power);
+            timer = new ElapsedTime();
+        }
+
+        @Override
+        public void stop() {
+            driveIntake(0);
+        }
+
+        @Override
+        public boolean update() {
+            return timer.milliseconds() > time;
+        }
     }
 }

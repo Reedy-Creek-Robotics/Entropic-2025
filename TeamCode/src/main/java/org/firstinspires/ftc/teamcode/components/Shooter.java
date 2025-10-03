@@ -14,12 +14,12 @@ public class Shooter extends BaseComponent {
 
     public Shooter(RobotContext context) {
         super(context);
-
-        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
     }
 
     @Override
     public void init() {
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shootTimer = new ElapsedTime();

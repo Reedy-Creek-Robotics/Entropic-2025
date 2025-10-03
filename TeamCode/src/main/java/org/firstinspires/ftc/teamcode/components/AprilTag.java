@@ -59,6 +59,10 @@ public class AprilTag extends BaseComponent {
 
     public AprilTag(RobotContext context){
         super(context);
+    }
+
+    @Override
+    public void init() {
 
         // Build the Vision Portal, using the above settings.
         portal = new VisionPortal.Builder()
@@ -68,10 +72,6 @@ public class AprilTag extends BaseComponent {
                 .setAutoStopLiveView(true)
                 .addProcessor(aprilProcessor)
                 .build();
-    }
-
-    @Override
-    public void init() {
 
         if(context.getAlliance() == 1) {homeGoal = Collections.singletonList(24);}
 
