@@ -49,8 +49,26 @@ public class Robot extends BaseComponent {
         TelemetryHolder.telemetry = telemetry;
     }
 
-    public RobotContext getRobotContext() {
-        return context;
+    /**
+     * @param opMode OpMode class, often accessed as "this"
+     * @param alliance -1 is BLUE, 1 is RED
+     */
+    public Robot(OpMode opMode, int alliance) {
+        super(createRobotContext(opMode, alliance));
+
+        this.lynxModules = hardwareMap.getAll(LynxModule.class);
+
+        driveTrain = new DriveTrain(context);
+        aprilTag = new AprilTag(context);
+        intake = new Intake(context);
+        shooter1 = new Shooter(context, "shooter1");
+        //shooter2 = new Shooter(context, "shooter2");
+        transfer1 = new Transfer(context, "roller1", "color1");
+        //transfer2 = new Transfer(context, "roller2", "color2", shooter2.getShooter());
+
+        addSubComponents(driveTrain, aprilTag, intake, shooter1, /*shooter2,*/ transfer1/*, transfer2*/);
+
+        TelemetryHolder.telemetry = telemetry;
     }
 
     @Override
@@ -178,9 +196,6 @@ public class Robot extends BaseComponent {
         }
     }
 
-    public DriveTrain getDriveTrain() {
-        return driveTrain;
-    }
     private double computeBatteryVoltage() {
         double result = Double.POSITIVE_INFINITY;
         for (VoltageSensor sensor : hardwareMap.voltageSensor) {
@@ -191,4 +206,37 @@ public class Robot extends BaseComponent {
         }
         return result;
     }
+
+
+    public DriveTrain getDriveTrain() {
+        return driveTrain;
+    }
+
+    public RobotContext getRobotContext() {
+        return context;
+    }
+
+    public AprilTag getAprilTag(){
+        return aprilTag;
+    }
+
+    public Intake getIntake(){
+        return intake;
+    }
+
+    public Shooter getShooter1(){
+        return shooter1;
+    }
+
+    /*public Shooter getShooter2(){
+        return shooter2;
+    }*/
+
+    public Transfer getTransfer1(){
+        return transfer1;
+    }
+
+    /*public Transfer getTransfer2(){
+        return transfer2;
+    }*/
 }

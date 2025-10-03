@@ -8,11 +8,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class Shooter extends BaseComponent {
 
     DcMotorEx shooter;
+
     int velocityTolerance = 50;
     int stabilizationTime = 750;
     int holdVelocity = 1600;
-    ElapsedTime shootTimer;
     private int setVelocity;
+
+    ElapsedTime shootTimer;
 
     String shooterHardwareName;
 
@@ -86,6 +88,28 @@ public class Shooter extends BaseComponent {
         setPIDFCoefficients(shooter.getMode(), coefficients);
     }
 
+    /*
+        ~1700 tps from 43in
+        ~1640 tps from 46in
+        ~1540 tps from 63in
+        ~1600 tps from 77in
+        ~1580 tps from 95in
+        ~1720 tps from 123in
+        ~1780 tps from 144in
+     */
+    private int velocityFromDistance(double distance){
+        if(distance < 40) return 0;
+        if(distance > 150) return 0;
+
+        if(distance >= 40 && distance <= 50) return 1680;
+        if(distance > 50 && distance <= 65) return 1560;
+        if(distance > 65 && distance <= 95) return 1600;
+        if(distance > 95 && distance <= 125) return 1700;
+        if(distance > 125) return 1780;
+
+        return 0;
+    }
+
     /**
      * Set velocity for the shooter motor to spin at
      * @param velocity Target velocity for the shooter motor
@@ -121,6 +145,14 @@ public class Shooter extends BaseComponent {
      */
     public void spinToVelocity(int velocity){
         executeCommand(new SpinToVelocity(velocity));
+    }
+
+    public void shootAtDistance(double distance){
+        int velocity;
+        if((velocity = velocityFromDistance(distance)) == 0){
+            velocity = 1600;
+        }
+        shootAtVelocity(velocity);
     }
 
     /**
@@ -170,7 +202,7 @@ public class Shooter extends BaseComponent {
 
         @Override
         public void stop() {
-            //ToDo Add functionality to make transfer push artifact into shooter. Johnathon help I can't think of a way to do this
+
         }
 
         @Override

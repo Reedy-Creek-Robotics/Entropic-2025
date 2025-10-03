@@ -14,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.Arrays;
@@ -105,6 +106,10 @@ public class AprilTag extends BaseComponent {
      */
     public Pose3D getRobotPose(int id){
         return getDetection(id).robotPose;
+    }
+
+    public AprilTagPoseFtc getFtcPose(int id){
+        return getDetection(id).ftcPose;
     }
 
     /**
