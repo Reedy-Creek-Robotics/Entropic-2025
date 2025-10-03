@@ -30,19 +30,45 @@ public class Shooter extends BaseComponent {
         shootTimer = new ElapsedTime();
     }
 
+    /**
+     * Sets the hold velocity of the shooter motor
+     * <p>Hold velocity is the velocity the shooter motor spins at when not shooting</p>
+     * @param holdVelocity Hold velocity to set
+     */
+    public void setHoldVelocity(int holdVelocity){
+        this.holdVelocity = holdVelocity;
+    }
+
+    /**
+     * @return Returns the shooter DcMotorEx to use outside of the component, for example, for getting the current in the Transfer component.
+     */
     protected DcMotorEx getShooter(){
         return shooter;
     }
 
+    /**
+     * Sets the run mode of the shooter motor
+     * @param runMode Run mode to set the shooter motor to
+     */
     public void setMode(DcMotor.RunMode runMode) {
         shooter.setMode(runMode);
 
     }
 
+    /**
+     * Sets the zero power behavior of the shooter motor
+     * @param zeroPowerBehavior Zero power behavior to set the shooter motor to
+     */
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
         shooter.setZeroPowerBehavior(zeroPowerBehavior);
     }
 
+    /**
+     * Sets PIDF Coefficients of the shooter motor
+     * <p>Feedforward value is compensated based on battery voltage</p>
+     * @param runMode Run Mode to set the shooter motor to
+     * @param coefficients PIDF Coefficients to set on the shooter motor
+     */
     public void setPIDFCoefficients(DcMotor.RunMode runMode, PIDFCoefficients coefficients) {
         PIDFCoefficients compensatedCoefficients = new PIDFCoefficients(
                 coefficients.p, coefficients.i, coefficients.d,
@@ -51,16 +77,29 @@ public class Shooter extends BaseComponent {
 
         shooter.setPIDFCoefficients(runMode, compensatedCoefficients);
     }
-
+    /**
+     * Sets PIDF Coefficients of the shooter motor
+     * <p>Feedforward value is compensated based on battery voltage</p>
+     * @param coefficients PIDF Coefficients to set on the shooter motor
+     */
     public void setPIDFCoefficients(PIDFCoefficients coefficients) {
         setPIDFCoefficients(shooter.getMode(), coefficients);
     }
 
+    /**
+     * Set velocity for the shooter motor to spin at
+     * @param velocity Target velocity for the shooter motor
+     */
     public void setVelocity(int velocity){
         setVelocity = velocity;
         shooter.setVelocity(setVelocity);
     }
 
+    /**
+     * Sets the shooter motor to run at it's hold velocity
+     * <p>Hold velocity is the velocity the shooter motor spins at when not shooting</p>
+     * <p>See setHoldVelocity</p>
+     */
     public void holdVelocity(){
         shooter.setVelocity(holdVelocity);
     }
@@ -76,10 +115,18 @@ public class Shooter extends BaseComponent {
         return shootTimer.milliseconds() < stabilizationTime;
     }
 
+    /**
+     * Spins shooter motor up to given velocity
+     * @param velocity Velocity to set
+     */
     public void spinToVelocity(int velocity){
         executeCommand(new SpinToVelocity(velocity));
     }
 
+    /**
+     * Spins shooter motor up to given velocity and shoots after it reaches that velocity
+     * @param velocity Velocity to set
+     */
     public void shootAtVelocity(int velocity){
         executeCommand(new ShootAtVelocity(velocity));
     }
@@ -123,7 +170,7 @@ public class Shooter extends BaseComponent {
 
         @Override
         public void stop() {
-            //ToDo Add functionality to make transfer push artifact into shooter.
+            //ToDo Add functionality to make transfer push artifact into shooter. Johnathon help I can't think of a way to do this
         }
 
         @Override
