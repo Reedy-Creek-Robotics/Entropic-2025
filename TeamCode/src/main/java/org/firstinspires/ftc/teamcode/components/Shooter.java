@@ -14,17 +14,24 @@ public class Shooter extends BaseComponent {
     ElapsedTime shootTimer;
     private int setVelocity;
 
-    public Shooter(RobotContext context) {
+    String shooterHardwareName;
+
+    public Shooter(RobotContext context, String shooterHardwareName) {
         super(context);
+        this.shooterHardwareName = shooterHardwareName;
     }
 
     @Override
     public void init() {
-        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        shooter = hardwareMap.get(DcMotorEx.class, shooterHardwareName);
 
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shootTimer = new ElapsedTime();
+    }
+
+    protected DcMotorEx getShooter(){
+        return shooter;
     }
 
     public void setMode(DcMotor.RunMode runMode) {

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
@@ -38,10 +39,10 @@ public class Robot extends BaseComponent {
         driveTrain = new DriveTrain(context);
         aprilTag = new AprilTag(context);
         intake = new Intake(context);
-        shooter1 = new Shooter(context);
-        //shooter2 = new Shooter(context);
-        transfer1 = new Transfer(context);
-        //transfer2 = new Transfer(context);
+        shooter1 = new Shooter(context, "shooter1");
+        //shooter2 = new Shooter(context, "shooter2");
+        transfer1 = new Transfer(context, "roller1", "color1");
+        //transfer2 = new Transfer(context, "roller2", "color2", shooter2.getShooter());
 
         addSubComponents(driveTrain, aprilTag, intake, shooter1, /*shooter2,*/ transfer1/*, transfer2*/);
 
@@ -85,6 +86,10 @@ public class Robot extends BaseComponent {
             firstUpdateTime = new ElapsedTime();
             onStart();
         }
+
+        // Send the shooter current(s) to the transfer(s)
+        transfer1.setShooterCurrent(shooter1.getShooter().getCurrent(CurrentUnit.AMPS));
+        //transfer2.setShooterCurrent(shooter2.getShooter().getCurrent(CurrentUnit.AMPS));
 
         // Compute and print the updates per second
         computeUpdatesPerSecond();

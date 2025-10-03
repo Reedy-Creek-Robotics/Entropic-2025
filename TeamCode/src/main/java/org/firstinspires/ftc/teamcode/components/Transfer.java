@@ -3,13 +3,24 @@ package org.firstinspires.ftc.teamcode.components;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.game.ColorValue;
 
 public class Transfer extends BaseComponent{
 
-    CRServo roller;
-    ColorSensor color;
-    String servoHardwareName;
-    String colorHardwareName;
+    private CRServo roller;
+    private ColorSensor color;
+    private String servoHardwareName;
+    private String colorHardwareName;
+
+    // How many amps the current must increase from the baseline by for the shooter to be considered engaged with the artifact
+    private final double SHOOTER_CURRENT_THRESHOLD = 0.5;
+    private final double TIMEOUT_THRESHOLD = 5000; //ms
+
+    private double shooterCurrent;
+    private double transferPower = 1;
+    private int transferTime = 2000; //ms
 
     /*
     This component will take care of all:
@@ -30,11 +41,115 @@ public class Transfer extends BaseComponent{
         color = hardwareMap.get(ColorSensor.class, colorHardwareName);
     }
 
+    @Override
+    public void update() {
+
+    }
+
+    public void setShooterCurrent(double current){
+        shooterCurrent = current;
+    }
+
+    public double getShooterCurrent(){
+        return shooterCurrent;
+    }
+
     public void runRoller(double power){
         roller.setPower(power);
     }
 
     public void setDirection(DcMotorSimple.Direction direction){
         roller.setDirection(direction);
+    }
+
+    /**
+     * Set the power to use when transferring. NOTE: THIS DOES NOT RUN THE TRANSFER!
+     * @param power Power to set the roller to when transferring
+     */
+    public void setTransferPower(double power){
+        transferPower = power;
+    }
+
+    /**
+     * Set the time to run the transfer for when transferring. NOTE: THIS DOES NOT RUN THE TRANSFER!
+     * @param time Time to run the roller for in a timed transfer
+     */
+    public void setTransferTime(int time){
+        transferTime = time;
+    }
+
+    public void setLED(boolean ledStatus){
+        color.enableLed(ledStatus);
+    }
+
+    public ColorValue getColor(){
+        return new ColorValue(
+                color.red(),
+                color.green(),
+                color.blue(),
+                color.alpha()
+        );
+    }
+
+    public void transferToShooter(){
+        executeCommand(new TimedTransfer(transferPower, transferTime));
+    }
+
+    public void timedTransfer(double time){
+        executeCommand(new TimedTransfer(transferPower, time));
+    }
+
+    public void transferUntilShot(){
+        executeCommand(new TransferUntilShot());
+    }
+
+    public class TimedTransfer implements Command{
+
+        double power, time;
+        ElapsedTime timer;
+
+        public TimedTransfer(double power, double time) {
+            this.power = power;
+            this.time = time;
+        }
+
+        @Override
+        public void start() {
+            runRoller(power);
+            timer = new ElapsedTime();
+        }
+
+        @Override
+        public void stop() {
+            runRoller(0);
+        }
+
+        @Override
+        public boolean update() {
+            return timer.milliseconds() > time;
+        }
+    }
+
+    public class TransferUntilShot implements Command{
+
+        double baseline;
+        ElapsedTime timeoutTimer;
+
+        @Override
+        public void start() {
+            timeoutTimer = new ElapsedTime();
+            baseline = getShooterCurrent();
+            runRoller(transferPower);
+        }
+
+        @Override
+        public void stop() {
+            roller.setPower(0);
+        }
+
+        @Override
+        public boolean update() {
+            return getShooterCurrent() > baseline + SHOOTER_CURRENT_THRESHOLD || timeoutTimer.milliseconds() > TIMEOUT_THRESHOLD;
+        }
     }
 }
