@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+// test comment for commit
+
 import android.util.Size;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
