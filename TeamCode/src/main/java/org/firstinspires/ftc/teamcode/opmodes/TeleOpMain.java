@@ -25,6 +25,7 @@ public class TeleOpMain extends OpMode {
         robot = new Robot(this, 1); //Red Alliance
         driver = new Controller(gamepad1);
         robot.getDriveTrain().calibrateOtos();
+        robot.init();
     }
 
     @Override

@@ -2,32 +2,43 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.game.Controller;
+import org.firstinspires.ftc.teamcode.util.log.DataLog;
 
 @TeleOp
 public class shooterTester extends OpMode {
-Controller controller;
 
-DcMotorEx shooter;
+    DataLog log;
 
-VoltageSensor voltage;
+    Controller controller;
 
-ElapsedTime shootTimer;
+    DcMotorEx shooter;
+    DcMotorEx intake;
 
-double power = 1500;
-double avgInactiveCurrent = 1;
+    VoltageSensor voltage;
 
-boolean reversed = true;
-boolean active;
+    ElapsedTime shootTimer;
 
-int velocityTolerance = 50;
+    Servo roller;
+
+    double power = 1500;
+    double avgInactiveCurrent = 1;
+
+    boolean reversed = true;
+    boolean active;
+
+    int velocityTolerance = 50;
+
+    ElapsedTime transferTime;
 
 
     @Override
@@ -38,6 +49,9 @@ int velocityTolerance = 50;
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        log = new DataLog("ShooterLog");
+        roller = hardwareMap.get(Servo.class, "roller");
+        transferTime = new ElapsedTime();
     }
 
     @Override
@@ -80,6 +94,11 @@ int velocityTolerance = 50;
             shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             shooter.setDirection(reversed ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
             shooter.setVelocity(power);
+
+            log.identifier.set("Test");
+            log.setVelocity.set(power);
+            log.velocity.set(shooter.getVelocity());
+            log.writeLine();
         }else{
             shooter.setPower(0);
             shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -101,22 +120,22 @@ int velocityTolerance = 50;
         telemetry.addData("Current", shooter.getCurrent(CurrentUnit.AMPS));
         telemetry.addData("Voltage", voltage.getVoltage());
         telemetry.addData("Avg Inactive", avgInactiveCurrent);
+        telemetry.addData("Shoot Timer", shootTimer.milliseconds());
 
         // If the velocity is outside the tolerance, reset the timer
-        if(shooter.getVelocity() < power - velocityTolerance && shooter.getVelocity() > power + velocityTolerance) {
+        if(shooter.getVelocity() < power - velocityTolerance || shooter.getVelocity() > power + velocityTolerance) {
             shootTimer.reset();
         }
 
-        // If the velocity is within the tolerance for 750ms, run shooting code.
-        if(shootTimer.milliseconds() > 750) {
-            //ToDo Place holder, replace with transfer code.
-            telemetry.addLine();
-            telemetry.addLine();
-            telemetry.addLine("SHOOT");
+        // If the velocity is within the tolerance for 1000ms, run shooting code.
+        if(shootTimer.milliseconds() > 1000) {
+            roller.setPosition(1);
 
             if (shooter.getCurrent(CurrentUnit.AMPS) < avgInactiveCurrent + 0.5) {
                 avgInactiveCurrent = (avgInactiveCurrent + shooter.getCurrent(CurrentUnit.AMPS)) / 2;
             }
+        }else{
+            roller.setPosition(0.5);
         }
         telemetry.update();
     }

@@ -25,6 +25,8 @@ public class intakeTest extends OpMode {
 
         driveTrain = new DriveTrain(BaseComponent.createRobotContext(this));
         controller = new Controller(gamepad1);
+
+        driveTrain.init();
     }
 
     @Override
@@ -35,6 +37,6 @@ public class intakeTest extends OpMode {
 
         driveTrain.drive(drive,strafe,turn,1);
 
-        intake.setPower(controller.analogValue(Controller.AnalogControl.LEFT_TRIGGER));
+        intake.setPower(controller.analogValue(Controller.AnalogControl.LEFT_TRIGGER) - controller.analogValue(Controller.AnalogControl.RIGHT_TRIGGER));
     }
 }

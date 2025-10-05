@@ -5,9 +5,13 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 public class Shooter extends BaseComponent {
 
     DcMotorEx shooter;
+
+    double degPerTick = 12.8571428571;
 
     int velocityTolerance = 50;
     int stabilizationTime = 750;
@@ -31,6 +35,8 @@ public class Shooter extends BaseComponent {
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shootTimer = new ElapsedTime();
     }
+
+    public double velocityTicksToDegrees(int ticks) {return ticks * degPerTick;}
 
     /**
      * Sets the hold velocity of the shooter motor
@@ -131,7 +137,7 @@ public class Shooter extends BaseComponent {
     @Override
     public boolean isBusy() {
         // If the shooter velocity is outside of the tolerance, reset the timer.
-        if(shooter.getVelocity() < setVelocity - velocityTolerance && shooter.getVelocity() > setVelocity + velocityTolerance) {
+        if(shooter.getVelocity(AngleUnit.DEGREES) < setVelocity - velocityTolerance && shooter.getVelocity(AngleUnit.DEGREES) > setVelocity + velocityTolerance) {
             shootTimer.reset();
         }
 
