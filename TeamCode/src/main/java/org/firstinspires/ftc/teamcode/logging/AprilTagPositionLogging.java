@@ -59,6 +59,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
 
         double selectX = 0;
         double selectY = 0;
+        String selectAngle = "z";
         boolean loggingEnabled = false;
         while(opModeIsActive()) {
             // controls
@@ -78,6 +79,12 @@ public class AprilTagPositionLogging extends LinearOpMode {
             // stop the test
             if( gamepad1.dpadRightWasPressed() ) {
                 selectX += 2;
+            }
+
+            if(gamepad1.squareWasPressed()) {
+                if(selectAngle.equals("z")) {selectAngle = "r";}
+                else if(selectAngle.equals("r")) {selectAngle = "b";}
+                else if(selectAngle.equals("b")) {selectAngle = "z";}
             }
 
             if( gamepad1.circleWasPressed()) {
@@ -118,6 +125,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
                     if( loggingEnabled ) {
                         log.selectX.set(selectX);
                         log.selectY.set(selectY);
+                        log.selectAngle.set(selectAngle);
                         log.ID.set(aprilTagID);
                         log.poseX.set(poseX);
                         log.poseY.set(poseY);
@@ -135,6 +143,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
 
                     telemetry.addData("  Sel X: ",selectX);
                     telemetry.addData("  Sel Y: ",selectY);
+                    telemetry.addLine().addData("Sel ang: ","%s",selectAngle);
 
                     telemetry.addData("     ID: ",aprilTagID);
                     telemetry.addData("      X: ",poseX);

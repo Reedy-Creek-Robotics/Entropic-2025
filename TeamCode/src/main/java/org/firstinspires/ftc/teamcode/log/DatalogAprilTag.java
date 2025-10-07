@@ -8,6 +8,7 @@ public class DatalogAprilTag {
     // Note that order here is NOT important. The order is important in the setFields() call below
     public Datalogger.GenericField selectX = new Datalogger.GenericField("X_Pos");
     public Datalogger.GenericField selectY = new Datalogger.GenericField("Y_Pos");
+    public Datalogger.GenericField selectAngle = new Datalogger.GenericField("angle");
     public Datalogger.GenericField ID = new Datalogger.GenericField("ID");
     public Datalogger.GenericField poseX = new Datalogger.GenericField("pose_X");
     public Datalogger.GenericField poseY = new Datalogger.GenericField("pose_Y");
@@ -36,7 +37,7 @@ public class DatalogAprilTag {
             // Tell it about the fields we care to log.
             // Note that order *IS* important here! The order in which we list
             // the fields is the order in which they will appear in the log.
-            .setFields(selectX,selectY,ID,poseX,poseY,poseYaw,poseBearing,rawX,rawY,rawZ,rawPitch,rawRoll,rawYaw).build();
+            .setFields(selectX,selectY,selectAngle,ID,poseX,poseY,poseYaw,poseBearing,rawX,rawY,rawZ,rawPitch,rawRoll,rawYaw).build();
     }
 
     // Tell the datalogger to gather the values of the fields
