@@ -169,6 +169,15 @@ public abstract class BaseComponent implements Component {
         return currentCommand != null || !nextCommands.isEmpty();
     }
 
+    @Override
+    public void stop() {
+        for (Component subComponent : subComponents) {
+            telemetry.log().add("Stop SubComponent: " + subComponent);
+            telemetry.update();
+            subComponent.stop();
+        }
+    }
+
     protected boolean isStopRequested() {
         return opMode instanceof LinearOpMode && ((LinearOpMode) opMode).isStopRequested();
     }

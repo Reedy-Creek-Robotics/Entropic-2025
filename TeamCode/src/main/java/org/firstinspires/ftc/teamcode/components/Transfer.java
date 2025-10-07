@@ -1,17 +1,16 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.game.ColorValue;
 
 public class Transfer extends BaseComponent {
 
-    private CRServo roller;
+    private Servo firstRoller;
+    private Servo secondRoller;
     private ColorSensor color;
-    private String servoHardwareName;
+    private final String firstServoHardwareName;
+    private final String secondServoHardwareName;
     private String colorHardwareName;
 
     // How many amps the current must increase from the baseline by for the shooter to be considered engaged with the artifact
@@ -29,16 +28,18 @@ public class Transfer extends BaseComponent {
         LED illumination indicating storage (pending LED/Storage information)
      */
 
-    public Transfer(RobotContext context, String servoHardwareName, String colorHardwareName) {
+    public Transfer(RobotContext context, String firstServoHardwareName, String secondServoHardwareName/*, String colorHardwareName*/) {
         super(context);
-        this.servoHardwareName = servoHardwareName;
-        this.colorHardwareName = colorHardwareName;
+        this.firstServoHardwareName = firstServoHardwareName;
+        this.secondServoHardwareName = secondServoHardwareName;
+        //this.colorHardwareName = colorHardwareName;
     }
 
     @Override
     public void init() {
-        roller = hardwareMap.get(CRServo.class, servoHardwareName);
-        color = hardwareMap.get(ColorSensor.class, colorHardwareName);
+        firstRoller = hardwareMap.get(Servo.class, firstServoHardwareName);
+        secondRoller = hardwareMap.get(Servo.class, secondServoHardwareName);
+        //color = hardwareMap.get(ColorSensor.class, colorHardwareName);
     }
 
     /**
@@ -57,16 +58,9 @@ public class Transfer extends BaseComponent {
      * Run the transfer roller at power
      * @param power Power to run transfer at
      */
-    public void runRoller(double power) {
-        roller.setPower(power);
-    }
-
-    /**
-     * Set direction of the roller servo
-     * @param direction Direction to set
-     */
-    public void setDirection(DcMotorSimple.Direction direction) {
-        roller.setDirection(direction);
+    public void runRollers(double power) {
+        firstRoller.setPosition(power);
+        secondRoller.setPosition(power);
     }
 
     /**
@@ -90,13 +84,14 @@ public class Transfer extends BaseComponent {
      * @param ledStatus  Enable LED
      */
     public void setLED(boolean ledStatus) {
-        color.enableLed(ledStatus);
+        //color.enableLed(ledStatus);
     }
 
     /**
      * Get the color values from the color sensor
      * @return ColorValue object with red, green, blue, and alpha channels stored.
      */
+    /*
     public ColorValue getColor() {
         return new ColorValue(
                 color.red(),
@@ -105,6 +100,7 @@ public class Transfer extends BaseComponent {
                 color.alpha()
         );
     }
+    */
 
     /**
      * Run the transfer at a set power for a set time to transfer to shooter.
@@ -144,13 +140,13 @@ public class Transfer extends BaseComponent {
 
         @Override
         public void start() {
-            runRoller(power);
+            runRollers(power);
             timer = new ElapsedTime();
         }
 
         @Override
         public void stop() {
-            runRoller(0);
+            runRollers(0.5);
         }
 
         @Override
@@ -168,12 +164,12 @@ public class Transfer extends BaseComponent {
         public void start() {
             timeoutTimer = new ElapsedTime();
             baseline = getShooterCurrent();
-            runRoller(transferPower);
+            runRollers(transferPower);
         }
 
         @Override
         public void stop() {
-            roller.setPower(0);
+            runRollers(0.5);
         }
 
         @Override

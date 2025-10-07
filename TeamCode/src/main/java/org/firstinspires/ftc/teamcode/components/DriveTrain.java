@@ -82,10 +82,10 @@ public class DriveTrain extends BaseComponent {
         otos.setLinearScalar(Constants.otosLocalizerConstants.linearScalar);
         otos.setAngularScalar(Constants.otosLocalizerConstants.angularScalar);
 
-        otos.setOffset(new SparkFunOTOS.Pose2D(
-                0,
-                0,
-                0
+        otos.setPosition(new SparkFunOTOS.Pose2D(
+                4.25,
+                1.75,
+                Math.toRadians(90)
         ));
 
         otos.calibrateImu();

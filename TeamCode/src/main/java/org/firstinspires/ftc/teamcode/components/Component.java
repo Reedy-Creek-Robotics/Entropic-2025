@@ -19,4 +19,8 @@ public interface Component {
      */
     boolean isBusy();
 
+    /**
+     * This method will be called at the end of an OpMode
+     */
+    void stop();
 }

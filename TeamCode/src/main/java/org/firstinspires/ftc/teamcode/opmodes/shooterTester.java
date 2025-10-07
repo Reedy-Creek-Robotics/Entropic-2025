@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.game.Controller;
 import org.firstinspires.ftc.teamcode.util.log.DataLog;
@@ -22,13 +21,13 @@ public class shooterTester extends OpMode {
     Controller controller;
 
     DcMotorEx shooter;
-    DcMotorEx intake;
 
     VoltageSensor voltage;
 
     ElapsedTime shootTimer;
 
-    Servo roller;
+    Servo roller1;
+    Servo roller2;
 
     double power = 1500;
     double avgInactiveCurrent = 1;
@@ -50,7 +49,9 @@ public class shooterTester extends OpMode {
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         log = new DataLog("ShooterLog");
-        roller = hardwareMap.get(Servo.class, "roller");
+        roller1 = hardwareMap.get(Servo.class, "roller1");
+        roller2 = hardwareMap.get(Servo.class, "roller2");
+
         transferTime = new ElapsedTime();
     }
 
@@ -129,13 +130,15 @@ public class shooterTester extends OpMode {
 
         // If the velocity is within the tolerance for 1000ms, run shooting code.
         if(shootTimer.milliseconds() > 1000) {
-            roller.setPosition(1);
+            roller1.setPosition(1);
+            roller2.setPosition(1);
 
             if (shooter.getCurrent(CurrentUnit.AMPS) < avgInactiveCurrent + 0.5) {
                 avgInactiveCurrent = (avgInactiveCurrent + shooter.getCurrent(CurrentUnit.AMPS)) / 2;
             }
         }else{
-            roller.setPosition(0.5);
+            roller1.setPosition(0.5);
+            roller2.setPosition(0.5);
         }
         telemetry.update();
     }

@@ -39,9 +39,9 @@ public class Robot extends BaseComponent {
         driveTrain = new DriveTrain(context);
         aprilTag = new AprilTag(context);
         intake = new Intake(context);
-        shooter1 = new Shooter(context, "shooter1");
+        shooter1 = new Shooter(context, "shooter");
         //shooter2 = new Shooter(context, "shooter2");
-        transfer1 = new Transfer(context, "roller1", "color1");
+        transfer1 = new Transfer(context, "roller1","roller2"/*, "color"*/);
         //transfer2 = new Transfer(context, "roller2", "color2", shooter2.getShooter());
 
         addSubComponents(driveTrain, aprilTag, intake, shooter1, /*shooter2,*/ transfer1/*, transfer2*/);
@@ -61,9 +61,9 @@ public class Robot extends BaseComponent {
         driveTrain = new DriveTrain(context);
         aprilTag = new AprilTag(context);
         intake = new Intake(context);
-        shooter1 = new Shooter(context, "shooter1");
+        shooter1 = new Shooter(context, "shooter");
         //shooter2 = new Shooter(context, "shooter2");
-        transfer1 = new Transfer(context, "roller1", "color1");
+        transfer1 = new Transfer(context, "roller1", "roller2"/*, "color1"*/);
         //transfer2 = new Transfer(context, "roller2", "color2", shooter2.getShooter());
 
         addSubComponents(driveTrain, aprilTag, intake, shooter1, /*shooter2,*/ transfer1/*, transfer2*/);
@@ -123,6 +123,11 @@ public class Robot extends BaseComponent {
         // Update telemetry once per iteration after all components have been called.
         telemetry.update();
 
+    }
+
+    @Override
+    public void stop(){
+        super.stop();
     }
 
     public void savePositionToDisk() {

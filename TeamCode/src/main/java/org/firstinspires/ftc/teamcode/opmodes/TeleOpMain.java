@@ -56,6 +56,12 @@ public class TeleOpMain extends OpMode {
 
     }
 
+    @Override
+    public void stop() {
+        robot.stop();
+        super.stop();
+    }
+
     /**
      * Robot centric drive method
      */

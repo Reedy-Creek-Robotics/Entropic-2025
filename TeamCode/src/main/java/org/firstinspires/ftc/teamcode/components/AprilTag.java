@@ -65,17 +65,6 @@ public class AprilTag extends BaseComponent {
     @Override
     public void init() {
 
-        // Build the Vision Portal, using the above settings.
-        portal = new VisionPortal.Builder()
-                .setCameraResolution(new Size(1920, 1200))
-                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-                .setCamera(hardwareMap.get(WebcamName.class, "Webcam"))
-                .setAutoStopLiveView(true)
-                .addProcessor(aprilProcessor)
-                .build();
-
-        if(context.getAlliance() == 1) {homeGoal = Collections.singletonList(24);}
-
         aprilProcessor = new AprilTagProcessor.Builder()
 
                 // The following default settings are available to un-comment and edit as needed.
@@ -88,7 +77,20 @@ public class AprilTag extends BaseComponent {
 
                 .build();
 
-        aprilProcessor.setDecimation(3);
+        aprilProcessor.setDecimation(1);
+
+        // Build the Vision Portal, using the above settings.
+        portal = new VisionPortal.Builder()
+                .setCameraResolution(new Size(1920, 1200))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .setCamera(hardwareMap.get(WebcamName.class, "Webcam"))
+                .setAutoStopLiveView(true)
+                .addProcessor(aprilProcessor)
+                .build();
+
+        if(context.getAlliance() == 1) {homeGoal = Collections.singletonList(24);}
+
+
     }
 
     /**
