@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 public class Transfer extends BaseComponent {
 
@@ -11,13 +14,13 @@ public class Transfer extends BaseComponent {
     private ColorSensor color;
     private final String firstServoHardwareName;
     private final String secondServoHardwareName;
+    private final DcMotorEx shooterMotor;
     private String colorHardwareName;
 
     // How many amps the current must increase from the baseline by for the shooter to be considered engaged with the artifact
     private final double SHOOTER_CURRENT_THRESHOLD = 0.5;
     private final double TIMEOUT_THRESHOLD = 5000; //ms
 
-    private double shooterCurrent;
     private double transferPower = 1;
     private int transferTime = 2000; //ms
 
@@ -28,10 +31,11 @@ public class Transfer extends BaseComponent {
         LED illumination indicating storage (pending LED/Storage information)
      */
 
-    public Transfer(RobotContext context, String firstServoHardwareName, String secondServoHardwareName/*, String colorHardwareName*/) {
+    public Transfer(RobotContext context, String firstServoHardwareName, String secondServoHardwareName, DcMotorEx shooterMotor/*, String colorHardwareName*/) {
         super(context);
         this.firstServoHardwareName = firstServoHardwareName;
         this.secondServoHardwareName = secondServoHardwareName;
+        this.shooterMotor = shooterMotor;
         //this.colorHardwareName = colorHardwareName;
     }
 
@@ -39,20 +43,18 @@ public class Transfer extends BaseComponent {
     public void init() {
         firstRoller = hardwareMap.get(Servo.class, firstServoHardwareName);
         secondRoller = hardwareMap.get(Servo.class, secondServoHardwareName);
+        firstRoller.scaleRange(-1, 1);
+        secondRoller.scaleRange(-1, 1);
         //color = hardwareMap.get(ColorSensor.class, colorHardwareName);
     }
 
-    /**
-     * Set the current to be read as the shooter's current
-     * @param current Current value
-     */
-    public void setShooterCurrent(double current) {
-        shooterCurrent = current;
+    @Override
+    public void update() {
+        telemetry.addData("Roller 1 Power", firstRoller.getPosition());
+        telemetry.addData("Roller 2 Power", secondRoller.getPosition());
+        telemetry.addData("Shooter Current (from transfer)", shooterMotor.getCurrent(CurrentUnit.AMPS));
     }
 
-    public double getShooterCurrent() {
-        return shooterCurrent;
-    }
 
     /**
      * Run the transfer roller at power
@@ -60,7 +62,8 @@ public class Transfer extends BaseComponent {
      */
     public void runRollers(double power) {
         firstRoller.setPosition(power);
-        secondRoller.setPosition(power);
+        secondRoller.setPosition(-power);
+
     }
 
     /**
@@ -119,7 +122,6 @@ public class Transfer extends BaseComponent {
     public void timedTransfer(double time) {
         executeCommand(new TimedTransfer(transferPower, time));
     }
-
     /**
      * Run the transfer until the shooter's current spikes above a threshold, indicating the shooter has made contact with the artifact.
      * <p>Will time out and stop after a timeout period</p>
@@ -146,7 +148,7 @@ public class Transfer extends BaseComponent {
 
         @Override
         public void stop() {
-            runRollers(0.5);
+            runRollers(0);
         }
 
         @Override
@@ -163,18 +165,18 @@ public class Transfer extends BaseComponent {
         @Override
         public void start() {
             timeoutTimer = new ElapsedTime();
-            baseline = getShooterCurrent();
+            baseline = shooterMotor.getCurrent(CurrentUnit.AMPS);
             runRollers(transferPower);
         }
 
         @Override
         public void stop() {
-            runRollers(0.5);
+            runRollers(0);
         }
 
         @Override
         public boolean update() {
-            return getShooterCurrent() > baseline + SHOOTER_CURRENT_THRESHOLD || timeoutTimer.milliseconds() > TIMEOUT_THRESHOLD;
+            return shooterMotor.getCurrent(CurrentUnit.AMPS) > baseline + SHOOTER_CURRENT_THRESHOLD || timeoutTimer.milliseconds() > TIMEOUT_THRESHOLD;
         }
     }
 }

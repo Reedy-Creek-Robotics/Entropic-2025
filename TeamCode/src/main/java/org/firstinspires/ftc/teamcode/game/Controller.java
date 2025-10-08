@@ -33,6 +33,10 @@ public class Controller {
         CIRCLE,
         TRIANGLE,
         SQUARE,
+        SOUTH,
+        EAST,
+        WEST,
+        NORTH,
         GUIDE,
         OPTIONS,
         START,
@@ -50,6 +54,11 @@ public class Controller {
             ALIASES.put(B, CIRCLE);
             ALIASES.put(X, SQUARE);
             ALIASES.put(Y, TRIANGLE);
+//            ALIASES.put(CROSS, SOUTH);
+//            ALIASES.put(CIRCLE, EAST);
+//            ALIASES.put(SQUARE, WEST);
+//            ALIASES.put(TRIANGLE, NORTH);
+
 
             for (Map.Entry<Button, Button> entry : new HashMap<>(ALIASES).entrySet()) {
                 ALIASES.put(entry.getValue(), entry.getKey());

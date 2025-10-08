@@ -73,8 +73,8 @@ public class Intake extends BaseComponent{
      * Run intake motor at given velocity
      * @param velocity Velocity to run intake motor at
      */
-    public void driveIntake(int velocity){
-        intakeMotor.setVelocity(velocity);
+    public void driveIntake(int power){
+        intakeMotor.setPower(power);
     }
 
     //ToDo Idea: Run intake until all Transfer color sensor sensors detect an artifact

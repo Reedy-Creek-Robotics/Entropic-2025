@@ -32,7 +32,7 @@ public class shooterTester extends OpMode {
     double power = 1500;
     double avgInactiveCurrent = 1;
 
-    boolean reversed = true;
+    boolean reversed = false;
     boolean active;
 
     int velocityTolerance = 50;
@@ -50,7 +50,9 @@ public class shooterTester extends OpMode {
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         log = new DataLog("ShooterLog");
         roller1 = hardwareMap.get(Servo.class, "roller1");
+        roller1.scaleRange(-1, 1);
         roller2 = hardwareMap.get(Servo.class, "roller2");
+        roller2.scaleRange(-1, 1);
 
         transferTime = new ElapsedTime();
     }
@@ -130,15 +132,15 @@ public class shooterTester extends OpMode {
 
         // If the velocity is within the tolerance for 1000ms, run shooting code.
         if(shootTimer.milliseconds() > 1000) {
-            roller1.setPosition(1);
-            roller2.setPosition(1);
+            roller1.setPosition(-1);
+            roller2.setPosition(-1);
 
             if (shooter.getCurrent(CurrentUnit.AMPS) < avgInactiveCurrent + 0.5) {
                 avgInactiveCurrent = (avgInactiveCurrent + shooter.getCurrent(CurrentUnit.AMPS)) / 2;
             }
         }else{
-            roller1.setPosition(0.5);
-            roller2.setPosition(0.5);
+            roller1.setPosition(0);
+            roller2.setPosition(0);
         }
         telemetry.update();
     }

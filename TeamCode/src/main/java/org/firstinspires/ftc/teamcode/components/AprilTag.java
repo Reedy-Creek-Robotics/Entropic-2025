@@ -36,7 +36,17 @@ public class AprilTag extends BaseComponent {
             null,
             null,
             null,
-            null,
+            new AprilTagPoseFtc(
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    72,
+                    0,
+                    0
+            ),
             null,
             null,
             -1

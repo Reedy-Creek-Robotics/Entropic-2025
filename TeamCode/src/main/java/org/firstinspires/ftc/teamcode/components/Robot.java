@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
@@ -41,7 +40,7 @@ public class Robot extends BaseComponent {
         intake = new Intake(context);
         shooter1 = new Shooter(context, "shooter");
         //shooter2 = new Shooter(context, "shooter2");
-        transfer1 = new Transfer(context, "roller1","roller2"/*, "color"*/);
+        transfer1 = new Transfer(context, "roller1","roller2", shooter1.getShooter()/*, "color"*/);
         //transfer2 = new Transfer(context, "roller2", "color2", shooter2.getShooter());
 
         addSubComponents(driveTrain, aprilTag, intake, shooter1, /*shooter2,*/ transfer1/*, transfer2*/);
@@ -63,7 +62,7 @@ public class Robot extends BaseComponent {
         intake = new Intake(context);
         shooter1 = new Shooter(context, "shooter");
         //shooter2 = new Shooter(context, "shooter2");
-        transfer1 = new Transfer(context, "roller1", "roller2"/*, "color1"*/);
+        transfer1 = new Transfer(context, "roller1", "roller2", shooter1.getShooter()/*, "color1"*/);
         //transfer2 = new Transfer(context, "roller2", "color2", shooter2.getShooter());
 
         addSubComponents(driveTrain, aprilTag, intake, shooter1, /*shooter2,*/ transfer1/*, transfer2*/);
@@ -91,8 +90,10 @@ public class Robot extends BaseComponent {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
+
         telemetry.log().add("Robot is initialized");
         telemetry.update();
+        telemetry.setAutoClear(true);
 
         initTime = new ElapsedTime();
     }
@@ -105,9 +106,6 @@ public class Robot extends BaseComponent {
             onStart();
         }
 
-        // Send the shooter current(s) to the transfer(s)
-        transfer1.setShooterCurrent(shooter1.getShooter().getCurrent(CurrentUnit.AMPS));
-        //transfer2.setShooterCurrent(shooter2.getShooter().getCurrent(CurrentUnit.AMPS));
 
         // Compute and print the updates per second
         computeUpdatesPerSecond();

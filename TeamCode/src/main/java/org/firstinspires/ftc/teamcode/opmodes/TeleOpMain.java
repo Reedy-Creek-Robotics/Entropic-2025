@@ -2,45 +2,102 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.components.Robot;
+import org.firstinspires.ftc.teamcode.components.Shooter;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
 @TeleOp
 public class TeleOpMain extends OpMode {
 
-    Controller.Button TRANSFER_SHOOT = Controller.Button.Y;
-    Controller.Button INTAKE = Controller.Button.A;
+    Controller.Button TRANSFER_SHOOT = Controller.Button.TRIANGLE;
+    Controller.Button INTAKE = Controller.Button.CROSS;
 
     Robot robot;
+    
+    double shooterCurrent;
+    
+    Shooter shooter;
+
+    ElapsedTime shootTimer;
 
     protected Controller driver;
+    protected Controller meta;
+
+    int distance = 72;
+    static int velocityTolerance = 50;
 
     private double drive = 0, turn = 0, strafe = 0, speedFactor = 1;
 
+    /**
+     * Position the bot is shooting from, used to find proper shooter velocity.
+     * 0 - Far launch zone, at the intersection of the 2 lines, "tip of the triangle"
+     * 1 - Near launch zone, at the intersection of the 2 lines, "tip of the triangle"
+     * 2 - Near launch zone, closer to goal. 2 diagonal tile lengths away
+     */
+    int position = 0;
+
+    static String[] positions = {"Far Zone", "Near Zone - Intersection", "Near Zone - Close"};
+
     boolean intaking;
+    boolean shooting;
 
     @Override
     public void init() {
-        robot = new Robot(this, 1); //Red Alliance
-        driver = new Controller(gamepad1);
+        robot   = new Robot(this, 1); //Red Alliance
+        driver  = new Controller(gamepad1);
+        meta    = new Controller(gamepad2);
         robot.getDriveTrain().calibrateOtos();
         robot.init();
+        shooter = robot.getShooter1();
+        telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
+        shootTimer = new ElapsedTime();
     }
 
     @Override
     public void start() {
-        robot.getShooter1().holdVelocity();
+        shooter.holdVelocity();
     }
 
     @Override
     public void loop() {
-        driveDriver();
+        telemetry();
+        switch(position){
+            case 0:
+                distance = 0;
+            case 1:
+                distance = 1;
+            case 2:
+                distance = 2;
+        }
+
+        if(!shooting) {
+            if (meta.isPressed(Controller.Button.DPAD_UP)) position++;
+            if (meta.isPressed(Controller.Button.DPAD_DOWN)) position--;
+            if (position > 2) position = 2;
+            if (position < 0) position = 0;
+        }
+
+        shooterCurrent = shooter.getShooterCurrent();
+
+        driveBot();
+
+        robot.update();
 
         if(driver.isPressed(TRANSFER_SHOOT)){
-            robot.getShooter1().shootAtDistance(robot.getAprilTag().getFtcPose(24).range);
-            robot.getTransfer1().transferUntilShot();
-            robot.getShooter1().holdVelocity();
+//            shooter.shootAtDistance(robot.getAprilTag().getFtcPose(24).range);
+//            shooter.holdVelocity();
+//            robot.getTransfer1().transferUntilShot();
+            if(!shooting) {
+                shooter.setVelocity(shooter.velocityFromDistance(distance));
+                shooting = true;
+            }else{
+                shooting = false;
+            }
         }
 
         if(driver.isPressed(INTAKE)){
@@ -53,11 +110,25 @@ public class TeleOpMain extends OpMode {
         } else if (driver.isPressed(Controller.Button.DPAD_DOWN)) {
             speedFactor -= 0.1;
         }
+        
+        if(shooting){
+            if(shooter.getVelocity() < shooter.velocityFromDistance(distance) - velocityTolerance || shooter.getVelocity() > shooter.velocityFromDistance(distance) + velocityTolerance) {
+                shootTimer.reset();
+            }
+
+            if(shootTimer.milliseconds() > 1000) {
+                robot.getTransfer1().timedTransfer(1500);
+                shooting = false;
+            }
+        }else{
+            shooter.holdVelocity();
+        }
 
     }
 
     @Override
     public void stop() {
+        shooter.setZeroPowerBehavior(BRAKE);
         robot.stop();
         super.stop();
     }
@@ -82,5 +153,11 @@ public class TeleOpMain extends OpMode {
         turn = driver.rightStickX();
 
         robot.getDriveTrain().driverRelative(drive,strafe,turn,1);
+    }
+
+    private void telemetry(){
+        telemetry.addData("Position", positions[position]);
+        telemetry.addData("Intaking", intaking);
+        telemetry.addData("Shooting", shooting);
     }
 }

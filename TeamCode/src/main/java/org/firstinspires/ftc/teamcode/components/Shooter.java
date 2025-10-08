@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 public class Shooter extends BaseComponent {
 
@@ -25,15 +26,22 @@ public class Shooter extends BaseComponent {
     public Shooter(RobotContext context, String shooterHardwareName) {
         super(context);
         this.shooterHardwareName = shooterHardwareName;
+        shooter = hardwareMap.get(DcMotorEx.class, shooterHardwareName);
     }
 
     @Override
     public void init() {
-        shooter = hardwareMap.get(DcMotorEx.class, shooterHardwareName);
 
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shootTimer = new ElapsedTime();
+    }
+
+    @Override
+    public void update() {
+        telemetry.addData("Velocity", shooter.getVelocity());
+        telemetry.addData("Target", setVelocity);
+        telemetry.addData("Shooter Current (from Shooter)", shooter.getCurrent(CurrentUnit.AMPS));
     }
 
     public double velocityTicksToDegrees(int ticks) {return ticks * degPerTick;}
@@ -103,16 +111,26 @@ public class Shooter extends BaseComponent {
         ~1720 tps from 123in
         ~1780 tps from 144in
      */
-    private int velocityFromDistance(double distance){
-        if(distance < 40) return 0;
-        if(distance > 150) return 0;
+    public int velocityFromDistance(int distance){
+//        if(distance < 40) return 0;
+//        if(distance > 150) return 0;
+//
+//        if(distance >= 40 && distance <= 50)  return 1680;
+//        if(distance  > 50 && distance <= 65)  return 1560;
+//        if(distance  > 65 && distance <= 95)  return 1600;
+//        if(distance  > 95 && distance <= 125) return 1700;
+//        if(distance  > 125)                   return 1780;
+//
+//        return 0;
 
-        if(distance >= 40 && distance <= 50) return 1680;
-        if(distance > 50 && distance <= 65) return 1560;
-        if(distance > 65 && distance <= 95) return 1600;
-        if(distance > 95 && distance <= 125) return 1700;
-        if(distance > 125) return 1780;
-
+        switch(distance) {
+            case 0:
+                return 0;
+            case 1:
+                return 1;
+            case 2:
+                return 2;
+        }
         return 0;
     }
 
@@ -126,12 +144,21 @@ public class Shooter extends BaseComponent {
     }
 
     /**
+     *
+     * @return current velocity of the shooter motor
+     */
+    public double getVelocity(){
+        return shooter.getVelocity();
+    }
+
+    /**
      * Sets the shooter motor to run at it's hold velocity
      * <p>Hold velocity is the velocity the shooter motor spins at when not shooting</p>
-     * <p>See setHoldVelocity</p>
+     * <p>See setHoldVelocity( int )</p>
      */
     public void holdVelocity(){
         shooter.setVelocity(holdVelocity);
+        setVelocity = holdVelocity;
     }
 
     @Override
@@ -153,12 +180,16 @@ public class Shooter extends BaseComponent {
         executeCommand(new SpinToVelocity(velocity));
     }
 
-    public void shootAtDistance(double distance){
+    public void shootAtDistance(int distance){
         int velocity;
         if((velocity = velocityFromDistance(distance)) == 0){
             velocity = 1600;
         }
         shootAtVelocity(velocity);
+    }
+
+    public double getShooterCurrent(){
+        return shooter.getCurrent(CurrentUnit.AMPS);
     }
 
     /**
