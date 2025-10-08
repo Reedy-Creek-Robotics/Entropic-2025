@@ -269,6 +269,22 @@ public class Controller {
     }
 
     public boolean isPressed(Button button) {
+
+        switch(button){
+            case SOUTH:
+                button = Button.CROSS;
+                break;
+            case EAST:
+                button = Button.CIRCLE;
+                break;
+            case NORTH:
+                button = Button.TRIANGLE;
+                break;
+            case WEST:
+                button = Button.SQUARE;
+                break;
+        }
+
         boolean buttonDown = isButtonDown(button);
         if (buttonDown) {
 
@@ -294,11 +310,41 @@ public class Controller {
     }
 
     public boolean isButtonDown(Button button) {
+        switch(button){
+            case SOUTH:
+                button = Button.CROSS;
+                break;
+            case EAST:
+                button = Button.CIRCLE;
+                break;
+            case NORTH:
+                button = Button.TRIANGLE;
+                break;
+            case WEST:
+                button = Button.SQUARE;
+                break;
+        }
+
         return isButtonDownInternal(button) ||
                 isButtonDownInternal(button.getAlias());
     }
 
     private boolean isButtonDownInternal(Button button) {
+        switch(button){
+            case SOUTH:
+                button = Button.CROSS;
+                break;
+            case EAST:
+                button = Button.CIRCLE;
+                break;
+            case NORTH:
+                button = Button.TRIANGLE;
+                break;
+            case WEST:
+                button = Button.SQUARE;
+                break;
+        }
+
         if (button == null) return false;
 
         switch (button) {

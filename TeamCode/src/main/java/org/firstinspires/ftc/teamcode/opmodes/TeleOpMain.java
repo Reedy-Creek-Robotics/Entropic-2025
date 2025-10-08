@@ -10,12 +10,14 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.Shooter;
 import org.firstinspires.ftc.teamcode.game.Controller;
+import static org.firstinspires.ftc.teamcode.game.Controller.Button.*;
 
 @TeleOp
 public class TeleOpMain extends OpMode {
 
-    Controller.Button TRANSFER_SHOOT = Controller.Button.TRIANGLE;
-    Controller.Button INTAKE = Controller.Button.CROSS;
+    Controller.Button TRANSFER_SHOOT = NORTH;
+    Controller.Button INTAKE = SOUTH;
+    Controller.Button REVERSE_INTAKE = WEST;
 
     Robot robot;
     
@@ -41,9 +43,10 @@ public class TeleOpMain extends OpMode {
      */
     int position = 0;
 
-    static String[] positions = {"Far Zone", "Near Zone - Intersection", "Near Zone - Close"};
+    static String[] positions = {"Far Zone - Intersection", "Near Zone - Intersection", "Near Zone - Close"};
 
     boolean intaking;
+    boolean reverse;
     boolean shooting;
 
     @Override
@@ -65,7 +68,10 @@ public class TeleOpMain extends OpMode {
 
     @Override
     public void loop() {
+        driveBot();
         telemetry();
+        robot.update();
+
         switch(position){
             case 0:
                 distance = 0;
@@ -76,17 +82,13 @@ public class TeleOpMain extends OpMode {
         }
 
         if(!shooting) {
-            if (meta.isPressed(Controller.Button.DPAD_UP)) position++;
-            if (meta.isPressed(Controller.Button.DPAD_DOWN)) position--;
+            if (meta.isPressed(DPAD_UP)) position++;
+            if (meta.isPressed(DPAD_DOWN)) position--;
             if (position > 2) position = 2;
             if (position < 0) position = 0;
         }
 
         shooterCurrent = shooter.getShooterCurrent();
-
-        driveBot();
-
-        robot.update();
 
         if(driver.isPressed(TRANSFER_SHOOT)){
 //            shooter.shootAtDistance(robot.getAprilTag().getFtcPose(24).range);
@@ -101,13 +103,20 @@ public class TeleOpMain extends OpMode {
         }
 
         if(driver.isPressed(INTAKE)){
+            reverse = false;
             intaking = !intaking;
             robot.getIntake().driveIntake(intaking ? 1 : 0);
         }
 
-        if(driver.isPressed(Controller.Button.DPAD_UP)){
+        if(driver.isPressed(REVERSE_INTAKE)){
+            intaking = false;
+            reverse = !reverse;
+            robot.getIntake().driveIntake(intaking ? -0.5 : 0);
+        }
+
+        if(driver.isPressed(DPAD_UP)){
             speedFactor += 0.1;
-        } else if (driver.isPressed(Controller.Button.DPAD_DOWN)) {
+        } else if (driver.isPressed(DPAD_DOWN)) {
             speedFactor -= 0.1;
         }
         
