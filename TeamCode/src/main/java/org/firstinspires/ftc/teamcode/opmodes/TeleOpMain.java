@@ -2,13 +2,17 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.components.Intake;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.Shooter;
+import org.firstinspires.ftc.teamcode.components.Transfer;
+import org.firstinspires.ftc.teamcode.game.ColorValue;
 import org.firstinspires.ftc.teamcode.game.Controller;
 import static org.firstinspires.ftc.teamcode.game.Controller.Button.*;
 
@@ -25,12 +29,15 @@ public class TeleOpMain extends OpMode {
     double shooterCurrent;
     
     Shooter shooter;
+    Transfer transfer;
+    Intake intake;
 
     ElapsedTime shootTimer;
 
     protected Controller driver;
     protected Controller meta;
 
+    int velocity;
     int distance = 72;
     static int velocityTolerance = 50;
 
@@ -48,9 +55,9 @@ public class TeleOpMain extends OpMode {
 
     boolean intaking;
     boolean reverseIntake;
-    boolean reverseRollers;
+//    boolean reverseRollers;
 //    boolean shooting;
-    boolean rollerOverride = true;
+//    boolean rollerOverride = true;
 
     @Override
     public void init() {
@@ -60,6 +67,8 @@ public class TeleOpMain extends OpMode {
         robot.getDriveTrain().calibrateOtos();
         robot.init();
         shooter = robot.getShooter1();
+        transfer = robot.getTransfer1();
+        intake = robot.getIntake();
         telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
         shootTimer = new ElapsedTime();
     }
@@ -71,19 +80,10 @@ public class TeleOpMain extends OpMode {
 
     @Override
     public void loop() {
+        velocity = shooter.velocityFromDistance(distance);
         driveBot();
         telemetry();
         robot.update();
-
-
-//        switch(position){
-//            case 0:
-//                distance = 118;
-//            case 1:
-//                distance = 80;
-//            case 2:
-//                distance = 46;
-//        }
 
         if(position == 0){
             distance = 118;
@@ -98,9 +98,9 @@ public class TeleOpMain extends OpMode {
 //        if(driver.isPressed(TRANSFER_SHOOT)){
 //            shooter.shootAtDistance(robot.getAprilTag().getFtcPose(24).range);
 //            shooter.holdVelocity();
-//            robot.getTransfer1().transferUntilShot();
+//            transfer.transferUntilShot();
 //            if(!shooting) {
-//                shooter.setVelocity(shooter.velocityFromDistance(distance));
+//                shooter.setVelocity(velocity);
 //                shooting = true;
 //            }else{
 //                shooting = false;
@@ -108,24 +108,24 @@ public class TeleOpMain extends OpMode {
 //        }
 
         if(driver.isPressed(LEFT_STICK_BUTTON)){
-            rollerOverride = !rollerOverride;
+//            rollerOverride = !rollerOverride;
         }
 
         if(driver.isPressed(INTAKE)){
             reverseIntake = false;
             intaking = !intaking;
-            robot.getIntake().driveIntake(intaking ? 1 : 0);
+            intake.driveIntake(intaking ? 1 : 0);
         }
 
         if(driver.isPressed(REVERSE_INTAKE)){
             intaking = false;
             reverseIntake = !reverseIntake;
-            robot.getIntake().driveIntake(reverseIntake ? -0.5 : 0);
+            intake.driveIntake(reverseIntake ? -0.5 : 0);
         }
 
-        if(driver.isPressed(REVERSE_ROLLERS)){
-            reverseRollers = !reverseRollers;
-        }
+//        if(driver.isPressed(REVERSE_ROLLERS)){
+//            reverseRollers = !reverseRollers;
+//        }
 
         if(driver.isPressed(DPAD_UP)){
             speedFactor += 0.1;
@@ -136,7 +136,7 @@ public class TeleOpMain extends OpMode {
         /*
         if(shooting){
             if(rollerOverride) {
-                robot.getTransfer1().runRollers(driver.leftTrigger());
+                transfer.runRollers(driver.leftTrigger());
             }else{
 
                 if(shooter.getVelocity() < shooter.velocityFromDistance(distance) - velocityTolerance || shooter.getVelocity() > shooter.velocityFromDistance(distance) + velocityTolerance) {
@@ -149,7 +149,7 @@ public class TeleOpMain extends OpMode {
                     telemetry.addLine("Transferring...");
                     telemetry.update();
                     telemetry.setAutoClear(true);
-                    robot.getTransfer1().timedTransfer(1500);
+                    transfer.timedTransfer(1500);
                     shooting = false;
                 }
             }
@@ -159,7 +159,7 @@ public class TeleOpMain extends OpMode {
             }
         }else{
             shooter.holdVelocity();
-            robot.getTransfer1().runRollers(reverseRollers ? -0.5 : 0);
+            transfer.runRollers(reverseRollers ? -0.5 : 0);
             if (meta.isPressed(DPAD_UP)) position++;
             if (meta.isPressed(DPAD_DOWN)) position--;
             if (position > 2) position = 2;
@@ -167,8 +167,13 @@ public class TeleOpMain extends OpMode {
         }
         */
 
-        shooter.setVelocity(robot.getShooter1().velocityFromDistance(distance));
-        robot.getTransfer1().runRollers(reverseRollers ? -0.5 : driver.leftTrigger() - driver.rightTrigger());
+        shooter.setVelocity(velocity);
+        if(driver.isButtonDown(LEFT_BUMPER) || driver.isButtonDown(RIGHT_BUMPER)){
+            transfer.runRoller1(driver.isButtonDown(LEFT_BUMPER) ? -0.5 : 0);
+            transfer.runRoller2(driver.isButtonDown(RIGHT_BUMPER) ? -0.5 : 0);
+        }else{
+            transfer.runRollers(driver.leftTrigger() - driver.rightTrigger());
+        }
         if (meta.isPressed(DPAD_UP)) position++;
         if (meta.isPressed(DPAD_DOWN)) position--;
         if (position > 2) position = 2;
@@ -208,7 +213,29 @@ public class TeleOpMain extends OpMode {
         telemetry.addData("Position", positions[position]);
         telemetry.addData("Intaking", intaking);
         telemetry.addData("Reverse Intake", reverseIntake);
-        telemetry.addData("Reverse Rollers", reverseRollers);
+        if(shooter.getVelocity() < velocity - velocityTolerance || shooter.getVelocity() > velocity + velocityTolerance) {
+            shootTimer.reset();
+        }
+
+        // If the velocity is within the tolerance for 750ms, run shooting code.
+        if(shootTimer.milliseconds() > 750) {
+            telemetry.addLine("STEADY VELOCITY");
+            setLedAndRumble(true);
+        }else{
+            setLedAndRumble(false);
+        }
+
+//        telemetry.addData("Reverse Rollers", reverseRollers);
 //        telemetry.addData("Shooting", shooting);
+    }
+
+    /**
+     * Sets the driver and meta controllers LED and rumble to indicate the shooter is ready
+     * @param activate Whether to make controllers indicate ready to shoot
+     */
+    private void setLedAndRumble(boolean activate){
+        driver.setLED(new ColorValue(activate ? 0 : 255, activate ? 255 : 0, 0), 50);
+        meta.setLED(new ColorValue(activate ? 0 : 255, activate ? 255 : 0, 0), 50);
+        driver.rumble(activate ? 0.2 : 0, activate ? 0.2 : 0, 50);
     }
 }

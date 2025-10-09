@@ -14,6 +14,13 @@ public class ColorValue {
         this.alpha = alpha;
     }
 
+    public ColorValue(int red, int green, int blue){
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = 255;
+    }
+
     public int red(){
         return red;
     }

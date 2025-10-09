@@ -61,7 +61,22 @@ public class Transfer extends BaseComponent {
     public void runRollers(double power) {
         firstRoller.setPosition(powerToPosition(power));
         secondRoller.setPosition(powerToPosition(-power));
+    }
 
+    /**
+     * Run roller 1 of the transfer at power
+     * @param power - Power to run roller 1 at
+     */
+    public void runRoller1(double power) {
+        firstRoller.setPosition(powerToPosition(power));
+    }
+
+    /**
+     * Run roller 2 of the transfer at power
+     * @param power - Power to run roller 2 at
+     */
+    public void runRoller2(double power) {
+        secondRoller.setPosition(powerToPosition(-power));
     }
 
     /**
