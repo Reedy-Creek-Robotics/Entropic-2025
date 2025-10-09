@@ -124,14 +124,15 @@ public class Shooter extends BaseComponent {
 //        return 0;
 
         switch(distance) {
-            case 0:
-                return 0;
-            case 1:
-                return 1;
-            case 2:
-                return 2;
+            case 118:
+                return 2000;
+            case 80:
+                return 1760;
+            case 46:
+                return 1780;
+            default:
+                return 1900;
         }
-        return 0;
     }
 
     /**

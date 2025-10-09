@@ -38,7 +38,9 @@ public class shooterTester extends OpMode {
     int velocityTolerance = 50;
 
     ElapsedTime transferTime;
+    ElapsedTime timeoutTimer;
 
+//    private static double SHOOTER_CURRENT_THRESHOLD = 0.5;
 
     @Override
     public void init() {
@@ -50,11 +52,10 @@ public class shooterTester extends OpMode {
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         log = new DataLog("ShooterLog");
         roller1 = hardwareMap.get(Servo.class, "roller1");
-        roller1.scaleRange(-1, 1);
         roller2 = hardwareMap.get(Servo.class, "roller2");
-        roller2.scaleRange(-1, 1);
 
         transferTime = new ElapsedTime();
+        timeoutTimer = new ElapsedTime();
     }
 
     @Override
@@ -132,16 +133,20 @@ public class shooterTester extends OpMode {
 
         // If the velocity is within the tolerance for 1000ms, run shooting code.
         if(shootTimer.milliseconds() > 1000) {
-            roller1.setPosition(-1);
-            roller2.setPosition(-1);
+            roller1.setPosition(1);
+            roller2.setPosition(0);
 
             if (shooter.getCurrent(CurrentUnit.AMPS) < avgInactiveCurrent + 0.5) {
                 avgInactiveCurrent = (avgInactiveCurrent + shooter.getCurrent(CurrentUnit.AMPS)) / 2;
             }
         }else{
-            roller1.setPosition(0);
-            roller2.setPosition(0);
+            roller1.setPosition(0.5);
+            roller2.setPosition(0.5);
         }
         telemetry.update();
     }
+
+//    private boolean isShot(){
+//        return shooter.getCurrent(CurrentUnit.AMPS) > baseline + SHOOTER_CURRENT_THRESHOLD || timeoutTimer.milliseconds() > TIMEOUT_THRESHOLD;
+//    }
 }

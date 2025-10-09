@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
@@ -72,6 +73,7 @@ public class Robot extends BaseComponent {
 
     @Override
     public void init() {
+        // Inits subcomponents
         super.init();
 
         double voltage = computeBatteryVoltage();
@@ -94,6 +96,7 @@ public class Robot extends BaseComponent {
         telemetry.log().add("Robot is initialized");
         telemetry.update();
         telemetry.setAutoClear(true);
+        telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
 
         initTime = new ElapsedTime();
     }

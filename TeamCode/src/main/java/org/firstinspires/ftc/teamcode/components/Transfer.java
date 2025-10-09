@@ -43,8 +43,6 @@ public class Transfer extends BaseComponent {
     public void init() {
         firstRoller = hardwareMap.get(Servo.class, firstServoHardwareName);
         secondRoller = hardwareMap.get(Servo.class, secondServoHardwareName);
-        firstRoller.scaleRange(-1, 1);
-        secondRoller.scaleRange(-1, 1);
         //color = hardwareMap.get(ColorSensor.class, colorHardwareName);
     }
 
@@ -61,8 +59,8 @@ public class Transfer extends BaseComponent {
      * @param power Power to run transfer at
      */
     public void runRollers(double power) {
-        firstRoller.setPosition(power);
-        secondRoller.setPosition(-power);
+        firstRoller.setPosition(powerToPosition(power));
+        secondRoller.setPosition(powerToPosition(-power));
 
     }
 
@@ -128,6 +126,10 @@ public class Transfer extends BaseComponent {
      */
     public void transferUntilShot() {
         executeCommand(new TransferUntilShot());
+    }
+
+    public double powerToPosition(double power){
+        return (power + 1) / 2;
     }
 
     public class TimedTransfer implements Command {

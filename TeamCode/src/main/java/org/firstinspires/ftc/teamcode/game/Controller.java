@@ -327,10 +327,6 @@ public class Controller {
     }
 
     private boolean isButtonDownInternal(Button button) {
-        switch(button){
-            
-        }
-
         if (button == null) return false;
 
         switch (button) {
