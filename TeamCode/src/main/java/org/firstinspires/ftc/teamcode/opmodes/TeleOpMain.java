@@ -107,14 +107,15 @@ public class TeleOpMain extends OpMode {
 //            }
 //        }
 
-        if(driver.isPressed(LEFT_STICK_BUTTON)){
+//        if(driver.isPressed(LEFT_STICK_BUTTON)){
 //            rollerOverride = !rollerOverride;
-        }
+//        }
 
         if(driver.isPressed(INTAKE)){
             reverseIntake = false;
             intaking = !intaking;
             intake.driveIntake(intaking ? 1 : 0);
+            transfer.runRoller1(1);
         }
 
         if(driver.isPressed(REVERSE_INTAKE)){
@@ -168,10 +169,14 @@ public class TeleOpMain extends OpMode {
         */
 
         shooter.setVelocity(velocity);
-        if(driver.isButtonDown(LEFT_BUMPER) || driver.isButtonDown(RIGHT_BUMPER)){
+        if(driver.isButtonDown(LEFT_BUMPER) || driver.isButtonDown(RIGHT_BUMPER)) {
             transfer.runRoller1(driver.isButtonDown(LEFT_BUMPER) ? -0.5 : 0);
             transfer.runRoller2(driver.isButtonDown(RIGHT_BUMPER) ? -0.5 : 0);
-        }else{
+        }else if(intaking){
+            transfer.runRoller1(1);
+            transfer.runRoller2(driver.leftTrigger() > 0.1 ? driver.leftTrigger() : -1);
+        }
+        else{
             transfer.runRollers(driver.leftTrigger() - driver.rightTrigger());
         }
         if (meta.isPressed(DPAD_UP)) position++;
@@ -234,8 +239,8 @@ public class TeleOpMain extends OpMode {
      * @param activate Whether to make controllers indicate ready to shoot
      */
     private void setLedAndRumble(boolean activate){
-        driver.setLED(new ColorValue(activate ? 0 : 255, activate ? 255 : 0, 0), 50);
-        meta.setLED(new ColorValue(activate ? 0 : 255, activate ? 255 : 0, 0), 50);
-        driver.rumble(activate ? 0.2 : 0, activate ? 0.2 : 0, 50);
+        driver.setLED(new ColorValue(activate ? 0 : 255, activate ? 255 : 0, 0), 99999);
+        meta.setLED(new ColorValue(activate ? 0 : 255, activate ? 255 : 0, 0), 99999);
+        driver.rumble(activate ? 0.2 : 0, activate ? 0.2 : 0, 99999);
     }
 }
