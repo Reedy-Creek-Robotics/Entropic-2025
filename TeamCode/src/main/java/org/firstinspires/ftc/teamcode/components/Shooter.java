@@ -14,7 +14,7 @@ public class Shooter extends BaseComponent {
 
     double degPerTick = 12.8571428571;
 
-    int velocityTolerance = 50;
+    int velocityTolerance = 60;
     int stabilizationTime = 750;
     int holdVelocity = 1600;
     private int setVelocity;
@@ -120,18 +120,18 @@ public class Shooter extends BaseComponent {
 //        if(distance  > 65 && distance <= 95)  return 1600;
 //        if(distance  > 95 && distance <= 125) return 1700;
 //        if(distance  > 125)                   return 1780;
-//
+//2
 //        return 0;
 
         switch(distance) {
             case 118:
-                return 2000;
+                return 1840;
             case 80:
-                return 1760;
+                return 1700;
             case 46:
-                return 1780;
+                return 1840;
             default:
-                return 1900;
+                return 1840;
         }
     }
 
@@ -165,7 +165,7 @@ public class Shooter extends BaseComponent {
     @Override
     public boolean isBusy() {
         // If the shooter velocity is outside of the tolerance, reset the timer.
-        if(shooter.getVelocity(AngleUnit.DEGREES) < setVelocity - velocityTolerance && shooter.getVelocity(AngleUnit.DEGREES) > setVelocity + velocityTolerance) {
+        if(shooter.getVelocity() < setVelocity - velocityTolerance && shooter.getVelocity() > setVelocity + velocityTolerance) {
             shootTimer.reset();
         }
 

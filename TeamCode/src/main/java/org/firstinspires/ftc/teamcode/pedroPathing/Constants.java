@@ -22,19 +22,23 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.List;
+
 @Configurable
 public class Constants {
 
     static boolean dualPID = false;
 
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(6.9) // kg
-            .forwardZeroPowerAcceleration(-60.03045132454115) // 3 Wheel
-            .lateralZeroPowerAcceleration(-77.63231532212639)
+            .mass(9) // kg
+            .forwardZeroPowerAcceleration(-90.44761588635672)
+            .lateralZeroPowerAcceleration(-85.62064150812581)
             .centripetalScaling(0.0009)
 
             .translationalPIDFCoefficients(new PIDFCoefficients(0.09, 0, 0.009, 0.04))
-            .headingPIDFCoefficients(new PIDFCoefficients(2.5, 0.0, 0.02, 0.04))
+            .headingPIDFCoefficients(new PIDFCoefficients(2, 0.0, 0.02, 0.04))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0.0,0.0006,0.6,0.04))
 
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.09, 0, 0.009, 0.04))
@@ -42,10 +46,8 @@ public class Constants {
             .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0.0,0.0006,0.6,0.04))
 
             .useSecondaryTranslationalPIDF(dualPID)
-            .useSecondaryHeadingPIDF(dualPID)
+            .useSecondaryHeadingPIDF(true)
             .useSecondaryDrivePIDF(dualPID);
-
-
 
 
     public static ThreeWheelIMUConstants ThreeWheelImuLocalizerConstants = new ThreeWheelIMUConstants()
@@ -72,29 +74,22 @@ public class Constants {
             .linearScalar(0.98432063)
             .angularScalar(0.97384378);
 
+    static double[] linearScalars = { /* forward */ 1.0722153945249597, 1.0653532159999999, 1.0936420914317, 1.076549329021827 /* lateral */ };
+    static double[] angularScalars = {0.9644738778513654, 0.9524473898383984, 0.9524473898383984, 0.9644312981031047};
+
     public static OTOSConstants otosNormalLocalizerConstants = new OTOSConstants()
             .hardwareMapName("otos")
             .linearUnit(DistanceUnit.INCH)
             .angleUnit(AngleUnit.RADIANS)
-            .offset(new SparkFunOTOS.Pose2D(-6.1, 4.9, Math.toRadians(90)))
-            .linearScalar(0.98432063)
-            .angularScalar(0.97384378);
+            .linearScalar(getAverage(linearScalars))
+            .angularScalar(getAverage(angularScalars))
+            .offset(new SparkFunOTOS.Pose2D(-1.75, -4.75, Math.toRadians(90)));
 
     public static PathConstraints pathConstraints = new PathConstraints(
             0.99,
             100,
             1,
             1);
-
-    public static Follower createFollower(HardwareMap hardwareMap) {
-        return new FollowerBuilder(followerConstants, hardwareMap)
-                //.setLocalizer(new otosAprilTagLocalizer(hardwareMap, otosLocalizerConstants))
-                .OTOSLocalizer(otosNormalLocalizerConstants)
-                //.threeWheelIMULocalizer(localizerConstants)
-                .pathConstraints(pathConstraints)
-                .mecanumDrivetrain(driveConstants)
-                .build();
-    }
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -106,8 +101,24 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(58.092132328063485) // 3 Wheel
-            .yVelocity(45.65561850239912);
-            /*.xVelocity(38.35723156065454) // OTOS
-            .yVelocity(37.20200906588337);*/
+            .xVelocity(67.59403258796752)
+            .yVelocity(55.55520846149115);
+
+    public static Follower createFollower(HardwareMap hardwareMap) {
+        return new FollowerBuilder(followerConstants, hardwareMap)
+                //.setLocalizer(new otosAprilTagLocalizer(hardwareMap, otosLocalizerConstants))
+                .OTOSLocalizer(otosNormalLocalizerConstants)
+                //.threeWheelIMULocalizer(localizerConstants)
+                .pathConstraints(pathConstraints)
+                .mecanumDrivetrain(driveConstants)
+                .build();
+    }
+
+    private static double getAverage(double[] list){
+        double total = 0;
+        for(double number : list){
+            total += number;
+        }
+        return total/list.length;
+    }
 }

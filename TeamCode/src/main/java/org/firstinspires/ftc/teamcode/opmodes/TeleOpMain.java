@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -14,6 +15,8 @@ import org.firstinspires.ftc.teamcode.components.Shooter;
 import org.firstinspires.ftc.teamcode.components.Transfer;
 import org.firstinspires.ftc.teamcode.game.ColorValue;
 import org.firstinspires.ftc.teamcode.game.Controller;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+
 import static org.firstinspires.ftc.teamcode.game.Controller.Button.*;
 
 @TeleOp
@@ -25,6 +28,7 @@ public class TeleOpMain extends OpMode {
     Controller.Button REVERSE_ROLLERS = EAST;
 
     Robot robot;
+    Follower follower;
     
     double shooterCurrent;
     
@@ -51,7 +55,7 @@ public class TeleOpMain extends OpMode {
      */
     int position = 0;
 
-    static String[] positions = {"Far Zone - Intersection", "Near Zone - Intersection", "Near Zone - Close"};
+    static String[] positions = {"Far", "Intersection", "Near"};
 
     boolean intaking;
     boolean reverseIntake;
@@ -61,7 +65,7 @@ public class TeleOpMain extends OpMode {
 
     @Override
     public void init() {
-        robot   = new Robot(this, 1); //Red Alliance
+        robot   = new Robot(this); //Red Alliance
         driver  = new Controller(gamepad1);
         meta    = new Controller(gamepad2);
         robot.getDriveTrain().calibrateOtos();
@@ -71,6 +75,7 @@ public class TeleOpMain extends OpMode {
         intake = robot.getIntake();
         telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
         shootTimer = new ElapsedTime();
+        follower = Constants.createFollower(hardwareMap);
     }
 
     @Override

@@ -6,6 +6,7 @@ import android.util.Size;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -25,6 +26,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 
 @TeleOp
+@Disabled
 public class AprilTagTest extends LinearOpMode {
 
     /*Pose2D offset = new Pose2D(
