@@ -100,7 +100,6 @@ public class AprilTag extends BaseComponent {
 
         if(context.getAlliance() == 1) {homeGoal = Collections.singletonList(24);}
 
-
     }
 
     /**

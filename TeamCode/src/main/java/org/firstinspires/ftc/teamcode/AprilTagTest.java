@@ -22,12 +22,16 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.List;
 
 @TeleOp
 @Disabled
 public class AprilTagTest extends LinearOpMode {
+
+    double fx = 595.21, fy = 595.21, cx = 984.515, cy = 599.035;
 
     /*Pose2D offset = new Pose2D(
             0.875,
@@ -154,7 +158,7 @@ public class AprilTagTest extends LinearOpMode {
                 // The following default settings are available to un-comment and edit as needed.
                 .setDrawAxes(true)
                 .setDrawTagOutline(true)
-                .setLensIntrinsics(595.21, 595.21, 984.515, 599.035)
+                .setLensIntrinsics(fx, fy, cx, cy)
                 .setDrawTagID(false)
                 .setCameraPose(offset, new YawPitchRollAngles(AngleUnit.DEGREES,-54,0,0,0))
 
@@ -184,6 +188,7 @@ public class AprilTagTest extends LinearOpMode {
 
         // Set the camera (webcam vs. built-in RC phone camera).
         builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam"));
+        builder.
 
         // Choose a camera resolution. Not all cameras support all resolutions.
         //builder.setCameraResolution(new Size(640, 480));

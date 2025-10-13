@@ -12,6 +12,7 @@ import com.pedropathing.math.MathFunctions;
 import com.pedropathing.math.Vector;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.util.FisheyeCorrectionImpl;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -28,6 +29,7 @@ import java.util.List;
 public class otosAprilTagLocalizer implements Localizer {
     private Pose startPose;
     private final SparkFunOTOS otos;
+    private FisheyeCorrectionImpl april2;
     private AprilTagProcessor april;
     private VisionPortal portal;
     private SparkFunOTOS.Pose2D otosPose;
@@ -101,6 +103,8 @@ public class otosAprilTagLocalizer implements Localizer {
 
                 .build();
 
+        april2 =
+
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
         // eg: Some typical detection data using a Logitech C920 WebCam
         // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
@@ -138,7 +142,7 @@ public class otosAprilTagLocalizer implements Localizer {
         portal = builder.build();
 
         // Disable or re-enable the aprilTag processor at any time.
-        //visionPortal.setProcessorEnabled(aprilTag, true);
+        //visionPortal.setProcessorEnabled(aprilTag, true)
 
     }   // end method initAprilTag()
 

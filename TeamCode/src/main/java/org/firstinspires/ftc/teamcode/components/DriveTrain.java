@@ -122,10 +122,10 @@ public class DriveTrain extends BaseComponent {
     public void drive(double drive, double strafe, double turn, double speedFactor) {
         DriveUtil.MotorPowers motorPowers = context.driveUtil.calculateWheelPowerForDrive(drive, strafe, turn, speedFactor);
 
-        leftFront.setPower(motorPowers.frontLeft * .7172);
-        leftRear.setPower(motorPowers.backLeft); // 312 RPM for some reason
-        rightFront.setPower(motorPowers.frontRight * .7172);
-        rightRear.setPower(motorPowers.backRight * .7172);
+        leftFront.setPower(motorPowers.frontLeft);
+        leftRear.setPower(motorPowers.backLeft);
+        rightFront.setPower(motorPowers.frontRight);
+        rightRear.setPower(motorPowers.backRight);
     }
 
     public void driverRelative(double drive, double strafe, double turn, double speedFactor) {
