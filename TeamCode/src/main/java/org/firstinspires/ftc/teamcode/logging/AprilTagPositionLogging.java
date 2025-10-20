@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.logging;
 
 import android.util.Size;
 
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -42,7 +43,8 @@ public class AprilTagPositionLogging extends LinearOpMode {
      */
     @Override
     public void runOpMode() throws InterruptedException {
-        initAprilTag();
+        float decimationValue = 3;
+        initAprilTag(decimationValue);
 
         // init the file logging
         // add a timestamp on end of filename so each run of op mode gives
@@ -130,13 +132,14 @@ public class AprilTagPositionLogging extends LinearOpMode {
                         log.poseX.set(poseX);
                         log.poseY.set(poseY);
                         log.poseBearing.set(poseBearing);
-                        log.poseYaw.set(poseY);
+                        log.poseYaw.set(poseYaw);
                         log.rawX.set(rawX);
                         log.rawY.set(rawY);
                         log.rawZ.set(rawZ);
                         log.rawPitch.set(rawPitch);
                         log.rawRoll.set(rawRoll);
                         log.rawYaw.set(rawYaw);
+                        log.decimation.set(decimationValue);
                         log.writeLine();
                         telemetry.addData("Logging: ","AprilTagTester_" + timeStamp);
                     }
@@ -164,7 +167,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
         // Clean shutdown
     }
 
-    private void initAprilTag() {
+    private void initAprilTag(float decimationValue) {
 
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
@@ -194,7 +197,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
         // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
         // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
         // Note: Decimation can be changed on-the-fly to adapt during a match.
-        //aprilTag.setDecimation(3);
+        aprilTag.setDecimation(decimationValue);
 
         // Create the vision portal by using a builder.
         VisionPortal.Builder builder = new VisionPortal.Builder();

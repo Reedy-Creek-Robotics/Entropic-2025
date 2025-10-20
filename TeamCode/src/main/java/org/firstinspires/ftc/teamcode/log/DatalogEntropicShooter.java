@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.log;
 
-public class DatalogAprilTag {
+public class DatalogEntropicShooter {
     // The underlying datalogger object - it cares only about an array of loggable fields
     private final Datalogger datalogger;
 
@@ -24,7 +24,7 @@ public class DatalogAprilTag {
 
 
 
-    public DatalogAprilTag(String name)
+    public DatalogEntropicShooter(String name)
     {
         // Build the underlying datalog object
         datalogger = new Datalogger.Builder()
