@@ -175,6 +175,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
             }
 
             // Show the target position on telemetry
+            telemetry.addLine().addData("Position",  "%d of %d", positionIndex + 1, positions.size());
             telemetry.addData("  Sel X: ", currentPosition.x);
             telemetry.addData("  Sel Y: ", currentPosition.y);
             telemetry.addLine().addData("Sel ang: ", "%s", currentPosition.angle);
