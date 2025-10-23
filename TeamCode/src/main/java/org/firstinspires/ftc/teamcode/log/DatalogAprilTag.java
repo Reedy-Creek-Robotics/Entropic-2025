@@ -38,7 +38,23 @@ public class DatalogAprilTag {
             // Tell it about the fields we care to log.
             // Note that order *IS* important here! The order in which we list
             // the fields is the order in which they will appear in the log.
-            .setFields(selectX,selectY,selectAngle,ID,poseX,poseY,poseYaw,poseBearing,rawX,rawY,rawZ,rawPitch,rawRoll,rawYaw,decimation).build();
+            .setFields(
+              selectX,
+              selectY,
+              selectAngle,
+              ID,
+              poseX,
+              poseY,
+              poseYaw,
+              poseBearing,
+              rawX,
+              rawY,
+              rawZ,
+              rawPitch,
+              rawRoll,
+              rawYaw,
+              decimation
+            ).build();
     }
 
     // Tell the datalogger to gather the values of the fields

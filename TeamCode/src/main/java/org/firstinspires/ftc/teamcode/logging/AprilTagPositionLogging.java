@@ -5,7 +5,6 @@ package org.firstinspires.ftc.teamcode.logging;
 import android.util.Size;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -15,15 +14,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.game.Controller;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.log.DatalogAprilTag;
+
 import java.text.SimpleDateFormat;
+
+import static org.firstinspires.ftc.teamcode.game.Controller.Button.*;
 
 @TeleOp(name = "Logging: AprilTag Position", group = "Logging")
 public class AprilTagPositionLogging extends LinearOpMode {
@@ -36,7 +39,102 @@ public class AprilTagPositionLogging extends LinearOpMode {
 
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
-    DatalogAprilTag log;
+    private DatalogAprilTag log;
+
+    private Controller controller = new Controller(gamepad1);
+
+    /**
+     * The position of the current measurement in the sequence.
+     */
+    private int position = 0;
+
+    private static class MeasurementPosition {
+        public double x;
+        public double y;
+        public String angle;
+
+        public MeasurementPosition(double x, double y, String angle) {
+            this.x = x;
+            this.y = y;
+            this.angle = angle;
+        }
+    }
+
+    private static class Measurement {
+        public double aprilTagID;
+        public double poseX;
+        public double poseY;
+        public double poseZ;
+        public double posePitch;
+        public double poseRoll;
+        public double poseYaw;
+        public double rawX;
+        public double rawY;
+        public double rawZ;
+        public double rawPitch;
+        public double rawRoll;
+        public double rawYaw;
+        public double poseBearing;
+
+        public Measurement(AprilTagDetection detection) {
+            aprilTagID = detection.id;
+            poseX = detection.robotPose.getPosition().x;
+            poseY = detection.robotPose.getPosition().y;
+            poseZ = detection.robotPose.getPosition().z;
+            posePitch = detection.robotPose.getOrientation().getPitch(AngleUnit.DEGREES);
+            poseRoll = detection.robotPose.getOrientation().getRoll(AngleUnit.DEGREES);
+            poseYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
+            rawX = detection.ftcPose.x;
+            rawY = detection.ftcPose.y;
+            rawZ = detection.ftcPose.z;
+            rawPitch = detection.ftcPose.pitch;
+            rawRoll = detection.ftcPose.roll;
+            rawYaw = detection.ftcPose.yaw;
+            poseBearing = detection.ftcPose.bearing;
+        }
+
+        public void log(MeasurementPosition position, DatalogAprilTag log, double decimationValue) {
+            log.selectX.set(position.x);
+            log.selectY.set(position.y);
+            log.selectAngle.set(position.angle);
+            log.ID.set(aprilTagID);
+            log.poseX.set(poseX);
+            log.poseY.set(poseY);
+            log.poseBearing.set(poseBearing);
+            log.poseYaw.set(poseYaw);
+            log.rawX.set(rawX);
+            log.rawY.set(rawY);
+            log.rawZ.set(rawZ);
+            log.rawPitch.set(rawPitch);
+            log.rawRoll.set(rawRoll);
+            log.rawYaw.set(rawYaw);
+            log.decimation.set(decimationValue);
+            log.writeLine();
+        }
+    }
+
+    /**
+     * Generate the list of measurements that are to be taken.
+     */
+    private static List<MeasurementPosition> generateMeasurementPositions() {
+        // Loop over the field, snaking back and forth, left to right, top to bottom
+        List<MeasurementPosition> positions = new ArrayList<>();
+        for (int index = 0; index <= 24; index++) {
+            int row = index / 5;
+            int y = 2 * (4 - row - 2);
+            int x;
+            if (row % 2 == 0) {
+                x = 2 * ((index % 5) - 2);
+            } else {
+                x = 2 * (4 - (index % 5) - 2);
+            }
+
+            positions.add(new MeasurementPosition(x, y, "z"));
+            positions.add(new MeasurementPosition(x, y, "r"));
+            positions.add(new MeasurementPosition(x, y, "b"));
+        }
+        return positions;
+    }
 
     /***
 
@@ -52,119 +150,89 @@ public class AprilTagPositionLogging extends LinearOpMode {
         String timeStamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new java.util.Date());
         log = new DatalogAprilTag("AprilTagTester_" + timeStamp);
 
-        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch START to start OpMode");
-        telemetry.addData("Press left-right to select tile corner X position (in ft)","");
-        telemetry.addData("Press up-down to select tile corner Y position (in ft)","");
+        telemetry.addData("This OpMode will guide you through AprilTag error measurement", "");
+        telemetry.addData("You will be asked to move the camera to different positions on the field, and different angles", "");
+        telemetry.addData("Press left-right to move between positions", "");
+        telemetry.addData("Press X to take a measurement", "");
         telemetry.update();
+
         waitForStart();
 
-        double selectX = 0;
-        double selectY = 0;
-        String selectAngle = "z";
-        boolean loggingEnabled = false;
-        while(opModeIsActive()) {
-            // controls
-            if( gamepad1.dpadDownWasPressed() ) {
-                selectY -= 2;
+        int positionIndex = 0;
+        List<MeasurementPosition> positions = generateMeasurementPositions();
+
+        int measurementsToLogFromEachPosition = 5;
+        int measurementsRemaining = 0;
+
+        while (opModeIsActive()) {
+            // Show on telemetry the current target position
+            MeasurementPosition currentPosition = positions.get(positionIndex);
+
+            if (controller.isPressed(DPAD_LEFT)) {
+                positionIndex = Math.max(0, positionIndex - 1);
+            } else if (controller.isPressed(DPAD_RIGHT)) {
+                positionIndex = Math.min(positions.size() - 1, positionIndex + 1);
             }
 
-            if( gamepad1.dpadUpWasPressed() ) {
-                selectY += 2;
+            // Show the target position on telemetry
+            telemetry.addData("  Sel X: ", currentPosition.x);
+            telemetry.addData("  Sel Y: ", currentPosition.y);
+            telemetry.addLine().addData("Sel ang: ", "%s", currentPosition.angle);
+
+            // When the user presses X, enable logging for the next N measurements
+            if (controller.isPressed(X) && measurementsRemaining == 0) {
+                measurementsRemaining = measurementsToLogFromEachPosition;
             }
 
-            // start the test
-            if( gamepad1.dpadLeftWasPressed() ) {
-                selectX -= 2;
-            }
+            // Detect AprilTags
+            List<AprilTagDetection> detections = aprilTag.getDetections();
+            telemetry.addData("# AprilTags Detected", detections.size());
 
-            // stop the test
-            if( gamepad1.dpadRightWasPressed() ) {
-                selectX += 2;
-            }
 
-            if(gamepad1.squareWasPressed()) {
-                if(selectAngle.equals("z")) {selectAngle = "r";}
-                else if(selectAngle.equals("r")) {selectAngle = "b";}
-                else if(selectAngle.equals("b")) {selectAngle = "z";}
-            }
-
-            if( gamepad1.circleWasPressed()) {
-                loggingEnabled = !loggingEnabled;
-            }
-
-            List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-            telemetry.addData("# AprilTags Detected", currentDetections.size());
-
-            for (AprilTagDetection detection : currentDetections) {
-
-                if(detection == null || detection.robotPose == null ||
-                        detection.ftcPose == null ||
-                        detection.robotPose.getOrientation() == null ||
-                        detection.robotPose.getPosition() == null) {
+            for (AprilTagDetection detection : detections) {
+                // Make sure it's a valid detection, sometimes these come back as null intermittently
+                if (!isValidDetection(detection)) {
                     continue;
                 }
 
-
-                double aprilTagID = detection.id;
-                double poseX = detection.robotPose.getPosition().x;
-                double poseY = detection.robotPose.getPosition().y;
-                double poseZ = detection.robotPose.getPosition().z;
-                double posePitch = detection.robotPose.getOrientation().getPitch(AngleUnit.DEGREES);
-                double poseRoll = detection.robotPose.getOrientation().getRoll(AngleUnit.DEGREES);
-                double poseYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);;
-                double rawX = detection.ftcPose.x;
-                double rawY = detection.ftcPose.y;
-                double rawZ = detection.ftcPose.z;
-                double rawPitch = detection.ftcPose.pitch;
-                double rawRoll = detection.ftcPose.roll;
-                double rawYaw = detection.ftcPose.yaw;
-                double poseBearing = detection.ftcPose.bearing;
-                //double poseElevation = detection.ftcPose.elevation;
-
-                if (detection.metadata != null) {
-                    // log - only when logging is enabled
-                    if( loggingEnabled ) {
-                        log.selectX.set(selectX);
-                        log.selectY.set(selectY);
-                        log.selectAngle.set(selectAngle);
-                        log.ID.set(aprilTagID);
-                        log.poseX.set(poseX);
-                        log.poseY.set(poseY);
-                        log.poseBearing.set(poseBearing);
-                        log.poseYaw.set(poseYaw);
-                        log.rawX.set(rawX);
-                        log.rawY.set(rawY);
-                        log.rawZ.set(rawZ);
-                        log.rawPitch.set(rawPitch);
-                        log.rawRoll.set(rawRoll);
-                        log.rawYaw.set(rawYaw);
-                        log.decimation.set(decimationValue);
-                        log.writeLine();
-                        telemetry.addData("Logging: ","AprilTagTester_" + timeStamp);
-                    }
-
-                    telemetry.addData("  Sel X: ",selectX);
-                    telemetry.addData("  Sel Y: ",selectY);
-                    telemetry.addLine().addData("Sel ang: ","%s",selectAngle);
-
-                    telemetry.addData("     ID: ",aprilTagID);
-                    telemetry.addData("      X: ",poseX);
-                    telemetry.addData("      Y: ",poseY);
-                    //telemetry.addData("bearing: ",poseBearing);
-                    telemetry.addData("    yaw: ",poseYaw);
-                } else {
-                    telemetry.addData("Unknown ID: ", aprilTagID);
-                    //telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
+                if (detection.metadata == null) {
+                    telemetry.addData("Unknown ID: ", detection.id);
+                    continue;
                 }
-            }
 
+                if (measurementsRemaining > 0) {
+                    measurementsRemaining--;
+
+                    // If we are logging measurements, write this one to the log
+                    Measurement measurement = new Measurement(detection);
+                    measurement.log(currentPosition, log, decimationValue);
+                    telemetry.addData("Logging Measurements", measurementsRemaining);
+
+                    // If we have finished logging measurements for this position, advance to the next position
+                    if (measurementsRemaining == 0) {
+                        positionIndex = Math.min(positions.size() - 1, positionIndex + 1);
+                    }
+                }
+
+                telemetry.addData("ID", detection.id);
+                telemetry.addData("Pose X (in)", "%.2f", detection.robotPose.getPosition().x);
+                telemetry.addData("Pose Y (in)", "%.2f", detection.robotPose.getPosition().y);
+                telemetry.addData("Yaw (deg)", "%.2f", detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES));
+            }
 
             // telemetry
             telemetry.update();
         }
 
         // Clean shutdown
+    }
+
+    private static boolean isValidDetection(AprilTagDetection detection) {
+        return detection != null &&
+                detection.robotPose != null &&
+                detection.ftcPose != null &&
+                detection.robotPose.getOrientation() != null &&
+                detection.robotPose.getPosition() != null;
     }
 
     private void initAprilTag(float decimationValue) {
@@ -235,9 +303,6 @@ public class AprilTagPositionLogging extends LinearOpMode {
         //visionPortal.setProcessorEnabled(aprilTag, true);
 
     }   // end method initAprilTag()
-
-
-
 
 
 }
