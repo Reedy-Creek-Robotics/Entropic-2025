@@ -41,7 +41,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
     private VisionPortal visionPortal;
     private DatalogAprilTag log;
 
-    private Controller controller = new Controller(gamepad1);
+    private Controller controller;
 
     /**
      * The position of the current measurement in the sequence.
@@ -52,11 +52,13 @@ public class AprilTagPositionLogging extends LinearOpMode {
         public double x;
         public double y;
         public String angle;
+        public boolean wasMeasured;
 
         public MeasurementPosition(double x, double y, String angle) {
             this.x = x;
             this.y = y;
             this.angle = angle;
+            this.wasMeasured = false;
         }
     }
 
@@ -135,14 +137,90 @@ public class AprilTagPositionLogging extends LinearOpMode {
         }
         return positions;
     }
-
     /***
 
      */
+
+    private int findPosition(List<MeasurementPosition> positions, double x, double y, String heading) {
+        // returns index of a specific position within the list because the snaking motion is confusing
+        for (int index = 0; index <= positions.size(); index++) {
+            MeasurementPosition point = positions.get(index);
+            if (point.x == x && point.y == y && point.angle.equals(heading)) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    private void displayField(MeasurementPosition location) {
+        /*
+        prints a 5 * 5 grid displaying the current measurement position with in the field
+        Sample Output:
+        * * * * *
+        * * * * *
+        * R * * *
+        * * * * *
+        * * * * *
+         */
+        for (int X = -4; X <= 4; X += 2) {
+            StringBuilder line = new StringBuilder();
+            for (int Y = -4; Y <= 4; Y += 2) {
+                if (location.x == X && location.y == Y) {
+                    line.append(" ").append(location.angle).append(" ");
+                } else {
+                    line.append(" * ");
+                }
+            }
+            telemetry.addData(line.toString(),"");
+        }
+    }
+
+    private int adjustPosition(Controller controller, List<MeasurementPosition> positions, int positionIndex) {
+        MeasurementPosition currentPosition = positions.get(positionIndex);
+
+        // use trigger buttons to cycle between positions
+        if (controller.isPressed(LEFT_BUMPER)) {
+            return Math.max(0, positionIndex - 1);
+        } else if (controller.isPressed(RIGHT_BUMPER)) {
+            return Math.min(positions.size() - 1, positionIndex + 1);
+        }
+
+        // use dpad to move around field
+        if (controller.isPressed(DPAD_UP)) {
+            // move tile up if possible
+            return findPosition(positions,
+                    currentPosition.x,
+                    Math.min(4, currentPosition.y + 2),
+                    currentPosition.angle);
+        } else if (controller.isPressed(DPAD_DOWN)) {
+            // move tile down if possible
+            return findPosition(positions,
+                    currentPosition.x,
+                    Math.max(-4, currentPosition.y - 2),
+                    currentPosition.angle);
+        } else if (controller.isPressed(DPAD_LEFT)) {
+            // move tile left if possible
+            return findPosition(positions,
+                    Math.max(-4, currentPosition.x - 2),
+                    currentPosition.y,
+                    currentPosition.angle);
+        } else if (controller.isPressed(DPAD_RIGHT)) {
+            // move tile right if possible
+            return findPosition(positions,
+                    Math.min(4, currentPosition.x + 2),
+                    currentPosition.y,
+                    currentPosition.angle);
+        }
+
+        return positionIndex; // return original position if no buttons are pressed
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
-        float decimationValue = 3;
+        float decimationValue = 1;
         initAprilTag(decimationValue);
+
+        this.controller = new Controller(gamepad1);
 
         // init the file logging
         // add a timestamp on end of filename so each run of op mode gives
@@ -152,7 +230,8 @@ public class AprilTagPositionLogging extends LinearOpMode {
 
         telemetry.addData("This OpMode will guide you through AprilTag error measurement", "");
         telemetry.addData("You will be asked to move the camera to different positions on the field, and different angles", "");
-        telemetry.addData("Press left-right to move between positions", "");
+        telemetry.addData("Press the back buttons to move between positions", "");
+        telemetry.addData("Alternatively, use the DPAD to manually move through field", "");
         telemetry.addData("Press X to take a measurement", "");
         telemetry.update();
 
@@ -161,27 +240,26 @@ public class AprilTagPositionLogging extends LinearOpMode {
         int positionIndex = 0;
         List<MeasurementPosition> positions = generateMeasurementPositions();
 
-        int measurementsToLogFromEachPosition = 5;
+        int measurementsToLogFromEachPosition = 10;
         int measurementsRemaining = 0;
 
         while (opModeIsActive()) {
             // Show on telemetry the current target position
             MeasurementPosition currentPosition = positions.get(positionIndex);
 
-            if (controller.isPressed(DPAD_LEFT)) {
-                positionIndex = Math.max(0, positionIndex - 1);
-            } else if (controller.isPressed(DPAD_RIGHT)) {
-                positionIndex = Math.min(positions.size() - 1, positionIndex + 1);
-            }
+            // update current position based on user input
+            positionIndex = adjustPosition(this.controller, positions, positionIndex);
 
             // Show the target position on telemetry
             telemetry.addLine().addData("Position",  "%d of %d", positionIndex + 1, positions.size());
             telemetry.addData("  Sel X: ", currentPosition.x);
             telemetry.addData("  Sel Y: ", currentPosition.y);
             telemetry.addLine().addData("Sel ang: ", "%s", currentPosition.angle);
+            telemetry.addData("Measurement captured from this position", currentPosition.wasMeasured);
+            displayField(positions.get(positionIndex));
 
             // When the user presses X, enable logging for the next N measurements
-            if (controller.isPressed(X) && measurementsRemaining == 0) {
+            if (controller.isPressed(CROSS) && measurementsRemaining == 0) {
                 measurementsRemaining = measurementsToLogFromEachPosition;
             }
 
@@ -189,7 +267,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
             List<AprilTagDetection> detections = aprilTag.getDetections();
             telemetry.addData("# AprilTags Detected", detections.size());
 
-
+            boolean measurmentCaptured = false; // stores if any april tags were successfully captured this run through
             for (AprilTagDetection detection : detections) {
                 // Make sure it's a valid detection, sometimes these come back as null intermittently
                 if (!isValidDetection(detection)) {
@@ -202,24 +280,30 @@ public class AprilTagPositionLogging extends LinearOpMode {
                 }
 
                 if (measurementsRemaining > 0) {
-                    measurementsRemaining--;
+                    measurmentCaptured = true;
 
                     // If we are logging measurements, write this one to the log
                     Measurement measurement = new Measurement(detection);
                     measurement.log(currentPosition, log, decimationValue);
                     telemetry.addData("Logging Measurements", measurementsRemaining);
-
-                    // If we have finished logging measurements for this position, advance to the next position
-                    if (measurementsRemaining == 0) {
-                        positionIndex = Math.min(positions.size() - 1, positionIndex + 1);
-                    }
                 }
 
+                // display april tag to telemetry
                 telemetry.addData("ID", detection.id);
                 telemetry.addData("Pose X (in)", "%.2f", detection.robotPose.getPosition().x);
                 telemetry.addData("Pose Y (in)", "%.2f", detection.robotPose.getPosition().y);
                 telemetry.addData("Yaw (deg)", "%.2f", detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES));
             }
+            if (measurmentCaptured) { // if any april tags were measured, decrement the counter
+                measurementsRemaining--;
+
+                // If we have finished logging measurements for this position, advance to the next position
+                if (measurementsRemaining == 0) {
+                    positions.get(positionIndex).wasMeasured = true;
+                    positionIndex = Math.min(positions.size() - 1, positionIndex + 1);
+                }
+            }
+
 
             // telemetry
             telemetry.update();
@@ -279,7 +363,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
         }
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(new Size(1920, 1080));
+        builder.setCameraResolution(new Size(1920, 1200));
 
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
