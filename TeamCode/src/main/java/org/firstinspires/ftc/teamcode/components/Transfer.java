@@ -17,6 +17,8 @@ public class Transfer extends BaseComponent {
     private final DcMotorEx shooterMotor;
     private String colorHardwareName;
 
+    private Robot robot;
+
     // How many amps the current must increase from the baseline by for the shooter to be considered engaged with the artifact
     private final double SHOOTER_CURRENT_THRESHOLD = 0.5;
     private final double TIMEOUT_THRESHOLD = 5000; //ms
@@ -31,8 +33,9 @@ public class Transfer extends BaseComponent {
         LED illumination indicating storage (pending LED/Storage information)
      */
 
-    public Transfer(RobotContext context, String firstServoHardwareName, String secondServoHardwareName, DcMotorEx shooterMotor/*, String colorHardwareName*/) {
+    public Transfer(RobotContext context, Robot robot, String firstServoHardwareName, String secondServoHardwareName, DcMotorEx shooterMotor/*, String colorHardwareName*/) {
         super(context);
+        this.robot = robot;
         this.firstServoHardwareName = firstServoHardwareName;
         this.secondServoHardwareName = secondServoHardwareName;
         this.shooterMotor = shooterMotor;

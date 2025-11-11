@@ -9,8 +9,11 @@ public class Intake extends BaseComponent{
 
     private DcMotorEx intakeMotor;
 
-    public Intake(RobotContext context) {
+    private Robot robot;
+
+    public Intake(RobotContext context, Robot robot) {
         super(context);
+        this.robot = robot;
     }
 
     @Override

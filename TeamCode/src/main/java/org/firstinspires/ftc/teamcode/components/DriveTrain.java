@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.util.DriveUtil;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 //ToDo Create method to turn n degrees
 
@@ -35,12 +36,18 @@ public class DriveTrain extends BaseComponent {
 
     private IMU imu;
 
+    private Robot robot;
+
     public static DriveTuner driveTuner;
     public static OdometryTuner odometryTuner;
 
-    public DriveTrain(RobotContext context) {
+    public DriveTrain(RobotContext context, Robot robot) {
         super(context);
+        this.robot = robot;
+
     }
+
+
 
     @Override
     public void init() {

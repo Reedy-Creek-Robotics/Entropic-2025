@@ -36,13 +36,13 @@ public class Robot extends BaseComponent {
 
         this.lynxModules = hardwareMap.getAll(LynxModule.class);
 
-        driveTrain = new DriveTrain(context);
-        aprilTag = new AprilTag(context);
-        intake = new Intake(context);
-        shooter1 = new Shooter(context, "shooter");
-        //shooter2 = new Shooter(context, "shooter2");
-        transfer1 = new Transfer(context, "roller1","roller2", shooter1.getShooter()/*, "color"*/);
-        //transfer2 = new Transfer(context, "roller2", "color2", shooter2.getShooter());
+        driveTrain = new DriveTrain(context, this);
+        aprilTag = new AprilTag(context, this);
+        intake = new Intake(context, this);
+        shooter1 = new Shooter(context, this, "shooter");
+        //shooter2 = new Shooter(context, this, "shooter2");
+        transfer1 = new Transfer(context, this, "roller1","roller2", shooter1.getShooter()/*, "color"*/);
+        //transfer2 = new Transfer(context, this, "roller2", "color2", shooter2.getShooter());
 
         addSubComponents(driveTrain, aprilTag, intake, shooter1, /*shooter2,*/ transfer1/*, transfer2*/);
 
@@ -58,13 +58,13 @@ public class Robot extends BaseComponent {
 
         this.lynxModules = hardwareMap.getAll(LynxModule.class);
 
-        driveTrain = new DriveTrain(context);
-        aprilTag = new AprilTag(context);
-        intake = new Intake(context);
-        shooter1 = new Shooter(context, "shooter");
-        //shooter2 = new Shooter(context, "shooter2");
-        transfer1 = new Transfer(context, "roller1", "roller2", shooter1.getShooter()/*, "color1"*/);
-        //transfer2 = new Transfer(context, "roller2", "color2", shooter2.getShooter());
+        driveTrain = new DriveTrain(context, this);
+        aprilTag = new AprilTag(context, this);
+        intake = new Intake(context, this);
+        shooter1 = new Shooter(context, this, "shooter");
+        //shooter2 = new Shooter(context, this, "shooter2");
+        transfer1 = new Transfer(context, this, "roller1", "roller2", shooter1.getShooter()/*, "color1"*/);
+        //transfer2 = new Transfer(context, this, "roller2", "color2", shooter2.getShooter());
 
         addSubComponents(driveTrain, aprilTag, intake, shooter1, /*shooter2,*/ transfer1/*, transfer2*/);
 

@@ -29,6 +29,8 @@ public class AprilTag extends BaseComponent {
     List<Integer> goals = Arrays.asList(20, 24);
     List<Integer> homeGoal = Collections.singletonList(20);
 
+    private Robot robot;
+
     public AprilTagDetection nullDetection = new AprilTagDetection(
             -1,
             -1,
@@ -68,8 +70,9 @@ public class AprilTag extends BaseComponent {
             0
     );
 
-    public AprilTag(RobotContext context){
+    public AprilTag(RobotContext context, Robot robot){
         super(context);
+        this.robot = robot;
     }
 
     @Override

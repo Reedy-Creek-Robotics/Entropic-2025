@@ -25,7 +25,7 @@ public class intakeTest extends OpMode {
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        driveTrain = new DriveTrain(BaseComponent.createRobotContext(this));
+        driveTrain = new DriveTrain(BaseComponent.createRobotContext(this), null);
         controller = new Controller(gamepad1);
 
         driveTrain.init();

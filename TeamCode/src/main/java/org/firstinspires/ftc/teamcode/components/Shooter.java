@@ -19,12 +19,15 @@ public class Shooter extends BaseComponent {
     int holdVelocity = 1600;
     private int setVelocity;
 
+    private Robot robot;
+
     ElapsedTime shootTimer;
 
     String shooterHardwareName;
 
-    public Shooter(RobotContext context, String shooterHardwareName) {
+    public Shooter(RobotContext context, Robot robot, String shooterHardwareName) {
         super(context);
+        this.robot = robot;
         this.shooterHardwareName = shooterHardwareName;
         shooter = hardwareMap.get(DcMotorEx.class, shooterHardwareName);
     }
