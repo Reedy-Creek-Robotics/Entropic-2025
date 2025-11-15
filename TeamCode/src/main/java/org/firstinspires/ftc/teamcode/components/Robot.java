@@ -36,7 +36,7 @@ public class Robot extends BaseComponent {
 
         this.lynxModules = hardwareMap.getAll(LynxModule.class);
 
-        driveTrain = new DriveTrain(context, this);
+        driveTrain = new DriveTrain(context);
         aprilTag = new AprilTag(context, this);
         intake = new Intake(context, this);
         shooter1 = new Shooter(context, this, "shooter");
@@ -58,7 +58,7 @@ public class Robot extends BaseComponent {
 
         this.lynxModules = hardwareMap.getAll(LynxModule.class);
 
-        driveTrain = new DriveTrain(context, this);
+        driveTrain = new DriveTrain(context);
         aprilTag = new AprilTag(context, this);
         intake = new Intake(context, this);
         shooter1 = new Shooter(context, this, "shooter");

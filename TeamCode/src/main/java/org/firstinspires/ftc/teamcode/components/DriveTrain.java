@@ -41,9 +41,9 @@ public class DriveTrain extends BaseComponent {
     public static DriveTuner driveTuner;
     public static OdometryTuner odometryTuner;
 
-    public DriveTrain(RobotContext context, Robot robot) {
+    public DriveTrain(RobotContext context/*, Robot robot*/) {
         super(context);
-        this.robot = robot;
+        //this.robot = robot;
 
     }
 
