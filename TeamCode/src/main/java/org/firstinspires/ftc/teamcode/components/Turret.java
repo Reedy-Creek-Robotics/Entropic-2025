@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
@@ -14,6 +15,7 @@ public class Turret extends BaseComponent{
      * In rpm
      */
     static int baseMotorSpeed = 1150;
+    static double baseTicksPerDeg =  300.0 / 360; //TODO: Change this
     static double drivePulleyTeeth = 24;
     static double turretPulleyTeeth = 134;
 
@@ -55,6 +57,7 @@ public class Turret extends BaseComponent{
      * Configured like the Lazy Suzan, with it's effective stats (rpm, tps, torque) <br> points to "turret" hardware map
      */
     DcMotorEx turretLazySuzan;
+    double toleranceDeg = 5;
 
     public Turret(RobotContext context) {
         super(context);
@@ -74,11 +77,27 @@ public class Turret extends BaseComponent{
 
         turretMotor.setMotorType(motorConfiguration);
         turretLazySuzan.setMotorType(lazySuzanConfiguration);
+
+        turretMotor.setTargetPositionTolerance((int) (baseTicksPerDeg * toleranceDeg));
+        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+    public void update(){
+        telemetry.addData("Turret Pos:", getPositionTicks());
     }
 
-    @Override
-    public void update() {
-
-
+    public void goToDeg(double targetDeg) {
+        turretMotor.setTargetPosition((int) (targetDeg * ticksPerDeg));
+        turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
+
+    public int getPositionTicks(){
+        return turretMotor.getCurrentPosition();
+    }
+
+    public double getPositionDeg(){
+        return getPositionTicks() / baseTicksPerDeg;
+    }
+
+
 }
