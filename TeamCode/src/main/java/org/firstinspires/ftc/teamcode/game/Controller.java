@@ -41,7 +41,12 @@ public class Controller {
         RIGHT_BUMPER,
         PS,
         SHARE,
-        TOUCH_PAD;
+        TOUCH_PAD,
+        SOUTH, // Mapped to CROSS
+        EAST, // Mapped to CIRCLE
+        NORTH, //Mapped to TRIANGLE
+        WEST; // Mapped to SQUARE
+
 
         private static final Map<Button, Button> ALIASES = new HashMap<>();
 
@@ -50,6 +55,7 @@ public class Controller {
             ALIASES.put(B, CIRCLE);
             ALIASES.put(X, SQUARE);
             ALIASES.put(Y, TRIANGLE);
+
 
             for (Map.Entry<Button, Button> entry : new HashMap<>(ALIASES).entrySet()) {
                 ALIASES.put(entry.getValue(), entry.getKey());
@@ -249,7 +255,33 @@ public class Controller {
         }
     }
 
+    /**
+     * @return true if no buttons or analog sticks are pressed or moved
+     */
+    public boolean isRest(){
+        for(Button button : Button.values()){
+            if(isPressed(button)){return false;}
+        }
+        return gamepad.atRest();
+    }
+
     public boolean isPressed(Button button) {
+
+        switch(button){
+            case SOUTH:
+                button = Button.CROSS;
+                break;
+            case EAST:
+                button = Button.CIRCLE;
+                break;
+            case NORTH:
+                button = Button.TRIANGLE;
+                break;
+            case WEST:
+                button = Button.SQUARE;
+                break;
+        }
+
         boolean buttonDown = isButtonDown(button);
         if (buttonDown) {
 
@@ -275,6 +307,21 @@ public class Controller {
     }
 
     public boolean isButtonDown(Button button) {
+        switch(button){
+            case SOUTH:
+                button = Button.CROSS;
+                break;
+            case EAST:
+                button = Button.CIRCLE;
+                break;
+            case NORTH:
+                button = Button.TRIANGLE;
+                break;
+            case WEST:
+                button = Button.SQUARE;
+                break;
+        }
+
         return isButtonDownInternal(button) ||
                 isButtonDownInternal(button.getAlias());
     }
@@ -304,12 +351,16 @@ public class Controller {
             case Y:
                 return gamepad.y;
             case CROSS:
+            case SOUTH:
                 return gamepad.cross;
             case CIRCLE:
+            case EAST:
                 return gamepad.circle;
             case TRIANGLE:
+            case NORTH:
                 return gamepad.triangle;
             case SQUARE:
+            case WEST:
                 return gamepad.square;
             case GUIDE:
                 return gamepad.guide;
@@ -332,6 +383,26 @@ public class Controller {
             default:
                 throw new IllegalArgumentException("Unknown button: " + button);
         }
+    }
+
+    public void setLED(ColorValue color, int durationMs){
+        gamepad.setLedColor(color.red, color.green, color.blue, durationMs);
+    }
+
+    public void ledPattern(Gamepad.LedEffect effect){
+        gamepad.runLedEffect(effect);
+    }
+
+    public void rumble(int duration){
+        rumble(1, 1, duration);
+    }
+
+    public void rumble(double power1, double power2, int duration){
+        gamepad.rumble(power1, power2, duration);
+    }
+
+    public void rumblePattern(Gamepad.RumbleEffect effect){
+        gamepad.runRumbleEffect(effect);
     }
 
     public static boolean nonZero(double analogValue){
