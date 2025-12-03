@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.tests;
 
 import android.util.Size;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 
 @Autonomous
+@Configurable
 public class TurretAutomaticTest extends OpMode {
 
     static double ticksPerRev = 145.1;
@@ -143,8 +145,8 @@ public class TurretAutomaticTest extends OpMode {
             telemetry.addData("center x", centerX);
 
             if(runToPos){
-                telemetry.addData("target tag", turret.getCurrentPosition() + (int) (-bearing * effectiveTicksPerDeg));
-                if(move) turret.setTargetPosition(turret.getCurrentPosition() + (int) (-bearing * effectiveTicksPerDeg));
+                telemetry.addLine("target tag");
+                turret.setTargetPosition(turret.getCurrentPosition() + (int) (-bearing * effectiveTicksPerDeg));
             }else {
                 if (useCenterX) {
                     if (centerX < 520 && centerX > 504) {
@@ -180,20 +182,36 @@ public class TurretAutomaticTest extends OpMode {
             telemetry.addLine("tag 24 not found");
             if (move&&!runToPos) turret.setPower(bearing < 0 ? 0.3 : -0.3);
             if (runToPos){
-                telemetry.addData("target imu", (int) (-headingImu * effectiveTicksPerDeg));
-                if (move) turret.setTargetPosition((int) (-headingImu * effectiveTicksPerDeg));
+                telemetry.addLine("target imu");
+                turret.setTargetPosition((int) (headingImu * effectiveTicksPerDeg));
             }
         }
+
+        if(move&&runToPos){
+            turret.setPower(turret.getTargetPosition() > turret.getCurrentPosition() ? 1 : -1);
+        }
+
+        if(!move) turret.setPower(0);
+
+        telemetry.addData("target", turret.getTargetPosition());
         telemetry.update();
     }
 
     private AprilTagDetection getTag24(){
+        return getTag(24);
+    }
+
+    private AprilTagDetection getTag(int id){
         detectionList = aprilTag.getDetections();
         if(detectionList.isEmpty()) return null;
         for(AprilTagDetection detection : detectionList){
-            if(detection.id == 24) return detection;
+            if(detection.id == id) return detection;
         }
         return null;
+    }
+
+    private AprilTagDetection getTag20(){
+        return getTag(20);
     }
 
     private void initAprilTag() {
