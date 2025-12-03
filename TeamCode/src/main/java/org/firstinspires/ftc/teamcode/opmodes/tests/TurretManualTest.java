@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -30,6 +30,7 @@ public class TurretManualTest extends OpMode {
         turret = hardwareMap.get(DcMotorEx.class, "turret");
         //turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turret.setTargetPositionTolerance(10);
         controller = new Controller(gamepad1);
     }
 
@@ -51,10 +52,11 @@ public class TurretManualTest extends OpMode {
 
         if(controller.isPressed(Controller.Button.LEFT_STICK_BUTTON)){
             test = !test;
+            turret.setMode(test ? DcMotor.RunMode.RUN_USING_ENCODER : DcMotor.RunMode.RUN_TO_POSITION);
         }
 
         if(test) {
-            if (Math.abs(turret.getCurrentPosition() - pos) <= 1) {
+            if (Math.abs(turret.getCurrentPosition() - pos) <= 3) {
                 turret.setPower(0);
             } else if (Math.abs(turret.getCurrentPosition() - pos) <= 25) {
                 turret.setPower(turret.getCurrentPosition() < (int) pos ? 0.2 : -0.2);
@@ -63,11 +65,7 @@ public class TurretManualTest extends OpMode {
             }
         }else{
             turret.setTargetPosition((int) pos);
-            if (Math.abs(turret.getCurrentPosition() - pos) <= 25) {
-                turret.setPower(turret.getCurrentPosition() < (int) pos ? 0.2 : -0.2);
-            }else{
-                turret.setPower(turret.getCurrentPosition() < (int) pos ? 1 : -1);
-            }
+            turret.setPower(1);
         }
 
         telemetry.update();

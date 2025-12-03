@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 import java.util.Arrays;
 import java.util.List;
 
-import org.firstinspires.ftc.teamcode.util.ListUtil;
+import org.firstinspires.ftc.teamcode.util.ArrayUtil;
 
 public class Turret extends BaseComponent{
 
@@ -24,19 +24,19 @@ public class Turret extends BaseComponent{
     /**
      * In rpm
      */
-    static List<Integer> speeds = Arrays.asList(30, 43, 60, 84, 117, 223, 312, 435, 1150, 1620, 6000);
+    static int[] speeds = {30, 43, 60, 84, 117, 223, 312, 435, 1150, 1620, 6000};
     /**
      * In kg.cm
      */
-    static List<Double> torques = Arrays.asList(250.0, 185.0, 133.2, 93.6, 68.4, 38.0, 24.3, 18.7, 7.9, 5.4, 1.5);
-    static List<Double> ticksPerRevs = Arrays.asList(5281.1, 3895.9, 2786.2, 1993.6, 1425.1, 751.8, 537.7, 384.5, 145.1, 103.8, 28.0);
+    static double[] torques = {250.0, 185.0, 133.2, 93.6, 68.4, 38.0, 24.3, 18.7, 7.9, 5.4, 1.5};
+    static double[] ticksPerRevs = {5281.1, 3895.9, 2786.2, 1993.6, 1425.1, 751.8, 537.7, 384.5, 145.1, 103.8, 28.0};
 
-    static int motorType = ListUtil.findIndexOfItem(speeds, baseMotorSpeed);
+    static int motorType = ArrayUtil.findIndexOfItem(speeds, baseMotorSpeed);
     /**
      * In kg.cm
      */
-    static double baseMotorTorque = torques.get(motorType);
-    static double baseTicksPerRev = ticksPerRevs.get(motorType);
+    static double baseMotorTorque = torques[motorType];
+    static double baseTicksPerRev = ticksPerRevs[motorType];
 
     /**
      * Effective speed accounting for the gear ratio <br> Measured in RPM
@@ -87,7 +87,7 @@ public class Turret extends BaseComponent{
     }
 
     public void goToDeg(double targetDeg) {
-        turretMotor.setTargetPosition((int) (targetDeg * ticksPerDeg));
+        turretMotor.setTargetPosition((int) (targetDeg * baseTicksPerDeg));
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
