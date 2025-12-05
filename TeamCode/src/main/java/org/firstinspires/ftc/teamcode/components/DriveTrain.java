@@ -53,10 +53,10 @@ public class DriveTrain extends BaseComponent {
         imu.initialize(parameters);
         */
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "FrontLeft");
-        leftRear = hardwareMap.get(DcMotorEx.class, "BackLeft");
-        rightRear = hardwareMap.get(DcMotorEx.class, "BackRight");
-        rightFront = hardwareMap.get(DcMotorEx.class, "FrontRight");
+        leftFront = hardwareMap.get(DcMotorEx.class, "lf");
+        leftRear = hardwareMap.get(DcMotorEx.class, "lr");
+        rightRear = hardwareMap.get(DcMotorEx.class, "rr");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rf");
 
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
