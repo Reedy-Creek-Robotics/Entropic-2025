@@ -27,7 +27,11 @@ public class RobotContext {
 
     public DriveUtil driveUtil;
 
-    public int alliance;
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     */
+    public boolean alliance;
 
     public WebcamName webcam;
 
@@ -39,8 +43,8 @@ public class RobotContext {
         this.driveUtil = new MecanumUtil();
 
         //new TwoWheelTrackingLocalizer(opMode.hardwareMap,this.descriptor);
-        //blue is negative one, red is positive one
-        this.alliance = -1;
+        //blue is true, red is false
+        this.alliance = true;
         this.webcam = opMode.hardwareMap.get(WebcamName.class, "Webcam 1");
     }
 
@@ -58,7 +62,13 @@ public class RobotContext {
         return driveUtil;
     }
 
-    public int getAlliance() {
+
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     * @return alliance as a boolean
+     */
+    public boolean getAlliance() {
         return alliance;
     }
 

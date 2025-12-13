@@ -1,11 +1,20 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +29,8 @@ public abstract class BaseComponent implements Component {
 
     protected HardwareMap hardwareMap;
 
-    protected Telemetry telemetry;
+    protected Telemetry ftcTelemetry;
+    protected TelemetryManager telemetry;
 
     protected ElapsedTime commandTime;
 
@@ -33,11 +43,12 @@ public abstract class BaseComponent implements Component {
         this.context = context;
         this.opMode = context.opMode;
         this.hardwareMap = opMode.hardwareMap;
-        this.telemetry = opMode.telemetry;
         this.descriptor = context.descriptor;
         this.commandTime = new ElapsedTime();
         this.currentCommand = null;
         this.nextCommands = new ArrayList<>();
+        this.ftcTelemetry = opMode.telemetry;
+        this.telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
     /**
@@ -112,8 +123,8 @@ public abstract class BaseComponent implements Component {
     @Override
     public void init() {
         for (Component subComponent : subComponents) {
-            telemetry.log().add("Init SubComponent: " + subComponent);
-            telemetry.update();
+            telemetry.addData("Init SubComponent", subComponent);
+            updateTelemetry();
             subComponent.init();
         }
     }
@@ -174,6 +185,10 @@ public abstract class BaseComponent implements Component {
 
     public String toString() {
         return getClass().getSimpleName();
+    }
+
+    protected void updateTelemetry(){
+        telemetry.update(ftcTelemetry);
     }
 
 }

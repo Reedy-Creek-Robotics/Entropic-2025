@@ -8,6 +8,7 @@ import android.util.Size;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -36,7 +37,7 @@ import java.util.List;
 
 @TeleOp
 @Configurable
-public class TurretDriveTest extends OpMode {
+public class TurretOtosTest extends OpMode {
 
     ElapsedTime timer;
 
@@ -45,9 +46,9 @@ public class TurretDriveTest extends OpMode {
     static int baseMotorSpeed = 1150;
     static double drivePulleyTeeth = 24;
     static double turretPulleyTeeth = 134;
-
-    static Pose2D redTag = new Pose2D(128, 128, 234);
-    static Pose2D blueTag = new Pose2D(16, 128, 144);
+//16.25in from side
+    static Pose2D redTag = new Pose2D(31.75, 59, 234);
+    static Pose2D blueTag = new Pose2D(-79.75, 59, 144);
 
     static double gearRatio = turretPulleyTeeth / drivePulleyTeeth;
 
@@ -77,18 +78,14 @@ public class TurretDriveTest extends OpMode {
     Pose2D otosVel = new Pose2D();
     Pose2D otosAcc = new Pose2D();
 
-    static Pose2D otosOffset = new Pose2D(-1, 0, 90);
-    static Pose2D startPos = new Pose2D(72-otosOffset.x, 72, Math.toRadians(0));
+    static Pose2D otosOffset = new Pose2D(-2.75, 0, Math.toRadians(90));
+    //static Pose2D startPos = new Pose2D(72-otosOffset.x, 72, Math.toRadians(0));
+    static Pose2D startPos = new Pose2D();
 
     // CAMERA
 
     int decimation = 3;
-    int scanPhase = 0;
 
-    boolean freshFrame = true;
-    boolean calibrate = /*false*/true;
-
-    static double fx = 595.21, fy = 595.21, cx = 984.515, cy = 599.035;
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
 
@@ -106,13 +103,9 @@ public class TurretDriveTest extends OpMode {
         timer = new ElapsedTime();
         panelsTelem = PanelsTelemetry.INSTANCE;
         telem = panelsTelem.getTelemetry();
-        otos.resetTracking();
-        otos.setLinearUnit(DistanceUnit.INCH);
-        otos.setAngularUnit(AngleUnit.DEGREES);
+        otos = hardwareMap.get(SparkFunOTOS.class, "otos");
         otos.setOffset(otosOffset);
         otos.setPosition(startPos);
-        otos.setLinearScalar(72/71.3);
-        otos.setAngularScalar(1800/1781.5);
         otos.calibrateImu();
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
         turret = hardwareMap.get(DcMotorEx.class, "turret");
@@ -173,17 +166,14 @@ public class TurretDriveTest extends OpMode {
         telem.addData("fps", visionPortal.getFps());
         telem.addData("decimation", decimation);
         telem.addData("alliance", alliance ? "blue" : "red");
-        telem.addData("calibrate", calibrate);
-        telem.addData("scan", scanPhase > 0);
         telem.addData("timer", timer);
-        telem.addData("Pose", otosPos.toString());
+        telem.addData("pose", otosPos.toString());
+        tag = getTag(alliance ? 20 : 24);
+        if(tag != null) {
+            telem.addData("bearing", tag.ftcPose.bearing);
+        }
 
-        if(timer.seconds() > 15) calibrate = true;
-
-        /*if(calibrate) calibrate();
-        else setTargetDegrees(Math.toDegrees(Math.tanh((alliance ? blueTag.x : redTag.x - otosPos.x) / (alliance ? blueTag.y : redTag.y - otosPos.y))));*/
-
-        if(!calibrate()) setTargetDegrees(Math.toDegrees(Math.tanh((alliance ? blueTag.x : redTag.x - otosPos.x) / (alliance ? blueTag.y : redTag.y - otosPos.y)))-otosPos.h);
+        setTargetDegrees(Math.toDegrees(Math.tanh((alliance ? blueTag.x : redTag.x - otosPos.x) / (alliance ? blueTag.y : redTag.y - otosPos.y)))+otosPos.h);
 
         telem.addData("target", turret.getTargetPosition());
         telem.update(telemetry);
@@ -208,53 +198,6 @@ public class TurretDriveTest extends OpMode {
             if(detection.id == id) return detection;
         }
         return null;
-    }
-
-    private boolean calibrate(){
-        tag = getTag(alliance ? 20 : 24);
-        if(tag == null){
-            //scan();
-            return false;
-        }
-
-        bearing = tag.ftcPose.bearing;
-        telem.addData("bearing", bearing);
-        if (bearing != previousBearing) {
-            setTargetDegrees(-bearing);
-            if(Math.abs(bearing) <= 5){
-                otos.setPosition(pose3dToPose2d(tag.robotPose));
-                timer.reset();
-                //calibrate = false;
-            }
-            previousBearing = bearing;
-            return true;
-        }
-        previousBearing = bearing;
-        return false;
-    }
-
-    private void scan(){
-        scanPhase = 1;
-        turret.setPower(0.2);
-        if(scanPhase == 1) setTargetDegrees(0);
-        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        if(!turret.isBusy()){
-            if(scanPhase == 1){
-                setTargetDegrees(360);
-                turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                scanPhase = 2;
-            }
-            if(scanPhase == 2){
-                setTargetDegrees(0);
-                turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                scanPhase = 1;
-            }
-        }
-        if(getTag(alliance ? 20 : 24) != null){
-            turret.setPower(1);
-            turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            scanPhase = 0;
-        }
     }
 
     private Pose2D pose3dToPose2d(Pose3D pos){
