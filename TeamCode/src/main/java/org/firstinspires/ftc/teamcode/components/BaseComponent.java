@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,8 @@ public abstract class BaseComponent implements Component {
     private List<Command> nextCommands;
 
     private List<Component> subComponents = new ArrayList<>();
+
+    static String logPrefix = "Comp-";
 
     public BaseComponent(RobotContext context) {
         this.context = context;
@@ -190,5 +193,4 @@ public abstract class BaseComponent implements Component {
     protected void updateTelemetry(){
         telemetry.update(ftcTelemetry);
     }
-
 }
