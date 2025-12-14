@@ -3,32 +3,56 @@ package org.firstinspires.ftc.teamcode.components;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.util.EmptyObjectUtil;
+import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 
 public class Transtake extends BaseComponent {
 
-    //0 = no balls in robot
-    //1 = one ball in center
-    //2 = one ball in center, one ball in front
-    //3 = one ball in center, one ball in back
-    //4 = three balls in robot
+    /**
+     * 0 = no balls in robot<br>
+     * 1 = one ball in center<br>
+     * 2 = one ball in center, one ball in front<br>
+     * 3 = one ball in center, one ball in back<br>
+     * 4 = three balls in robot
+     */
     int ballState;
 
     private DcMotorEx intakeFront;
     private DcMotorEx intakeBack;
-    private CRServo rollerFront;
-    private CRServo rollerBack;
+    private Servo rollerFront;
+    private Servo rollerBack;
+
+    LogCatUtil log;
 
     public Transtake(RobotContext context) {
         super(context);
+
+        log = new LogCatUtil("Transtake");
     }
 
     @Override
     public void init() {
-        intakeFront = hardwareMap.get(DcMotorEx.class, "intakeFront");
-        intakeBack = hardwareMap.get(DcMotorEx.class, "intakeBack");
-        rollerFront = hardwareMap.get(CRServo.class, "rollerFront");
-        rollerBack = hardwareMap.get(CRServo.class, "rollerBack");
+        try {
+            intakeFront = hardwareMap.get(DcMotorEx.class, "intakeFront");
+            intakeBack = hardwareMap.get(DcMotorEx.class, "intakeBack");
+        }catch (Exception e){
+            log.error("\"intakeFront\" or \"intakeBack\" not found in hardware map. Falling back to empty DcMotorEx object.");
+            log.error(e.getMessage());
+            intakeFront = EmptyObjectUtil.getEmptyMotorEx();
+            intakeBack = EmptyObjectUtil.getEmptyMotorEx();
+        }
+        try {
+            rollerFront = hardwareMap.get(Servo.class, "rollerFront");
+            rollerBack = hardwareMap.get(Servo.class, "rollerBack");
+        } catch (Exception e) {
+            log.error("\"rollerFront\" or \"rollerBack\" not found in hardware map. Falling back to empty DcMotorEx object.");
+            log.error(e.getMessage());
+            rollerFront = EmptyObjectUtil.getEmptyServo();
+            rollerBack = EmptyObjectUtil.getEmptyServo();
+        }
 
         //change depending on auto - may need to grab from file
         ballState = 0;
@@ -36,7 +60,7 @@ public class Transtake extends BaseComponent {
 
     @Override
     public void update(){
-        telemetry.addData("ballState",ballState);
+        telemetry.addData("ballState", ballState);
     }
 
     public int getBallState() {
@@ -121,11 +145,11 @@ public class Transtake extends BaseComponent {
 
     public class RollerForTime implements Command {
 
-        CRServo roller;
+        Servo roller;
         double power, time;
         ElapsedTime timer;
 
-        public RollerForTime(CRServo roller, double power, double timeMs){
+        public RollerForTime(Servo roller, double power, double timeMs){
             this.roller = roller;
             this.power = power;
             this.time = timeMs;
@@ -133,13 +157,13 @@ public class Transtake extends BaseComponent {
 
         @Override
         public void start(){
-            roller.setPower(power);
+            roller.setPosition((power + 1) / 2);
             timer = new ElapsedTime();
         }
 
         @Override
         public void stop() {
-            roller.setPower(0);
+            roller.setPosition(0.5);
         }
 
         @Override
