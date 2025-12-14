@@ -5,7 +5,6 @@ import android.util.Size;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ftc.InvertedFTCCoordinates;
 import com.pedropathing.ftc.PoseConverter;
-import com.pedropathing.geometry.CoordinateSystem;
 import com.pedropathing.geometry.PedroCoordinates;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
@@ -20,16 +19,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.util.EmptyObjectUtil;
-
-import java.util.Arrays;
-import java.util.List;
-
 import org.firstinspires.ftc.teamcode.util.ArrayUtil;
+import org.firstinspires.ftc.teamcode.util.EmptyObjectUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
+import java.util.List;
 
 @Configurable
 public class Turret extends BaseComponent{
@@ -56,23 +53,19 @@ public class Turret extends BaseComponent{
      * In rpm
      */
     static int baseMotorSpeed = 1150;
-    static double baseTicksPerDeg =  300.0 / 360; //TODO: Change this
     static double drivePulleyTeeth = 24;
     static double turretPulleyTeeth = 134;
 
     static double gearRatio = turretPulleyTeeth / drivePulleyTeeth;
 
-    /**
-     * In rpm
-     */
-    static int[] speeds = {30, 43, 60, 84, 117, 223, 312, 435, 1150, 1620, 6000};
-    /**
-     * In kg.cm
-     */
-    static double[] torques = {250.0, 185.0, 133.2, 93.6, 68.4, 38.0, 24.3, 18.7, 7.9, 5.4, 1.5};
+    /**In rpm*/
+    static int[] speeds          = {30,     43,     60,     84,     117,    223,   312,   435,   1150,  1620,  6000};/**In kg.cm*/
+    static double[] torques      = {250.0,  185.0,  133.2,  93.6,   68.4,   38.0,  24.3,  18.7,  7.9,   5.4,   1.5};
     static double[] ticksPerRevs = {5281.1, 3895.9, 2786.2, 1993.6, 1425.1, 751.8, 537.7, 384.5, 145.1, 103.8, 28.0};
 
     static int motorType = ArrayUtil.findIndexOfItem(speeds, baseMotorSpeed);
+
+    static double baseTicksPerDeg =  ticksPerRevs[motorType] / 360;
     /**
      * In kg.cm
      */
@@ -90,8 +83,8 @@ public class Turret extends BaseComponent{
     static double effectiveTicksPerRev = baseTicksPerRev * gearRatio;
     static double effectiveTicksPerDeg = effectiveTicksPerRev / 360;
 
-    static Pose2D redTag = new Pose2D(31.875, 58.5, 234); //ToDo update to match coordinate system
-    static Pose2D blueTag = new Pose2D(0, 0, 144); //ToDo update to match coordinate system
+    static Pose2D redTag = new Pose2D(130, 130, 126);
+    static Pose2D blueTag = new Pose2D(10, 130, 234);
 
     Pose2D otosPos = new Pose2D();
 
@@ -228,11 +221,12 @@ public class Turret extends BaseComponent{
 
     private void otosAutoAim(){
         // Calculates the theta using tanh function
-        double theta = Math.toDegrees(Math.tanh((alliance ? blueTag.x : redTag.x - otosPos.x) / (alliance ? blueTag.y : redTag.y - otosPos.y)));
+        // tanh(o/a)=theta
+        double delta = Math.toDegrees(Math.tanh((alliance ? blueTag.x : redTag.x - otosPos.x) / (alliance ? blueTag.y : redTag.y - otosPos.y)));
         // We subtract the theta from the heading to account for robot rotation.
-        setTargetDegrees(-otosPos.h - theta);
-        telemetry.addData("theta", theta);
-        telemetry.addData("delta deg", -otosPos.h - theta);
+        setTargetDegrees(-otosPos.h - delta);
+        telemetry.addData("theta", delta);
+        telemetry.addData("delta deg", -otosPos.h - delta);
     }
 
     private void tagAutoAim(){

@@ -34,6 +34,10 @@ public class RobotContext {
         this(opMode, descriptor, true);
     }
 
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     */
     public RobotContext(OpMode opMode, RobotDescriptor descriptor, boolean alliance) {
         this.opMode = opMode;
         this.descriptor = descriptor;
@@ -86,9 +90,4 @@ public class RobotContext {
             return rotation;
         }
     }*/
-
-    /**
-     * Represents A component that knows how to obtain the robot's current position.
-     */
-
 }

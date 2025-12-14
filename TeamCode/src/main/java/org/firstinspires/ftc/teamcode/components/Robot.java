@@ -23,6 +23,7 @@ public class Robot extends BaseComponent{
     private DriveTrain driveTrain;
     private Turret turret;
     private Shooter shooter;
+    private Transtake transtake;
     // END COMPONENTS
 
     private int updateCount;
@@ -38,9 +39,10 @@ public class Robot extends BaseComponent{
         driveTrain = new DriveTrain(context, this);
         turret = new Turret(context, this);
         shooter = new Shooter(context, this);
+        transtake = new Transtake(context, this);
         // END COMPONENTS
 
-        addSubComponents(driveTrain, turret, shooter);
+        addSubComponents(driveTrain, turret, shooter, transtake);
     }
 
     public RobotContext getRobotContext() {
@@ -136,19 +138,23 @@ public class Robot extends BaseComponent{
     }
 
     public void onStart() {
-        // todo: Commenting this out for now since we no longer need to worry about moving the turrent from a diagonal
-        // todo: start position to the front.  We may need to revisit this since the turret won't "lock" in place
-        // todo: until the slide moves above a specific height.
-        //slide.moveToHeight(TRAVEL);
-
         ftcTelemetry.clear();
     }
 
-    public static RobotContext createRobotContext(OpMode opMode) {
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     */
+    public static RobotContext createRobotContext(OpMode opMode, boolean alliance){
         return new RobotContext(
                 opMode,
-                new RobotDescriptor()
+                new RobotDescriptor(),
+                alliance
         );
+    }
+
+    public static RobotContext createRobotContext(OpMode opMode){
+        return createRobotContext(opMode, true);
     }
 
     public void waitForCommandsToFinish() {

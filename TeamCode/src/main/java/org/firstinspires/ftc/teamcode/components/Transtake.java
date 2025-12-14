@@ -27,10 +27,17 @@ public class Transtake extends BaseComponent {
 
     LogCatUtil log;
 
-    public Transtake(RobotContext context) {
+    Robot robot;
+
+    public Transtake(RobotContext context, Robot robot) {
         super(context);
 
         log = new LogCatUtil("Transtake");
+        this.robot = robot;
+    }
+
+    public Transtake(RobotContext context){
+        this(context, null);
     }
 
     @Override
