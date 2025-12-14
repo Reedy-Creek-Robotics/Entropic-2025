@@ -11,6 +11,7 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -35,6 +36,7 @@ import java.util.List;
 //ToDo make camera tracking set otos pose on each new frame with a valid tag.
 
 @TeleOp
+@Disabled
 @Configurable
 public class TurretDriveTest extends OpMode {
 
