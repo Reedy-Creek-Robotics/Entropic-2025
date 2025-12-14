@@ -31,13 +31,17 @@ public class RobotContext {
     List<Integer> lastTrackingEncPositions = new ArrayList<>();
     List<Integer> lastTrackingEncVels = new ArrayList<>();
     public RobotContext(OpMode opMode, RobotDescriptor descriptor) {
+        this(opMode, descriptor, true);
+    }
+
+    public RobotContext(OpMode opMode, RobotDescriptor descriptor, boolean alliance) {
         this.opMode = opMode;
         this.descriptor = descriptor;
         this.driveUtil = new MecanumUtil();
 
         //new TwoWheelTrackingLocalizer(opMode.hardwareMap,this.descriptor);
         //blue is true, red is false
-        this.alliance = true;
+        this.alliance = alliance;
     }
 
     public OpMode getOpMode() {
