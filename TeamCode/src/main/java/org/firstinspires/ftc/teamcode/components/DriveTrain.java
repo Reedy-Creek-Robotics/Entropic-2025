@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.Odometry
 
 import android.annotation.SuppressLint;
 
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -14,6 +15,8 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.util.DriveUtil;
+import org.firstinspires.ftc.teamcode.util.EmptyObjectUtil;
+import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,16 +30,22 @@ public class DriveTrain extends BaseComponent {
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private List<DcMotorEx> motors;
 
-    private IMU imu;
+    private SparkFunOTOS otos;
     private VoltageSensor batteryVoltageSensor;
 
+    private LogCatUtil log;
 
+    private Robot robot;
 
     public static DriveTuner driveTuner;
     public static OdometryTuner odometryTuner;
 
-    public DriveTrain(RobotContext context) {
+    public DriveTrain(RobotContext context, Robot robot) {
         super(context);
+
+        this.robot = robot;
+
+        log = new LogCatUtil("DriveTrain");
 
         driveTuner = descriptor.DRIVE_TUNER;
         odometryTuner = descriptor.ODOMETRY_TUNER;
@@ -45,18 +54,18 @@ public class DriveTrain extends BaseComponent {
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        // TODO: adjust the names of the following hardware devices to match your configuration
-        /*
-        imu = hardwareMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR));
-        imu.initialize(parameters);
-        */
+        try{
+            otos = hardwareMap.get(SparkFunOTOS.class, "otos");
+        } catch (Exception e) {
+            log.error("Device \"otos\" not found in hardware map. Defaulting to empty DcMotorEx object.");
+            log.error(e.getMessage());
+            otos = EmptyObjectUtil.getEmptySparkFunOTOS();
+        }
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "FrontLeft");
-        leftRear = hardwareMap.get(DcMotorEx.class, "BackLeft");
-        rightRear = hardwareMap.get(DcMotorEx.class, "BackRight");
-        rightFront = hardwareMap.get(DcMotorEx.class, "FrontRight");
+        leftFront = hardwareMap.get(DcMotorEx.class, "lf");
+        leftRear = hardwareMap.get(DcMotorEx.class, "lr");
+        rightRear = hardwareMap.get(DcMotorEx.class, "rr");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rf");
 
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
@@ -83,6 +92,10 @@ public class DriveTrain extends BaseComponent {
         }
     }
 
+    public DriveTrain(RobotContext context){
+        this(context, null);
+    }
+
 
     public void setMode(DcMotor.RunMode runMode) {
         for (DcMotorEx motor : motors) {
@@ -105,6 +118,10 @@ public class DriveTrain extends BaseComponent {
         for (DcMotorEx motor : motors) {
             motor.setPIDFCoefficients(runMode, compensatedCoefficients);
         }
+    }
+
+    public SparkFunOTOS getOtos(){
+        return otos;
     }
 
     public void drive(double drive, double strafe, double turn, double speedFactor) {

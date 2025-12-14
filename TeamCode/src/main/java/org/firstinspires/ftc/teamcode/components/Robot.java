@@ -19,7 +19,11 @@ public class Robot extends BaseComponent{
 
     private List<LynxModule> lynxModules;
 
+    // START COMPONENTS
     private DriveTrain driveTrain;
+    private Turret turret;
+    private Shooter shooter;
+    // END COMPONENTS
 
     private int updateCount;
     private ElapsedTime initTime;
@@ -30,11 +34,13 @@ public class Robot extends BaseComponent{
 
         this.lynxModules = hardwareMap.getAll(LynxModule.class);
 
-        driveTrain = new DriveTrain(context);
+        // START COMPONENTS
+        driveTrain = new DriveTrain(context, this);
+        turret = new Turret(context, this);
+        shooter = new Shooter(context, this);
+        // END COMPONENTS
 
-        addSubComponents(driveTrain);
-
-        TelemetryHolder.telemetry = telemetry;
+        addSubComponents(driveTrain, turret, shooter);
     }
 
     public RobotContext getRobotContext() {
@@ -47,8 +53,8 @@ public class Robot extends BaseComponent{
 
         double voltage = computeBatteryVoltage();
         if (voltage < VOLTAGE_WARNING_THRESHOLD) {
-            telemetry.log().add("LOW BATTERY WARNING");
-            telemetry.log().add("My battery is low and it's getting dark -Opportunity");
+            telemetry.addLine("LOW BATTERY WARNING");
+            telemetry.addLine("My battery is low and it's getting dark -Opportunity");
         }
 
         // Set the caching mode for reading values from Lynx components to manual. This means that when reading values
@@ -61,7 +67,7 @@ public class Robot extends BaseComponent{
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        telemetry.log().add("Robot is initialized");
+        telemetry.addLine("Robot is initialized");
         telemetry.update();
 
         initTime = new ElapsedTime();
@@ -113,7 +119,7 @@ public class Robot extends BaseComponent{
 
 
             } catch (Exception e) {
-                telemetry.log().add("Error loading position: " + ErrorUtil.convertToString(e));
+                telemetry.addData("Error loading position", ErrorUtil.convertToString(e));
             }
 
             // Now that the position has been consumed, remove the file
@@ -135,7 +141,7 @@ public class Robot extends BaseComponent{
         // todo: until the slide moves above a specific height.
         //slide.moveToHeight(TRAVEL);
 
-        telemetry.log().clear();
+        ftcTelemetry.clear();
     }
 
     public static RobotContext createRobotContext(OpMode opMode) {
@@ -161,6 +167,7 @@ public class Robot extends BaseComponent{
     public DriveTrain getDriveTrain() {
         return driveTrain;
     }
+
     private double computeBatteryVoltage() {
         double result = Double.POSITIVE_INFINITY;
         for (VoltageSensor sensor : hardwareMap.voltageSensor) {

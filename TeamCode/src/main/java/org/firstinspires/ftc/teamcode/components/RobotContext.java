@@ -20,16 +20,13 @@ public class RobotContext {
 
     public RobotDescriptor descriptor;
 
-    private Position cameraPosition = new Position(DistanceUnit.INCH,
-            0, 0, 0, 0);
-    private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
-            0, -90, 0, 0);
-
     public DriveUtil driveUtil;
 
-    public int alliance;
-
-    public WebcamName webcam;
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     */
+    public boolean alliance;
 
     List<Integer> lastTrackingEncPositions = new ArrayList<>();
     List<Integer> lastTrackingEncVels = new ArrayList<>();
@@ -39,9 +36,8 @@ public class RobotContext {
         this.driveUtil = new MecanumUtil();
 
         //new TwoWheelTrackingLocalizer(opMode.hardwareMap,this.descriptor);
-        //blue is negative one, red is positive one
-        this.alliance = -1;
-        this.webcam = opMode.hardwareMap.get(WebcamName.class, "Webcam 1");
+        //blue is true, red is false
+        this.alliance = true;
     }
 
     public OpMode getOpMode() {
@@ -52,18 +48,18 @@ public class RobotContext {
         return descriptor;
     }
 
-
-
     public DriveUtil getDriveUtil() {
         return driveUtil;
     }
 
-    public int getAlliance() {
-        return alliance;
-    }
 
-    public WebcamName getWebcam() {
-        return webcam;
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     * @return alliance as a boolean
+     */
+    public boolean getAlliance() {
+        return alliance;
     }
 
     /*public enum Alliance{
@@ -90,6 +86,5 @@ public class RobotContext {
     /**
      * Represents A component that knows how to obtain the robot's current position.
      */
-
 
 }
