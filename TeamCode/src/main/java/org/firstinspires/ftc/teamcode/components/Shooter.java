@@ -2,8 +2,12 @@ package org.firstinspires.ftc.teamcode.components;
 
 public class Shooter extends BaseComponent{
 
-    public Shooter(RobotContext context) {
+    public Shooter(RobotContext context, Robot robot) {
         super(context);
+    }
+
+    public Shooter(RobotContext context) {
+        this(context, null);
     }
 
     @Override

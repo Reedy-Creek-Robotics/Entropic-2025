@@ -19,7 +19,11 @@ public class Robot extends BaseComponent{
 
     private List<LynxModule> lynxModules;
 
+    // START COMPONENTS
     private DriveTrain driveTrain;
+    private Turret turret;
+    private Shooter shooter;
+    // END COMPONENTS
 
     private int updateCount;
     private ElapsedTime initTime;
@@ -30,9 +34,13 @@ public class Robot extends BaseComponent{
 
         this.lynxModules = hardwareMap.getAll(LynxModule.class);
 
+        // START COMPONENTS
         driveTrain = new DriveTrain(context, this);
+        turret = new Turret(context, this);
+        shooter = new Shooter(context, this);
+        // END COMPONENTS
 
-        addSubComponents(driveTrain);
+        addSubComponents(driveTrain, turret, shooter);
     }
 
     public RobotContext getRobotContext() {

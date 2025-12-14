@@ -92,6 +92,10 @@ public class DriveTrain extends BaseComponent {
         }
     }
 
+    public DriveTrain(RobotContext context){
+        this(context, null);
+    }
+
 
     public void setMode(DcMotor.RunMode runMode) {
         for (DcMotorEx motor : motors) {
