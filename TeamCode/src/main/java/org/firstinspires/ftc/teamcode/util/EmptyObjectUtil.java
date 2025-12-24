@@ -36,13 +36,24 @@ import java.util.Collections;
 import java.util.List;
 
 public class EmptyObjectUtil {
-    public static Object getEmpty(Object object){
-        return new Object();
+    public static HardwareDevice getEmpty(String name){
+        if(name.equals(DcMotorEx.class.getSimpleName())){
+            return getEmptyMotorEx();
+        } else if(name.equals(Servo.class.getSimpleName())){
+            return getEmptyServo();
+        } else if(name.equals(WebcamName.class.getSimpleName())){
+            return getEmptyWebcamName();
+        } else if(name.equals(SparkFunOTOS.class.getSimpleName())){
+            return getEmptySparkFunOTOS();
+        } else{
+            return getEmptyHardwareDevice();
+        }
     }
 
     @NonNull
     @Contract(" -> new")
     public static DcMotorEx getEmptyMotorEx(){
+
         // Creates a new DcMotor used to avoid null pointer errors, while not actually doing anything.
         return new DcMotorEx(){
             @Override

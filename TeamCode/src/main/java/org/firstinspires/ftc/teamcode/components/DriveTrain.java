@@ -13,9 +13,12 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.util.DriveUtil;
 import org.firstinspires.ftc.teamcode.util.EmptyObjectUtil;
+import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 
 import java.util.Arrays;
@@ -23,9 +26,6 @@ import java.util.List;
 
 @SuppressLint("DefaultLocale")
 public class DriveTrain extends BaseComponent {
-    @Override
-    public void update() {
-    }
 
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private List<DcMotorEx> motors;
@@ -34,11 +34,14 @@ public class DriveTrain extends BaseComponent {
     private VoltageSensor batteryVoltageSensor;
 
     private LogCatUtil log;
+    private HardwareUtil hardwareUtil;
 
     private Robot robot;
 
     public static DriveTuner driveTuner;
     public static OdometryTuner odometryTuner;
+
+    SparkFunOTOS.Pose2D curPose;
 
     public DriveTrain(RobotContext context, Robot robot) {
         super(context);
@@ -46,6 +49,7 @@ public class DriveTrain extends BaseComponent {
         this.robot = robot;
 
         log = new LogCatUtil("DriveTrain");
+        hardwareUtil = new HardwareUtil(log, hardwareMap);
 
         driveTuner = descriptor.DRIVE_TUNER;
         odometryTuner = descriptor.ODOMETRY_TUNER;
@@ -54,18 +58,19 @@ public class DriveTrain extends BaseComponent {
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        try{
-            otos = hardwareMap.get(SparkFunOTOS.class, "otos");
-        } catch (Exception e) {
-            log.error("Device \"otos\" not found in hardware map. Defaulting to empty DcMotorEx object.");
-            log.error(e.getMessage());
-            otos = EmptyObjectUtil.getEmptySparkFunOTOS();
-        }
+        
+        otos = hardwareUtil.getOtos("otos");
+    }
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "lf");
-        leftRear = hardwareMap.get(DcMotorEx.class, "lr");
-        rightRear = hardwareMap.get(DcMotorEx.class, "rr");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rf");
+    @Override
+    public void init() {
+        super.init();
+        
+        
+        leftFront = hardwareUtil.getMotorEx("lf");
+        leftRear = hardwareUtil.getMotorEx("lr");
+        rightRear = hardwareUtil.getMotorEx("rr");
+        rightFront = hardwareUtil.getMotorEx("rf");
 
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
@@ -90,6 +95,26 @@ public class DriveTrain extends BaseComponent {
         if (driveTuner.runUsingEncoder && driveTuner.driveMotorVeloPid != null) {
             setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, driveTuner.driveMotorVeloPid);
         }
+
+        otos.setAngularUnit(AngleUnit.RADIANS);
+        otos.setLinearUnit(DistanceUnit.INCH);
+
+        // For example, if
+        // the sensor is mounted 5 inches to the left (negative X) and 10 inches
+        // forward (positive Y) of the center of the robot, and mounted 90 degrees
+        // clockwise (negative rotation) from the robot's orientation, the offset
+        // would be {-5, 10, -90}. These can be any value, even the angle can be
+        // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
+        otos.setOffset(new SparkFunOTOS.Pose2D(-2.75, 3, 0));
+        otos.calibrateImu();
+    }
+
+    @Override
+    public void update() {
+        curPose = otos.getPosition();
+        telemetry.addData("otos x", curPose.x);
+        telemetry.addData("otos y", curPose.y);
+        telemetry.addData("otos h", Math.toDegrees(curPose.h));
     }
 
     public DriveTrain(RobotContext context){
@@ -131,6 +156,10 @@ public class DriveTrain extends BaseComponent {
         leftRear.setPower(motorPowers.backLeft);
         rightFront.setPower(motorPowers.frontRight);
         rightRear.setPower(motorPowers.backRight);
+    }
+
+    public void drive(double drive, double strafe, double turn) {
+        drive(drive, strafe, turn, 1);
     }
 
     public void driverRelative(double drive, double strafe, double turn) {

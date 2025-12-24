@@ -30,8 +30,12 @@ public class Robot extends BaseComponent{
     private ElapsedTime initTime;
     private ElapsedTime firstUpdateTime;
 
-    public Robot(OpMode opMode) {
-        super(createRobotContext(opMode));
+    public Robot(OpMode opMode){
+        this(opMode, false);
+    }
+
+    public Robot(OpMode opMode, boolean alliance) {
+        super(createRobotContext(opMode, alliance));
 
         this.lynxModules = hardwareMap.getAll(LynxModule.class);
 
@@ -95,7 +99,7 @@ public class Robot extends BaseComponent{
         super.update();
 
         // Update telemetry once per iteration after all components have been called.
-        telemetry.update();
+        telemetry.update(ftcTelemetry);
 
     }
 
@@ -172,6 +176,15 @@ public class Robot extends BaseComponent{
 
     public DriveTrain getDriveTrain() {
         return driveTrain;
+    }
+    public Turret getTurret() {
+        return turret;
+    }
+    public Shooter getShooter() {
+        return shooter;
+    }
+    public Transtake getTranstake(){
+        return transtake;
     }
 
     private double computeBatteryVoltage() {

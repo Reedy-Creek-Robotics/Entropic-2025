@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -40,7 +41,7 @@ public abstract class BaseComponent implements Component {
 
     private List<Component> subComponents = new ArrayList<>();
 
-    static String logPrefix = "Comp-";
+    public static String logPrefix = "Comp-";
 
     public BaseComponent(RobotContext context) {
         this.context = context;
@@ -85,11 +86,27 @@ public abstract class BaseComponent implements Component {
         nextCommands.clear();
     }
 
-    public static RobotContext createRobotContext(OpMode opMode) {
+    /**
+     *
+     * @param opMode opMode class. Usually accessed with "this"
+     * @param alliance alliance as a boolean. <br>false - red (tag 24) <br>true - blue (tag 20)
+     * @return new RobotContext with parameters
+     */
+    public static RobotContext createRobotContext(OpMode opMode, boolean alliance) {
         return new RobotContext(
                 opMode,
-                new RobotDescriptor()
+                new RobotDescriptor(),
+                alliance
         );
+    }
+
+    /**
+     *
+     * @param opMode opMode class. Usually accessed with "this"
+     * @return new RobotContext with parameters and red alliance
+     */
+    public static RobotContext createRobotContext(OpMode opMode) {
+        return createRobotContext(opMode, false);
     }
 
     protected Command getCurrentCommand() {
@@ -193,4 +210,6 @@ public abstract class BaseComponent implements Component {
     protected void updateTelemetry(){
         telemetry.update(ftcTelemetry);
     }
+
+
 }

@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.util.EmptyObjectUtil;
+import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 
 public class Transtake extends BaseComponent {
@@ -20,12 +20,12 @@ public class Transtake extends BaseComponent {
      */
     int ballState;
 
-    private DcMotorEx intakeFront;
-    private DcMotorEx intakeBack;
+    private DcMotorEx intake;
     private Servo rollerFront;
-    private Servo rollerBack;
+    private Servo rollerRear;
 
     LogCatUtil log;
+    HardwareUtil hardwareUtil;
 
     Robot robot;
 
@@ -34,6 +34,8 @@ public class Transtake extends BaseComponent {
 
         log = new LogCatUtil("Transtake");
         this.robot = robot;
+
+        hardwareUtil = new HardwareUtil(log, hardwareMap);
     }
 
     public Transtake(RobotContext context){
@@ -42,24 +44,13 @@ public class Transtake extends BaseComponent {
 
     @Override
     public void init() {
-        try {
-            intakeFront = hardwareMap.get(DcMotorEx.class, "intakeFront");
-            intakeBack = hardwareMap.get(DcMotorEx.class, "intakeBack");
-        }catch (Exception e){
-            log.error("\"intakeFront\" or \"intakeBack\" not found in hardware map. Falling back to empty DcMotorEx object.");
-            log.error(e.getMessage());
-            intakeFront = EmptyObjectUtil.getEmptyMotorEx();
-            intakeBack = EmptyObjectUtil.getEmptyMotorEx();
-        }
-        try {
-            rollerFront = hardwareMap.get(Servo.class, "rollerFront");
-            rollerBack = hardwareMap.get(Servo.class, "rollerBack");
-        } catch (Exception e) {
-            log.error("\"rollerFront\" or \"rollerBack\" not found in hardware map. Falling back to empty DcMotorEx object.");
-            log.error(e.getMessage());
-            rollerFront = EmptyObjectUtil.getEmptyServo();
-            rollerBack = EmptyObjectUtil.getEmptyServo();
-        }
+        intake = hardwareUtil.getMotorEx("intake");
+
+        rollerFront = hardwareUtil.getServo("rollerFront");
+        rollerRear = hardwareUtil.getServo("rollerRear");
+
+
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //change depending on auto - may need to grab from file
         ballState = 0;
@@ -76,6 +67,18 @@ public class Transtake extends BaseComponent {
 
     public void setBallState(int ballState) {
         this.ballState = ballState;
+    }
+
+    public void runIntake(double power){
+        intake.setPower(power);
+    }
+
+    public void runFrontRoller(double power){
+        rollerFront.setPosition((-power + 1) / 2);
+    }
+
+    public void runRearRoller(double power){
+        rollerRear.setPosition((-power + 1) / 2);
     }
 
 //BMS PLAN
@@ -104,7 +107,7 @@ public class Transtake extends BaseComponent {
             case 1: //ball in center
 
                 //run rollerBack out for 2 seconds
-                executeCommand(new RollerForTime(rollerBack, -1, 2000));
+                executeCommand(new RollerForTime(rollerRear, -1, 2000));
                 //run rollerFront in for 2 seconds
                 executeCommand(new RollerForTime(rollerFront, 1, 2000));
                 break;
@@ -113,7 +116,7 @@ public class Transtake extends BaseComponent {
 
                 //run rollerFront in AND rollerBack out for 3 seconds
                 executeCommand(new RollerForTime(rollerFront, 1, 3000));
-                executeCommand(new RollerForTime(rollerBack, -1, 3000));
+                executeCommand(new RollerForTime(rollerRear, -1, 3000));
                 break;
 
             case 3: //balls in center & back
@@ -129,7 +132,7 @@ public class Transtake extends BaseComponent {
             case 0: //no ball in yet
 
                 //run rollerBack in for 2 seconds
-                executeCommand(new RollerForTime(rollerBack, 1, 2000));
+                executeCommand(new RollerForTime(rollerRear, 1, 2000));
                 break;
 
             case 1: //ball in center
@@ -137,7 +140,7 @@ public class Transtake extends BaseComponent {
                 //run rollerFront out for 2 seconds
                 executeCommand(new RollerForTime(rollerFront, -1, 2000));
                 //run rollerBack in for 2 seconds
-                executeCommand(new RollerForTime(rollerBack, 1, 2000));
+                executeCommand(new RollerForTime(rollerRear, 1, 2000));
                 break;
 
             case 2: //balls in center & front

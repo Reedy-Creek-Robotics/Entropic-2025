@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import android.util.Log;
+import static org.firstinspires.ftc.teamcode.components.BaseComponent.logPrefix;
 
 import com.bylazar.configurables.annotations.Configurable;
 
 @Configurable
 public class LogCatUtil {
 
-    static String logPrefix = "Comp-";
     String logTag;
 
     /**
@@ -28,6 +28,17 @@ public class LogCatUtil {
 
     public void error(String message){
         write(Log.ERROR, message);
+    }
+
+    /**
+     * Logs two subsequent errors. First says that deviceName was not found in hardware map, and defaulting to an empty object.
+     * <br>The second message prints the exception message
+     * @param deviceName hardware name of the device
+     * @param e exception caught
+     */
+    public void hardwareCatch(String deviceName, Exception e){
+        error("Device \"" + deviceName + "\" not found in hardware map. Defaulting to empty object.");
+        error("Exception: " + e.getMessage());
     }
 
     public void debug(String message){

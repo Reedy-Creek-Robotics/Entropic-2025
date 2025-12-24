@@ -96,7 +96,7 @@ public class TurretFullTest extends OpMode {
 
     @Override
     public void init() {
-        initAprilTag();
+        //initAprilTag();
 
         otos = hardwareMap.get(SparkFunOTOS.class, "otos");
         turret = hardwareMap.get(DcMotorEx.class, "turret");
@@ -104,11 +104,12 @@ public class TurretFullTest extends OpMode {
         panelsTelemetry = PanelsTelemetry.INSTANCE;
         telem = panelsTelemetry.getTelemetry();
         driveTrain = new Robot(this).getDriveTrain();
+        driveTrain.init();
 
         otos.resetTracking();
         otos.setLinearUnit(DistanceUnit.INCH);
         otos.setAngularUnit(AngleUnit.DEGREES);
-        otos.setOffset(otosOffset);
+        otos.setOffset(new SparkFunOTOS.Pose2D(-3, -2.75, 90));
         otos.setPosition(startPos);
         otos.setLinearScalar(72/71.3);
         otos.setAngularScalar(1800/1781.5);
@@ -117,6 +118,7 @@ public class TurretFullTest extends OpMode {
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
     }
 
     @Override
@@ -179,7 +181,7 @@ public class TurretFullTest extends OpMode {
         telem.addData("otos x", otosPos.x);
         telem.addData("otos y", otosPos.y);
         telem.addData("otos h", otosPos.h);
-        telem.addData("pos", getPositionDegrees());
+        telem.addData("pos", turret.getCurrentPosition());
         telem.addData("target", targetPos);
         telem.addData("auto aim method", aimMethods[autoAimMethod]);
         telem.addData("move method", moveMethods[moveMethod]);
@@ -216,10 +218,12 @@ public class TurretFullTest extends OpMode {
         if (Math.abs(turret.getCurrentPosition() - targetPos) <= 3) {
             turret.setPower(0);
         } else if (Math.abs(turret.getCurrentPosition() - targetPos) <= 25) {
-            turret.setPower(turret.getCurrentPosition() < (int) targetPos ? 0.2 : -0.2);
+            turret.setPower(turret.getCurrentPosition() < (int) targetPos ? 0.1 : -0.1);
         } else {
-            turret.setPower(turret.getCurrentPosition() < (int) targetPos ? 1 : -1);
+            turret.setPower(turret.getCurrentPosition() < (int) targetPos ? 0.2 : -0.2);
         }
+
+        telem.addData("power", turret.getPower());
     }
 
     private void setTargetDegrees(double degrees){
@@ -241,7 +245,7 @@ public class TurretFullTest extends OpMode {
     }
 
     private double getPositionDegrees(){
-        return turret.getCurrentPosition() / ticksPerDeg;
+        return turret.getCurrentPosition() / effectiveTicksPerDeg;
     }
 
     private SparkFunOTOS.Pose2D pose3dToPose2d(Pose3D pos){
@@ -253,7 +257,7 @@ public class TurretFullTest extends OpMode {
         return new SparkFunOTOS.Pose2D(x, y, yaw);
     }
 
-    private void initAprilTag() {
+    /*private void initAprilTag() {
 
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
@@ -312,5 +316,5 @@ public class TurretFullTest extends OpMode {
         // Disable or re-enable the aprilTag processor at any time.
         //visionPortal.setProcessorEnabled(aprilTag, true);
 
-    }   // end method initAprilTag()
+    }   // end method initAprilTag()*/
 }

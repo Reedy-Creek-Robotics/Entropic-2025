@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import android.util.Size;
-
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ftc.InvertedFTCCoordinates;
 import com.pedropathing.ftc.PoseConverter;
@@ -13,14 +11,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.util.ArrayUtil;
-import org.firstinspires.ftc.teamcode.util.EmptyObjectUtil;
+import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -32,6 +29,7 @@ import java.util.List;
 public class Turret extends BaseComponent{
 
     LogCatUtil log;
+    HardwareUtil hardwareUtil;
 
     /**
      * Will be appended to the prefix defined in LogCatUtil
@@ -39,8 +37,8 @@ public class Turret extends BaseComponent{
     static String logTag = "Turret";
 
     // Must be at least 360 degrees
-    static double maxHeading = 360 * 2;
-    static double minHeading = -360 * 2;
+    static double maxHeading = 180;
+    static double minHeading = -90;
 
     static double fx = 595.21, fy = 595.21, cx = 984.515, cy = 599.035; //TODO: Fix these
     /**
@@ -83,8 +81,8 @@ public class Turret extends BaseComponent{
     static double effectiveTicksPerRev = baseTicksPerRev * gearRatio;
     static double effectiveTicksPerDeg = effectiveTicksPerRev / 360;
 
-    static Pose2D redTag = new Pose2D(130, 130, 126);
-    static Pose2D blueTag = new Pose2D(10, 130, 234);
+    static Pose2D redGoal = new Pose2D(130, 130, 126);
+    static Pose2D blueGoal = new Pose2D(10, 130, 234);
 
     Pose2D otosPos = new Pose2D();
 
@@ -95,7 +93,7 @@ public class Turret extends BaseComponent{
     SparkFunOTOS otos;
 
     private Position cameraPosition = new Position(DistanceUnit.INCH,
-            0, 0, 0, 0);
+            0, -8.423, 14.97, 0);
 
     AprilTagProcessor aprilTag;
     VisionPortal visionPortal;
@@ -136,6 +134,8 @@ public class Turret extends BaseComponent{
 
         log = new LogCatUtil(logTag);
 
+        hardwareUtil = new HardwareUtil(log, hardwareMap);
+
         this.alliance = context.alliance;
 
         this.robot = robot;
@@ -145,13 +145,7 @@ public class Turret extends BaseComponent{
     public void init() {
         super.init();
 
-        try {
-            turretMotor = hardwareMap.get(DcMotorEx.class, "turret");
-        }catch(Exception e) {
-            log.error("Device \"turret\" not found in hardware map. Defaulting to empty DcMotorEx object.");
-            log.error(e.getMessage());
-            turretMotor = EmptyObjectUtil.getEmptyMotorEx();
-        }
+        turretMotor = hardwareUtil.getMotorEx("turret");
 
         MotorConfigurationType motorConfiguration = turretMotor.getMotorType().clone();
         motorConfiguration.setAchieveableMaxRPMFraction(1.0);
@@ -163,6 +157,7 @@ public class Turret extends BaseComponent{
         turretMotor.setTargetPositionTolerance((int) (baseTicksPerDeg * toleranceDeg));
         turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         initAprilTag();
 
@@ -191,7 +186,7 @@ public class Turret extends BaseComponent{
                 movePid();
         }
 
-        telemetry.addData("Turret Pos:", getPositionTicks());
+        telemetry.addData("Turret Pos", getPositionTicks());
     }
 
     private void setTargetDegrees(double degrees){
@@ -220,13 +215,11 @@ public class Turret extends BaseComponent{
     }
 
     private void otosAutoAim(){
+
         // Calculates the theta using tanh function
-        // tanh(o/a)=theta
-        double delta = Math.toDegrees(Math.tanh((alliance ? blueTag.x : redTag.x - otosPos.x) / (alliance ? blueTag.y : redTag.y - otosPos.y)));
+        double theta = Math.tanh((alliance ? blueGoal.x : redGoal.x - otosPos.y) / (alliance ? blueGoal.y : redGoal.y - otosPos.x));
         // We subtract the theta from the heading to account for robot rotation.
-        setTargetDegrees(-otosPos.h - delta);
-        telemetry.addData("theta", delta);
-        telemetry.addData("delta deg", -otosPos.h - delta);
+        setTargetDegrees(Math.toDegrees(-otosPos.h - theta));
     }
 
     private void tagAutoAim(){
@@ -260,18 +253,19 @@ public class Turret extends BaseComponent{
     private void moveRtp(){
         turretMotor.setTargetPosition((int) targetPos);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        turretMotor.setPower(1);
+        turretMotor.setPower(0.5);
     }
 
     private void movePid(){
-        turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        if (Math.abs(turretMotor.getCurrentPosition() - targetPos) <= 3) {
+        telemetry.addData("Setting target", targetPos);
+        if (Math.abs(turretMotor.getCurrentPosition() - targetPos) <= 2) {
             turretMotor.setPower(0);
-        } else if (Math.abs(turretMotor.getCurrentPosition() - targetPos) <= 25) {
-            turretMotor.setPower(turretMotor.getCurrentPosition() < (int) targetPos ? 0.2 : -0.2);
+        } else if (Math.abs(turretMotor.getCurrentPosition() - targetPos) <= 30) {
+            turretMotor.setPower(turretMotor.getCurrentPosition() < (int) targetPos ? 0.05 : -0.05);
         } else {
-            turretMotor.setPower(turretMotor.getCurrentPosition() < (int) targetPos ? 1 : -1);
+            turretMotor.setPower(turretMotor.getCurrentPosition() < (int) targetPos ? 0.2 : -0.2);
         }
+        telemetry.addData("Turret power", turretMotor.getPower());
     }
 
     private void initAprilTag() {
@@ -308,17 +302,8 @@ public class Turret extends BaseComponent{
         // Create the vision portal by using a builder.
         VisionPortal.Builder builder = new VisionPortal.Builder();
 
-        try {
-            builder.setCamera(hardwareMap.get(WebcamName.class, "turretCam"));
 
-            // Choose a camera resolution. Not all cameras support all resolutions.
-            builder.setCameraResolution(new Size(1280, 960));
-        }catch (Exception e){
-            log.error("Device \"turretCam\" not found in hardware map. Defaulting to empty WebcamName object.");
-            log.error(e.getMessage());
-            builder.setCamera(EmptyObjectUtil.getEmptyWebcamName());
-        }
-
+        builder.setCamera(hardwareUtil.getWebcamName("turretCam"));
 
         // Enable the RC preview (LiveView). Set "false" to omit camera monitoring.
         //builder.enableLiveView(true);

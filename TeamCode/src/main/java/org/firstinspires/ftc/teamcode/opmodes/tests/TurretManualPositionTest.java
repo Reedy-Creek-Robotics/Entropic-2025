@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.game.Controller;
 
-@Disabled
+//@Disabled
 @TeleOp
 public class TurretManualPositionTest extends OpMode {
 
@@ -22,7 +22,6 @@ public class TurretManualPositionTest extends OpMode {
 
     static double effectiveTicksPerRev = 145.1 * gearRatio;
     static double effectiveTicksPerDeg = effectiveTicksPerRev / 360;
-
 
 
     DcMotorEx turret;
