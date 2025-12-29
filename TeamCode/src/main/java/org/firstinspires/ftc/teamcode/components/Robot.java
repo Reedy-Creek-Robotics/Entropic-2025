@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
-import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class Robot extends BaseComponent{
     private DriveTrain driveTrain;
     private Turret turret;
     private Shooter shooter;
-    private Transtake transtake;
+    private Transfer transfer;
     // END COMPONENTS
 
     private int updateCount;
@@ -43,10 +42,10 @@ public class Robot extends BaseComponent{
         driveTrain = new DriveTrain(context, this);
         turret = new Turret(context, this);
         shooter = new Shooter(context, this);
-        transtake = new Transtake(context, this);
+        transfer = new Transfer(context, this);
         // END COMPONENTS
 
-        addSubComponents(driveTrain, turret, shooter, transtake);
+        addSubComponents(driveTrain, turret, shooter, transfer);
     }
 
     public RobotContext getRobotContext() {
@@ -183,8 +182,8 @@ public class Robot extends BaseComponent{
     public Shooter getShooter() {
         return shooter;
     }
-    public Transtake getTranstake(){
-        return transtake;
+    public Transfer getTranstake(){
+        return transfer;
     }
 
     private double computeBatteryVoltage() {

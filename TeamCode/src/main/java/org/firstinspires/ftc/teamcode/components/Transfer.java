@@ -5,11 +5,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.util.EmptyObjectUtil;
 import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 
-public class Transtake extends BaseComponent {
+public class Transfer extends BaseComponent {
 
     /**
      * 0 = no balls in robot<br>
@@ -29,7 +28,7 @@ public class Transtake extends BaseComponent {
 
     Robot robot;
 
-    public Transtake(RobotContext context, Robot robot) {
+    public Transfer(RobotContext context, Robot robot) {
         super(context);
 
         log = new LogCatUtil("Transtake");
@@ -38,7 +37,7 @@ public class Transtake extends BaseComponent {
         hardwareUtil = new HardwareUtil(log, hardwareMap);
     }
 
-    public Transtake(RobotContext context){
+    public Transfer(RobotContext context){
         this(context, null);
     }
 
@@ -81,21 +80,21 @@ public class Transtake extends BaseComponent {
         rollerRear.setPosition((-power + 1) / 2);
     }
 
-//BMS PLAN
+/**BMS PLAN
 
-//first ball enters from either side
-//  put in center position
-//second ball enters from either side
-//  first ball is moved to opposite side
-//  second ball is moved to the center
-//third ball enters
-//  if on same side as second ball
-//      put on side it entered in
-//  otherwise
-//      push first ball from center to opposite side of entry
-//      push second ball from entry side to center
-//      put on side it entered in
-
+first ball enters from either side<br>
+  put in center position<br>
+second ball enters from either side<br>
+  first ball is moved to opposite side<br>
+  second ball is moved to the center<br>
+third ball enters<br>
+  if on same side as second ball<br>
+      put on side it entered in<br>
+  otherwise<br>
+      push first ball from center to opposite side of entry<br>
+      push second ball from entry side to center<br>
+      put on side it entered in<br>
+**/
     public void incomingFront() {
         switch (ballState){
             case 0: //no ball in yet

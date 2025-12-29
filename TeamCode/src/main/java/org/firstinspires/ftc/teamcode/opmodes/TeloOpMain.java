@@ -8,9 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.components.Robot;
 
 import org.firstinspires.ftc.teamcode.components.BaseComponent;
-import org.firstinspires.ftc.teamcode.components.DriveTrain;
 import org.firstinspires.ftc.teamcode.components.RobotContext;
-import org.firstinspires.ftc.teamcode.components.Transtake;
+import org.firstinspires.ftc.teamcode.components.Transfer;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
 
@@ -30,7 +29,7 @@ public class TeloOpMain extends OpMode {
 
     double drive, strafe, turn;
     
-    Transtake transtake;
+    Transfer transfer;
 
     @Override
     public void init() {
@@ -39,7 +38,7 @@ public class TeloOpMain extends OpMode {
         robot = new Robot(this, false);
         driver = new Controller(gamepad1);
 
-        transtake = robot.getTranstake();
+        transfer = robot.getTranstake();
         
         robot.init();
 
@@ -54,23 +53,23 @@ public class TeloOpMain extends OpMode {
 
         robot.getDriveTrain().drive(drive, strafe, turn);
 
-        transtake.runIntake(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER));
+        transfer.runIntake(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER));
 
         if(driver.isButtonDown(Controller.Button.NORTH)){
-            transtake.runFrontRoller(1);
+            transfer.runFrontRoller(1);
         }
         else if(driver.isButtonDown(Controller.Button.SOUTH)){
-            transtake.runFrontRoller(-1);
+            transfer.runFrontRoller(-1);
         }else{
-            transtake.runFrontRoller(0);
+            transfer.runFrontRoller(0);
         }
 
         if(driver.isButtonDown(Controller.Button.DPAD_UP)){
-            transtake.runRearRoller(1);
+            transfer.runRearRoller(1);
         }else if(driver.isButtonDown(Controller.Button.DPAD_DOWN)){
-            transtake.runRearRoller(-1);
+            transfer.runRearRoller(-1);
         }else{
-            transtake.runRearRoller(0);
+            transfer.runRearRoller(0);
         }
 
         telemetry.addData("alliance", robotContext.getAlliance());

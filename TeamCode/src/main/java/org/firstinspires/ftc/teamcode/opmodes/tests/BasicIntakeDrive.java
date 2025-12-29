@@ -4,19 +4,19 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
-import org.firstinspires.ftc.teamcode.components.Transtake;
+import org.firstinspires.ftc.teamcode.components.Transfer;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
 @TeleOp
 public class BasicIntakeDrive extends OpMode {
     Robot robot;
-    Transtake transtake;
+    Transfer transfer;
     Controller controller;
 
     @Override
     public void init() {
         robot = new Robot(this);
-        transtake = robot.getTranstake();
+        transfer = robot.getTranstake();
         controller = new Controller(gamepad1);
 
         robot.init();
@@ -24,22 +24,22 @@ public class BasicIntakeDrive extends OpMode {
 
     @Override
     public void loop() {
-        transtake.runIntake(controller.analogValue(Controller.AnalogControl.RIGHT_TRIGGER)-controller.analogValue(Controller.AnalogControl.LEFT_TRIGGER));
+        transfer.runIntake(controller.analogValue(Controller.AnalogControl.RIGHT_TRIGGER)-controller.analogValue(Controller.AnalogControl.LEFT_TRIGGER));
         if(controller.isButtonDown(Controller.Button.NORTH)){
-            transtake.runFrontRoller(1);
+            transfer.runFrontRoller(1);
         }
         else if(controller.isButtonDown(Controller.Button.SOUTH)){
-            transtake.runFrontRoller(-1);
+            transfer.runFrontRoller(-1);
         }else{
-            transtake.runFrontRoller(0);
+            transfer.runFrontRoller(0);
         }
 
         if(controller.isButtonDown(Controller.Button.DPAD_UP)){
-            transtake.runRearRoller(1);
+            transfer.runRearRoller(1);
         }else if(controller.isButtonDown(Controller.Button.DPAD_DOWN)){
-            transtake.runRearRoller(-1);
+            transfer.runRearRoller(-1);
         }else{
-            transtake.runRearRoller(0);
+            transfer.runRearRoller(0);
         }
 
         robot.getDriveTrain().drive(
