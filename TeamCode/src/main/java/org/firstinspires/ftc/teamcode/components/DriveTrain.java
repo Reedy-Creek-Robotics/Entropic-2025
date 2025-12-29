@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.DriveTuner;
 import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.OdometryTuner;
+import static org.firstinspires.ftc.teamcode.pedro.Constants.getAverage;
+import static org.firstinspires.ftc.teamcode.pedro.Constants.linearScalars;
+import static org.firstinspires.ftc.teamcode.pedro.Constants.angularScalars;
 
 import android.annotation.SuppressLint;
 
@@ -105,7 +108,10 @@ public class DriveTrain extends BaseComponent {
         // clockwise (negative rotation) from the robot's orientation, the offset
         // would be {-5, 10, -90}. These can be any value, even the angle can be
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
-        otos.setOffset(new SparkFunOTOS.Pose2D(-2.75, 3, 0));
+        otos.setOffset(new SparkFunOTOS.Pose2D(-2.75, 3, Math.toRadians(180)));
+
+        otos.setLinearScalar(getAverage(linearScalars));
+        otos.setAngularScalar(getAverage(angularScalars));
         otos.calibrateImu();
     }
 

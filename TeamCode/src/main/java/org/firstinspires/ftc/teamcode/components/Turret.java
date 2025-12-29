@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import android.util.Size;
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ftc.InvertedFTCCoordinates;
 import com.pedropathing.ftc.PoseConverter;
@@ -37,8 +39,8 @@ public class Turret extends BaseComponent{
     static String logTag = "Turret";
 
     // Must be at least 360 degrees
-    static double maxHeading = 180;
-    static double minHeading = -90;
+    static double maxHeading = 45;
+    static double minHeading = -225;
 
     static double fx = 595.21, fy = 595.21, cx = 984.515, cy = 599.035; //TODO: Fix these
     /**
@@ -81,8 +83,8 @@ public class Turret extends BaseComponent{
     static double effectiveTicksPerRev = baseTicksPerRev * gearRatio;
     static double effectiveTicksPerDeg = effectiveTicksPerRev / 360;
 
-    static Pose2D redGoal = new Pose2D(130, 130, 126);
-    static Pose2D blueGoal = new Pose2D(10, 130, 234);
+    static Pose2D redGoal = new Pose2D(130, 14, 0);
+    static Pose2D blueGoal = new Pose2D(130, 130, 0);
 
     Pose2D otosPos = new Pose2D();
 
@@ -101,6 +103,8 @@ public class Turret extends BaseComponent{
     AprilTagDetection tag;
     List<AprilTagDetection> detectionList;
 
+    Size cameraRes = new Size(1280, 720);
+
     double previousBearing;
 
     double toleranceDeg = 5;
@@ -114,7 +118,7 @@ public class Turret extends BaseComponent{
      * 2 - tag when found - otos when no tag<br>
      * 3 - otos with periodic relocalization from tag
      */
-    static int autoAimMethod = 0;
+    static int autoAimMethod = 3;
 
     /**
      * 0 - run to position<br>
@@ -171,35 +175,39 @@ public class Turret extends BaseComponent{
         switch(autoAimMethod){
             case 0:
                 otosAutoAim();
+                break;
             case 1:
                 tagAutoAim();
+                break;
             case 2:
                 tagOtosAutoAim();
+                break;
             case 3:
                 otosRelocalizeAutoAim();
+                break;
         }
 
         switch(moveMethod){
             case 0:
                 moveRtp();
+                break;
             case 1:
                 movePid();
+                break;
         }
 
         telemetry.addData("Turret Pos", getPositionTicks());
     }
 
     private void setTargetDegrees(double degrees){
-        //if(degrees < 0) degrees = 360 + degrees;
-        degrees = -(degrees + getPositionDegrees());
 
         while(degrees > maxHeading){
-            degrees = degrees - 360;
+            degrees = maxHeading;
             log.warn("target over max heading");
         }
 
         while(degrees < minHeading){
-            degrees = degrees + 360;
+            degrees = minHeading;
             log.warn("target under min heading");
         }
 
@@ -215,16 +223,19 @@ public class Turret extends BaseComponent{
     }
 
     private void otosAutoAim(){
-
-        // Calculates the theta using tanh function
-        double theta = Math.tanh((alliance ? blueGoal.x : redGoal.x - otosPos.y) / (alliance ? blueGoal.y : redGoal.y - otosPos.x));
+        // Calculates the theta using the tanh function
+        double theta = Math.tanh(((alliance ? blueGoal.y : redGoal.y) - otosPos.y) / ((alliance ? blueGoal.x : redGoal.x) - otosPos.x));
         // We subtract the theta from the heading to account for robot rotation.
-        setTargetDegrees(Math.toDegrees(-otosPos.h - theta));
+        setTargetDegrees(Math.toDegrees(otosPos.h - theta));
     }
 
     private void tagAutoAim(){
         tag = alliance ? getTag20() : getTag24();
-        if(tag != null) setTargetDegrees(-tag.ftcPose.bearing);
+        if(tag != null){
+            setTargetDegrees(tag.ftcPose.bearing);
+        } else{
+            log.warn("no tag");
+        }
     }
 
     private void tagOtosAutoAim(){
@@ -233,7 +244,7 @@ public class Turret extends BaseComponent{
         if(tag == null){
             otosAutoAim();
         }else{
-            setTargetDegrees(-tag.ftcPose.bearing);
+            setTargetDegrees(tag.ftcPose.bearing);
         }
     }
 
@@ -244,10 +255,10 @@ public class Turret extends BaseComponent{
             otosAutoAim();
             return;
         // Will relocalize the otos if the tag is within a certain range
-        }else if(Math.abs(tag.center.x - visionPortal.getActiveCamera().getCameraCharacteristics().getSizes(visionPortal.getActiveCamera().getCameraCharacteristics().getAndroidFormats()[0])[0].getWidth()) <= tagTolerance){
+        }else if(Math.abs(tag.center.x - (cameraRes.getWidth() / 2.0)) <= tagTolerance){
             otos.setPosition(otosPoseFromTag(tag.robotPose));
         }
-        setTargetDegrees(-tag.ftcPose.bearing);
+        setTargetDegrees(tag.ftcPose.bearing);
     }
 
     private void moveRtp(){
@@ -285,7 +296,7 @@ public class Turret extends BaseComponent{
                 // to load a predefined calibration for your camera.
 
                 .setLensIntrinsics(fx, fy, cx, cy)
-                .setCameraPose(cameraPosition, new YawPitchRollAngles(AngleUnit.DEGREES, 0, 0, 0, 0))
+                .setCameraPose(cameraPosition, new YawPitchRollAngles(AngleUnit.DEGREES, 0, 0, 180, 0))
                 // ... these parameters are fx, fy, cx, cy.
 
                 .build();
@@ -297,7 +308,7 @@ public class Turret extends BaseComponent{
         // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
         // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
         // Note: Decimation can be changed on-the-fly to adapt during a match.
-        aprilTag.setDecimation(3);
+        aprilTag.setDecimation(2);
 
         // Create the vision portal by using a builder.
         VisionPortal.Builder builder = new VisionPortal.Builder();
@@ -310,6 +321,7 @@ public class Turret extends BaseComponent{
 
         // Set the stream format; MJPEG uses less bandwidth than default YUY2.
         builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
+        builder.setCameraResolution(cameraRes);
 
         // Choose whether or not LiveView stops if no processors are enabled.
         // If set "true", monitor shows solid orange screen if no processors enabled.
@@ -367,6 +379,8 @@ public class Turret extends BaseComponent{
         AprilTagDetection tag24 = getTag(24);
         // If the tag is null, return null. Mainly to avoid null pointer exceptions later
         if(tag24 == null) return null;
+        telemetry.addData("Bearing", tag24.ftcPose.bearing);
+
         /*
         If the bearing of the current image is the same as from the last one, then ignore it as we've already used the frame
 

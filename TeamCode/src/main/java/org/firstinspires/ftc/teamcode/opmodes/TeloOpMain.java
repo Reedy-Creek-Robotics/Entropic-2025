@@ -17,7 +17,6 @@ import org.firstinspires.ftc.teamcode.game.Controller;
 /*
 Need to set up:
 ToDo: Alliance based distance calculation from OTOS
-ToDo:  
  */
 
 
@@ -44,7 +43,7 @@ public class TeloOpMain extends OpMode {
         
         robot.init();
 
-        robot.getDriveTrain().getOtos().setPosition(new SparkFunOTOS.Pose2D(96, 96, Math.toRadians(0)));
+        robot.getDriveTrain().getOtos().setPosition(new SparkFunOTOS.Pose2D(96, 46, Math.toRadians(0)));
     }
 
     @Override
@@ -73,7 +72,8 @@ public class TeloOpMain extends OpMode {
         }else{
             transtake.runRearRoller(0);
         }
-        
+
+        telemetry.addData("alliance", robotContext.getAlliance());
         robot.update();
     }
 }

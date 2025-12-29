@@ -59,8 +59,8 @@ public class Constants {
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
 
-    static double[] linearScalars = { /* forward */ 1.0722153945249597, 1.0653532159999999, 1.0936420914317, 1.076549329021827 /* lateral */ };
-    static double[] angularScalars = {0.9644738778513654, 0.9524473898383984, 0.9524473898383984, 0.9644312981031047};
+    public static double[] linearScalars = {0.9760748986073785, 0.9718011578691315, 0.9813496831245394, 0.9893696285289747};
+    public static double[] angularScalars = {0.9905234043196346, 0.987627529876274, 0.9892674385255185, 0.9897305787120929};
 
     public static OTOSConstants otosNormalLocalizerConstants = new OTOSConstants()
             .hardwareMapName("otos")
@@ -68,7 +68,7 @@ public class Constants {
             .angleUnit(AngleUnit.RADIANS)
             .linearScalar(getAverage(linearScalars))
             .angularScalar(getAverage(angularScalars))
-            .offset(new SparkFunOTOS.Pose2D(-1.75, -4.75, Math.toRadians(90)));
+            .offset(new SparkFunOTOS.Pose2D(-2.75, 3, Math.toRadians(180)));
 
     public static PathConstraints pathConstraints = new PathConstraints(
             0.99,
@@ -99,7 +99,7 @@ public class Constants {
                 .build();
     }
 
-    private static double getAverage(double[] list){
+    public static double getAverage(double[] list){
         double total = 0;
         for(double number : list){
             total += number;
