@@ -39,15 +39,15 @@ public class Turret extends BaseComponent{
     static String logTag = "Turret";
 
     // Must be at least 360 degrees
-    static double maxHeading = 45;
-    static double minHeading = -225;
+    static double maxHeading = 30;
+    static double minHeading = -180;
 
     static double fx = 595.21, fy = 595.21, cx = 984.515, cy = 599.035; //TODO: Fix these
     /**
      * When using OTOS and April Tag Only<br>
      * If the center of the tag is not within +- tagTolerance, then the localizer will use the OTOS instead
      */
-    static int tagTolerance = 100;
+    static int tagTolerance = 25;
 
     /**
      * In rpm
@@ -83,8 +83,8 @@ public class Turret extends BaseComponent{
     static double effectiveTicksPerRev = baseTicksPerRev * gearRatio;
     static double effectiveTicksPerDeg = effectiveTicksPerRev / 360;
 
-    static Pose2D redGoal = new Pose2D(130, 14, 0);
-    static Pose2D blueGoal = new Pose2D(130, 130, 0);
+    static Pose2D redGoal = new Pose2D(144, 0, 0);
+    static Pose2D blueGoal = new Pose2D(144, 144, 0);
 
     Pose2D otosPos = new Pose2D();
 
@@ -118,7 +118,7 @@ public class Turret extends BaseComponent{
      * 2 - tag when found - otos when no tag<br>
      * 3 - otos with periodic relocalization from tag
      */
-    static int autoAimMethod = 3;
+    static int autoAimMethod = 0;
 
     /**
      * 0 - run to position<br>
@@ -142,6 +142,8 @@ public class Turret extends BaseComponent{
 
         this.alliance = context.alliance;
 
+        //initAprilTag();
+
         this.robot = robot;
     }
 
@@ -163,8 +165,6 @@ public class Turret extends BaseComponent{
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        initAprilTag();
-
         otos = robot.getDriveTrain().getOtos();
     }
 
@@ -177,13 +177,13 @@ public class Turret extends BaseComponent{
                 otosAutoAim();
                 break;
             case 1:
-                tagAutoAim();
+                //tagAutoAim();
                 break;
             case 2:
-                tagOtosAutoAim();
+                //tagOtosAutoAim();
                 break;
             case 3:
-                otosRelocalizeAutoAim();
+                //otosRelocalizeAutoAim();
                 break;
         }
 
@@ -256,7 +256,10 @@ public class Turret extends BaseComponent{
             return;
         // Will relocalize the otos if the tag is within a certain range
         }else if(Math.abs(tag.center.x - (cameraRes.getWidth() / 2.0)) <= tagTolerance){
-            otos.setPosition(otosPoseFromTag(tag.robotPose));
+            Pose2D pos = otosPoseFromTag(tag.robotPose);
+            log.info("localize - " + pos);
+            otos.setPosition(pos);
+            log.debug("otos pos" + otos.getPosition());
         }
         setTargetDegrees(tag.ftcPose.bearing);
     }
@@ -404,6 +407,11 @@ public class Turret extends BaseComponent{
     }
 
     private Pose2D otosPose2dFromFtcPose2d(org.firstinspires.ftc.robotcore.external.navigation.Pose2D ftcPose2D){
-        return new Pose2D(ftcPose2D.getX(otos.getLinearUnit()), ftcPose2D.getY(otos.getLinearUnit()), ftcPose2D.getHeading(otos.getAngularUnit()));
+        return new Pose2D(ftcPose2D.getX(otos.getLinearUnit()) + 76, -ftcPose2D.getY(otos.getLinearUnit()), addRadians(ftcPose2D.getHeading(otos.getAngularUnit()), Math.PI));
+    }
+
+    private double addRadians(double radOne, double radTwo){
+        if(radOne + radTwo <=  2 * Math.PI) return radOne + radTwo;
+        return (radOne + radTwo) - 2 * Math.PI;
     }
 }
