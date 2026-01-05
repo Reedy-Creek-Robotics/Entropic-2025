@@ -30,14 +30,14 @@ public class Endoscope extends BaseComponent {
     }
 
 
-    public Endoscope(RobotContext context) {
+    public Endoscope(RobotContext context, Robot robot) {
         super(context);
         log = new LogCatUtil("Endoscope");
         hardwareUtil = new HardwareUtil(log, hardwareMap);
 
-        frontBallSensor = blobMaker(.3, 1, 1, -1);
-        centerBallSensor = blobMaker(.3, 1, 1, -1);
-        rearBallSensor = blobMaker(.3, 1, 1, -1);
+        frontBallSensor = blobMaker(-0.856025, 0.123173, -0.517997, -0.824635);
+        centerBallSensor = blobMaker(-0.273865, 0.966597, 0.336463, -0.290188);
+        rearBallSensor = blobMaker(0.561815, 0.160752, 0.893584, -0.837161);
 
 
         portal = new VisionPortal.Builder()

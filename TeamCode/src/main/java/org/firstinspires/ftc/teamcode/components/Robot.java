@@ -23,6 +23,7 @@ public class Robot extends BaseComponent{
     private Turret turret;
     private Shooter shooter;
     private Transfer transfer;
+    private Endoscope endoscope;
     // END COMPONENTS
 
     private int updateCount;
@@ -43,9 +44,10 @@ public class Robot extends BaseComponent{
         turret = new Turret(context, this);
         shooter = new Shooter(context, this);
         transfer = new Transfer(context, this);
+        endoscope = new Endoscope(context, this);
         // END COMPONENTS
 
-        addSubComponents(driveTrain, turret, shooter, transfer);
+        addSubComponents(driveTrain, turret, shooter, transfer, endoscope);
     }
 
     public RobotContext getRobotContext() {
