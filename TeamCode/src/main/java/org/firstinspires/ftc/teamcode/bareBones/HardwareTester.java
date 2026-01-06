@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.game.Controller;
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp
+@TeleOp(name = "Hardware Tester", group = "Extras")
 public class HardwareTester extends OpMode {
 
     private Controller controller;

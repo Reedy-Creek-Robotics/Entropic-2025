@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.game.Controller;
 
-//@Disabled
+@Disabled
 @TeleOp
 public class TurretManualPositionTest extends OpMode {
 

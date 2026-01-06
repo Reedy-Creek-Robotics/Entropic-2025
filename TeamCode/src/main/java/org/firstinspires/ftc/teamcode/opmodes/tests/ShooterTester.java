@@ -30,7 +30,7 @@ public class ShooterTester extends OpMode {
     double power = 1500;
     double avgInactiveCurrent = 1;
 
-    boolean reversed = false;
+    boolean reversed = true;
     boolean active;
 
     int velocityTolerance = 50;
@@ -76,11 +76,11 @@ public class ShooterTester extends OpMode {
         }
 
         if(controller.isButtonDown(Controller.Button.SOUTH)){
-            robot.getTranstake().runFrontRoller(1);
-            robot.getTranstake().runRearRoller(1);
+            robot.getTransfer().runFrontRoller(1);
+            robot.getTransfer().runRearRoller(1);
         }else{
-            robot.getTranstake().runFrontRoller(0);
-            robot.getTranstake().runRearRoller(0);
+            robot.getTransfer().runFrontRoller(0);
+            robot.getTransfer().runRearRoller(0);
         }
 
         if(power > 2240) power = 2240;

@@ -60,8 +60,8 @@ public class Endoscope extends BaseComponent {
         PredominantColorProcessor.Result resultCenter = centerBallSensor.getAnalysis();
         PredominantColorProcessor.Result resultRear = rearBallSensor.getAnalysis();
 
-        log.info("Front Closest Swatch: " + resultFront.closestSwatch.toString());
-        log.info("Center Closest Swatch: " + resultCenter.closestSwatch.toString());
-        log.info("Rear Closest Swatch: " + resultRear.closestSwatch.toString());
+        //log.info("Front Closest Swatch: " + resultFront.closestSwatch.toString());
+        //log.info("Center Closest Swatch: " + resultCenter.closestSwatch.toString());
+        //log.info("Rear Closest Swatch: " + resultRear.closestSwatch.toString());
     }
 }

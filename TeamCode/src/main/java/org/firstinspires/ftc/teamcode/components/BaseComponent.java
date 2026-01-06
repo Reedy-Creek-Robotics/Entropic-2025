@@ -43,6 +43,8 @@ public abstract class BaseComponent implements Component {
 
     public static String logPrefix = "Comp-";
 
+    private LogCatUtil log;
+
     public BaseComponent(RobotContext context) {
         this.context = context;
         this.opMode = context.opMode;
@@ -142,11 +144,14 @@ public abstract class BaseComponent implements Component {
 
     @Override
     public void init() {
+        log = new LogCatUtil("Base");
         for (Component subComponent : subComponents) {
             telemetry.addData("Init SubComponent", subComponent);
             updateTelemetry();
             subComponent.init();
         }
+        telemetry.addLine("SubComponents Inited");
+        updateTelemetry();
     }
 
     @Override

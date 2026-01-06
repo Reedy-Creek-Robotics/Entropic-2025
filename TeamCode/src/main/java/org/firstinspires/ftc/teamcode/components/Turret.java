@@ -3,11 +3,11 @@ package org.firstinspires.ftc.teamcode.components;
 import android.util.Size;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.follower.Follower;
 import com.pedropathing.ftc.InvertedFTCCoordinates;
 import com.pedropathing.ftc.PoseConverter;
 import com.pedropathing.geometry.PedroCoordinates;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -80,19 +80,22 @@ public class Turret extends BaseComponent{
      * Effective torque accounting for the gear ratio <br> Measured in kg.cm
      */
     static double effectiveTorque = baseMotorSpeed * gearRatio;
-    static double effectiveTicksPerRev = baseTicksPerRev * gearRatio;
+    static double effectiveTicksPerRev = /*baseTicksPerRev * gearRatio*/ 824;
     static double effectiveTicksPerDeg = effectiveTicksPerRev / 360;
 
-    static Pose2D redGoal = new Pose2D(144, 0, 0);
-    static Pose2D blueGoal = new Pose2D(144, 144, 0);
+    //206 ticks per 90 deg
+    //824 ticks per 360 deg
 
-    Pose2D otosPos = new Pose2D();
+    static Pose2D redGoal = new Pose2D(144, 144, 0);
+    static Pose2D blueGoal = new Pose2D(144, 0, 0);
+
+    Pose curPos = new Pose();
 
     /**
      * Configured like the motor, with it's base stats (rpm, tps, torque) <br> points to "turret" hardware map
      */
     DcMotorEx turretMotor;
-    SparkFunOTOS otos;
+    Follower follower;
 
     private Position cameraPosition = new Position(DistanceUnit.INCH,
             0, -8.423, 14.97, 0);
@@ -144,14 +147,14 @@ public class Turret extends BaseComponent{
 
         //initAprilTag();
 
+        turretMotor = hardwareUtil.getMotorEx("turret");
+
         this.robot = robot;
     }
 
     @Override
     public void init() {
         super.init();
-
-        turretMotor = hardwareUtil.getMotorEx("turret");
 
         MotorConfigurationType motorConfiguration = turretMotor.getMotorType().clone();
         motorConfiguration.setAchieveableMaxRPMFraction(1.0);
@@ -165,12 +168,13 @@ public class Turret extends BaseComponent{
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        otos = robot.getDriveTrain().getOtos();
+        follower = robot.getDriveTrain().getFollower();
     }
 
     @Override
     public void update(){
-        otosPos = otos.getPosition();
+        curPos = robot.getPose();
+        telemetry.addData("Turret Pose", curPos);
 
         switch(autoAimMethod){
             case 0:
@@ -222,11 +226,17 @@ public class Turret extends BaseComponent{
         return turretMotor.getCurrentPosition();
     }
 
+    public void resetEncoder(){
+        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
     private void otosAutoAim(){
         // Calculates the theta using the tanh function
-        double theta = Math.tanh(((alliance ? blueGoal.y : redGoal.y) - otosPos.y) / ((alliance ? blueGoal.x : redGoal.x) - otosPos.x));
+        double theta = Math.tanh(((alliance ? blueGoal.y : redGoal.y) - curPos.getY()) / ((alliance ? blueGoal.x : redGoal.x) - curPos.getX()));
+        log.debug("theta : " + theta + " | degrees : " + Math.toDegrees(curPos.getHeading() - theta));
         // We subtract the theta from the heading to account for robot rotation.
-        setTargetDegrees(Math.toDegrees(otosPos.h - theta));
+        setTargetDegrees(Math.toDegrees(curPos.getHeading() - theta));
     }
 
     private void tagAutoAim(){
@@ -256,10 +266,10 @@ public class Turret extends BaseComponent{
             return;
         // Will relocalize the otos if the tag is within a certain range
         }else if(Math.abs(tag.center.x - (cameraRes.getWidth() / 2.0)) <= tagTolerance){
-            Pose2D pos = otosPoseFromTag(tag.robotPose);
+            Pose pos = otosPoseFromTag(tag.robotPose);
             log.info("localize - " + pos);
-            otos.setPosition(pos);
-            log.debug("otos pos" + otos.getPosition());
+            follower.setPose(pos);
+            log.debug("otos pos" + follower.getPose());
         }
         setTargetDegrees(tag.ftcPose.bearing);
     }
@@ -401,13 +411,13 @@ public class Turret extends BaseComponent{
         return tag24;
     }
 
-    private Pose2D otosPoseFromTag(Pose3D tagPose){
+    private Pose otosPoseFromTag(Pose3D tagPose){
         Pose pose = new Pose(tagPose.getPosition().x, tagPose.getPosition().y, tagPose.getOrientation().getYaw(AngleUnit.RADIANS), InvertedFTCCoordinates.INSTANCE);
-        return otosPose2dFromFtcPose2d(PoseConverter.poseToPose2D(pose, PedroCoordinates.INSTANCE));
+        return poseFromFtcPose2d(PoseConverter.poseToPose2D(pose, PedroCoordinates.INSTANCE));
     }
 
-    private Pose2D otosPose2dFromFtcPose2d(org.firstinspires.ftc.robotcore.external.navigation.Pose2D ftcPose2D){
-        return new Pose2D(ftcPose2D.getX(otos.getLinearUnit()) + 76, -ftcPose2D.getY(otos.getLinearUnit()), addRadians(ftcPose2D.getHeading(otos.getAngularUnit()), Math.PI));
+    private Pose poseFromFtcPose2d(org.firstinspires.ftc.robotcore.external.navigation.Pose2D ftcPose2D){
+        return new Pose(ftcPose2D.getX(DistanceUnit.INCH) + 76, -ftcPose2D.getY(DistanceUnit.INCH), addRadians(ftcPose2D.getHeading(AngleUnit.RADIANS), Math.PI));
     }
 
     private double addRadians(double radOne, double radTwo){

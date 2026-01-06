@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Autonomous
+@Disabled
 public class TurretTimingTest extends LinearOpMode {
 
     ElapsedTime actionTimer;

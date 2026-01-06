@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes.componentTests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
 
 @TeleOp
+@Disabled
 public class TurretTest extends OpMode {
     Robot robot;
 

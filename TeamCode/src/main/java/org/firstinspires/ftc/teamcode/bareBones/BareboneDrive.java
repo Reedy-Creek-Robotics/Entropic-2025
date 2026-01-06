@@ -7,8 +7,8 @@ import org.firstinspires.ftc.teamcode.components.BaseComponent;
 import org.firstinspires.ftc.teamcode.components.DriveTrain;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
-@TeleOp
-public class bareboneDrive extends OpMode {
+@TeleOp(name = "Barebones Drive", group = "Extras")
+public class BareboneDrive extends OpMode {
     private DriveTrain driveTrain;
     Controller controller;
 

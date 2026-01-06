@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-@TeleOp(group = "Barebone Component Testing")
-public class servoTester extends OpMode {
+@TeleOp(name = "Servo Tester", group = "Extras")
+public class ServoTester extends OpMode {
     public CRServo right;
     public CRServo left;
 

@@ -31,7 +31,7 @@ public class Transfer extends BaseComponent {
     public Transfer(RobotContext context, Robot robot) {
         super(context);
 
-        log = new LogCatUtil("Transtake");
+        log = new LogCatUtil("Transfer");
         this.robot = robot;
 
         hardwareUtil = new HardwareUtil(log, hardwareMap);
@@ -78,6 +78,14 @@ public class Transfer extends BaseComponent {
 
     public void runRearRoller(double power){
         rollerRear.setPosition((-power + 1) / 2);
+    }
+
+    public void rollerForTime(Servo roller, double power, double timeMs){
+        robot.executeCommand(new RollerForTime(roller, power, timeMs));
+    }
+
+    public void rollersForTime(double power, double timeMs){
+        robot.executeCommand(new RollersForTime(power, timeMs));
     }
 
 /**BMS PLAN
@@ -152,7 +160,7 @@ third ball enters<br>
         }
     }
 
-    public class RollerForTime implements Command {
+    private class RollerForTime implements Command {
 
         Servo roller;
         double power, time;
@@ -173,6 +181,35 @@ third ball enters<br>
         @Override
         public void stop() {
             roller.setPosition(0.5);
+        }
+
+        @Override
+        public boolean update() {
+            return timer.milliseconds() > time;
+        }
+    }
+
+    private class RollersForTime implements Command {
+
+        double power, time;
+        ElapsedTime timer;
+
+        public RollersForTime(double power, double timeMs){
+            this.power = power;
+            this.time = timeMs;
+        }
+
+        @Override
+        public void start(){
+            runFrontRoller(power);
+            runRearRoller(power);
+            timer = new ElapsedTime();
+        }
+
+        @Override
+        public void stop() {
+            runFrontRoller(0);
+            runRearRoller(0);
         }
 
         @Override

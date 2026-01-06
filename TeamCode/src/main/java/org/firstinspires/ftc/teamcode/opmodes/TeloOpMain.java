@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.*;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -10,9 +12,10 @@ import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.BaseComponent;
 import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.components.Transfer;
+import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
-@TeleOp
+@TeleOp(name = "Tele Op", group = "!!Main")
 public class TeloOpMain extends OpMode {
 
     RobotContext robotContext;
@@ -21,12 +24,15 @@ public class TeloOpMain extends OpMode {
     protected Controller driver;
 
     double drive, strafe, turn;
+
+    Follower follower;
     
     Transfer transfer;
 
-    SparkFunOTOS.Pose2D startPose      = new SparkFunOTOS.Pose2D(96, 48, Math.toRadians(0)); //ToDo Set this
-    SparkFunOTOS.Pose2D largeZoneReset = new SparkFunOTOS.Pose2D(96, 48, Math.toRadians(0)); // share button
-    SparkFunOTOS.Pose2D smallZoneReset = new SparkFunOTOS.Pose2D(24, 72, Math.toRadians(0)); // options button
+    //Pose startPose = new Pose(112, 134.5, Math.toRadians(0)); // Start Pose of our robot.
+    Pose largeZoneReset = new Pose(96, 96, Math.toRadians(90)); // share button
+    Pose smallZoneReset = new Pose(24, 72, Math.toRadians(90)); // options button
+    Pose startPose = largeZoneReset;
 
     @Override
     public void init() {
@@ -35,11 +41,13 @@ public class TeloOpMain extends OpMode {
         robot = new Robot(this, false);
         driver = new Controller(gamepad1);
 
-        transfer = robot.getTranstake();
+        transfer = robot.getTransfer();
         
         robot.init();
 
-        robot.getDriveTrain().getOtos().setPosition(startPose);
+        follower = robot.getDriveTrain().getFollower();
+
+        follower.setStartingPose(startPose);
     }
 
     @Override
@@ -70,10 +78,14 @@ public class TeloOpMain extends OpMode {
         }
 
         if(driver.isPressed(Controller.Button.SHARE)){
-            robot.getDriveTrain().getOtos().setPosition(largeZoneReset);
+            robot.getDriveTrain().getFollower().setPose(largeZoneReset);
 
         }else if(driver.isPressed(Controller.Button.OPTIONS)){
-            robot.getDriveTrain().getOtos().setPosition(smallZoneReset);
+            robot.getDriveTrain().getFollower().setPose(smallZoneReset);
+        }
+
+        if(driver.isPressed(Controller.Button.TOUCH_PAD)){
+            robot.getTurret().resetEncoder();
         }
 
         telemetry.addData("alliance", robotContext.getAlliance());

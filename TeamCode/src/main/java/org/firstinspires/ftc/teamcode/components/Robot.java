@@ -3,6 +3,10 @@ package org.firstinspires.ftc.teamcode.components;
 import android.annotation.SuppressLint;
 
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -25,11 +29,14 @@ public class Robot extends BaseComponent{
     private Shooter shooter;
     private Transfer transfer;
     private Endoscope endoscope;
+    private Intake intake;
     // END COMPONENTS
 
     private int updateCount;
     private ElapsedTime initTime;
     private ElapsedTime firstUpdateTime;
+
+    private Follower follower;
 
     public Robot(OpMode opMode){
         this(opMode, false);
@@ -46,9 +53,10 @@ public class Robot extends BaseComponent{
         shooter = new Shooter(context, this);
         transfer = new Transfer(context, this);
         endoscope = new Endoscope(context, this);
+        intake = new Intake(context, this);
         // END COMPONENTS
 
-        addSubComponents(driveTrain, turret, shooter, transfer, endoscope);
+        addSubComponents(driveTrain, intake, turret, shooter, transfer, endoscope);
     }
 
     public RobotContext getRobotContext() {
@@ -58,6 +66,8 @@ public class Robot extends BaseComponent{
     @Override
     public void init() {
         super.init();
+
+        follower = driveTrain.getFollower();
 
         double voltage = computeBatteryVoltage();
         if (voltage < VOLTAGE_WARNING_THRESHOLD) {
@@ -97,12 +107,13 @@ public class Robot extends BaseComponent{
             lynxModule.clearBulkCache();
         }
 
+        follower.update();
+
         // Allow all the subcomponents to do their work.
         super.update();
 
         // Update telemetry once per iteration after all components have been called.
         telemetry.update(ftcTelemetry);
-
     }
 
     public void savePositionToDisk() {
@@ -185,8 +196,20 @@ public class Robot extends BaseComponent{
     public Shooter getShooter() {
         return shooter;
     }
-    public Transfer getTranstake(){
+    public Transfer getTransfer(){
         return transfer;
+    }
+    public Intake getIntake(){
+        return intake;
+    }
+    public Endoscope getEndoscope(){
+        return endoscope;
+    }
+    public TelemetryManager getTelemetry(){
+        return telemetry;
+    }
+    public Pose getPose(){
+        return follower.getPose();
     }
 
     private double computeBatteryVoltage() {

@@ -12,14 +12,24 @@ public class LogCatUtil {
 
     /**
      * Logging util to make logging to LogCat simpler
+     * @param logTag Tag to be used for identifying in log
+     * @param usePrefix whether to prefix logTag with logPrefix in log
+     */
+    public LogCatUtil(String logTag, boolean usePrefix){
+        this.logTag = usePrefix ? logPrefix + logTag : logTag;
+    }
+
+    /**
+     * Logging util to make logging to LogCat simpler
      * @param logTag Tag to be appended to the universal prefix - should be component name if used in a component
      */
     public LogCatUtil(String logTag){
-        this.logTag = logTag;
+        this(logTag, true);
     }
 
+
     private void write(int priority, String message){
-        Log.println(priority, logPrefix+logTag, message);
+        Log.println(priority, logTag, message);
     }
 
     public void warn(String message){

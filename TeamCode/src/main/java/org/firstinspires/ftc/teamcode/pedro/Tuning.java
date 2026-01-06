@@ -29,7 +29,7 @@ import java.util.List;
  * @version 1.0, 6/26/2025
  */
 @Configurable
-@TeleOp(name = "Tuning", group = "Pedro Pathing")
+@TeleOp(name = "Tuning", group = "!Pedro Pathing")
 public class Tuning extends SelectableOpMode {
     public static Follower follower;
 
@@ -522,7 +522,7 @@ class LateralVelocityTuner extends OpMode {
  */
 class ForwardZeroPowerAccelerationTuner extends OpMode {
     private final ArrayList<Double> accelerations = new ArrayList<>();
-    public static double VELOCITY = 60;
+    public static double VELOCITY = 70;
 
     private double previousVelocity;
     private long previousTimeNano;
@@ -626,7 +626,7 @@ class ForwardZeroPowerAccelerationTuner extends OpMode {
  */
 class LateralZeroPowerAccelerationTuner extends OpMode {
     private final ArrayList<Double> accelerations = new ArrayList<>();
-    public static double VELOCITY = 50;
+    public static double VELOCITY = 55;
     private double previousVelocity;
     private long previousTimeNano;
     private boolean stopping;

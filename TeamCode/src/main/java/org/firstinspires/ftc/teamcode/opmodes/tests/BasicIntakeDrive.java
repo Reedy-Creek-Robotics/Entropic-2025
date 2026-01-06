@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -7,6 +8,7 @@ import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.Transfer;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
+@Disabled
 @TeleOp
 public class BasicIntakeDrive extends OpMode {
     Robot robot;
@@ -16,7 +18,7 @@ public class BasicIntakeDrive extends OpMode {
     @Override
     public void init() {
         robot = new Robot(this);
-        transfer = robot.getTranstake();
+        transfer = robot.getTransfer();
         controller = new Controller(gamepad1);
 
         robot.init();

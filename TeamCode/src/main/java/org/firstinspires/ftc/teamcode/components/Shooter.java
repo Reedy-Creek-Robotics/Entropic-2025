@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -31,7 +32,7 @@ public class Shooter extends BaseComponent {
 
     double degPerTick = 12.8571428571;
 
-    static Dictionary<Double, Integer> speeds = new Hashtable<>();
+    static Dictionary<Integer, Integer> speeds = new Hashtable<>();
 
     int velocityTolerance = 60;
     int stabilizationTime = 750;
@@ -41,13 +42,13 @@ public class Shooter extends BaseComponent {
     private Robot robot;
 
     ElapsedTime shootTimer;
+
+    Follower follower;
     
     VoltageSensor batteryVoltageSensor;
     
     LogCatUtil log;
     HardwareUtil hardwareUtil;
-
-    SparkFunOTOS otos;
 
     Double distanceToTag;
 
@@ -70,22 +71,21 @@ public class Shooter extends BaseComponent {
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shootTimer = new ElapsedTime();
 
-        otos = robot.getDriveTrain().getOtos();
-
         goalPosition = context.alliance ? Turret.blueGoal : Turret.redGoal;
 
-        // MAKE SURE THESE ARE IN ORDER FROM LOWEST TO HIGHEST DISTANCE
-        speeds.put(40.0, 1640);
-        speeds.put(50.0, 1500);
-        speeds.put(60.0, 1480);
-        speeds.put(70.0, 1480);
-        speeds.put(80.0, 1520);
-        speeds.put(90.0, 1520);
-        speeds.put(100.0, 1560);
-        speeds.put(110.0, 1640);
-        speeds.put(120.0, 1600);
-        speeds.put(130.0, 1640);
-        speeds.put(140.0, 1780);
+        speeds.put(40, 1640);
+        speeds.put(50, 1500);
+        speeds.put(60, 1440);
+        speeds.put(70, 1440);
+        speeds.put(80, 1520);
+        speeds.put(90, 1520);
+        speeds.put(100, 1560);
+        speeds.put(110, 1640);
+        speeds.put(120, 1600);
+        speeds.put(130, 1640);
+        speeds.put(140, 1780);
+
+        follower = robot.getDriveTrain().getFollower();
     }
 
     @Override
@@ -93,7 +93,7 @@ public class Shooter extends BaseComponent {
         telemetry.addData("Velocity", shooter.getVelocity());
         telemetry.addData("Target", shooter.getPower());
 
-        distanceToTag = DistanceUtil.distanceBetween(otos.getPosition(), goalPosition);
+        distanceToTag = DistanceUtil.distanceBetween(follower.getPose(), goalPosition);
         setVelocity(velocityFromDistance(distanceToTag));
     }
 
@@ -161,33 +161,18 @@ public class Shooter extends BaseComponent {
     }
 
     public int velocityFromDistance(double distance){
-        return speeds.get(findClosestByBiSearch(speeds.keys(), distance));
+        //log.debug("distance : " + distance + " | speed : " + speeds.get(findClosestByStream(speeds.keys(), distance)) + " | real : " + shooter.getVelocity());
+        return speeds.get(findClosestByStream(speeds.keys(), distance));
     }
 
-    public double findClosestByBiSearch(Enumeration<Double> sortedNumbers, double target) {
-        return findClosestByBiSearch(Collections.list(sortedNumbers), target);
+    int findClosestByStream(Enumeration<Integer> sortedNumbers, double target) {
+        return findClosestByStream(Collections.list(sortedNumbers), target);
     }
 
-    public double findClosestByBiSearch(List<Double> sortedNumbers, double target) {
-        double first = sortedNumbers.get(0);
-        if (target <= first) {
-            return first;
-        }
-
-        double last = sortedNumbers.get(sortedNumbers.size() - 1);
-        if (target >= last) {
-            return last;
-        }
-
-        int pos = Collections.binarySearch(sortedNumbers, target);
-        if (pos > 0) {
-            return sortedNumbers.get(pos);
-        }
-        int insertPos = -(pos + 1);
-        double pre = sortedNumbers.get(insertPos - 1);
-        double after = sortedNumbers.get(insertPos);
-
-        return Math.abs(pre - target) <= Math.abs(after - target) ? pre : after;
+    int findClosestByStream(List<Integer> numbers, double target) {
+        return numbers.stream()
+                .min(Comparator.comparingInt(o -> (int) Math.abs(o - target)))
+                .get();
     }
 
     /**
