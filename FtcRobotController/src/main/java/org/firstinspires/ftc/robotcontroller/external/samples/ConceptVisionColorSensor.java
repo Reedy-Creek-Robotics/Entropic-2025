@@ -59,7 +59,6 @@ import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Disabled
 @TeleOp(name = "Concept: Vision Color-Sensor", group = "Concept")
 public class ConceptVisionColorSensor extends LinearOpMode
 {
@@ -114,8 +113,8 @@ public class ConceptVisionColorSensor extends LinearOpMode
          */
         VisionPortal portal = new VisionPortal.Builder()
                 .addProcessor(colorSensor)
-                .setCameraResolution(new Size(320, 240))
-                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .setCameraResolution(new Size(640, 480))
+                .setCamera(hardwareMap.get(WebcamName.class, "Endoscope"))
                 .build();
 
         telemetry.setMsTransmissionInterval(100);  // Speed up telemetry updates, for debugging.
