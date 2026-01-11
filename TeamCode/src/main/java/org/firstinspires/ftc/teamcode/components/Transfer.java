@@ -19,7 +19,6 @@ public class Transfer extends BaseComponent {
      */
     int ballState;
 
-    private DcMotorEx intake;
     private Servo rollerFront;
     private Servo rollerRear;
 
@@ -43,13 +42,9 @@ public class Transfer extends BaseComponent {
 
     @Override
     public void init() {
-        intake = hardwareUtil.getMotorEx("intake");
 
         rollerFront = hardwareUtil.getServo("rollerFront");
         rollerRear = hardwareUtil.getServo("rollerRear");
-
-
-        intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //change depending on auto - may need to grab from file
         ballState = 0;
@@ -68,16 +63,12 @@ public class Transfer extends BaseComponent {
         this.ballState = ballState;
     }
 
-    public void runIntake(double power){
-        intake.setPower(power);
-    }
-
     public void runFrontRoller(double power){
-        rollerFront.setPosition((-power + 1) / 2);
+        rollerFront.setPosition((power + 1) / 2);
     }
 
     public void runRearRoller(double power){
-        rollerRear.setPosition((-power + 1) / 2);
+        rollerRear.setPosition((power + 1) / 2);
     }
 
     public void rollerForTime(Servo roller, double power, double timeMs){

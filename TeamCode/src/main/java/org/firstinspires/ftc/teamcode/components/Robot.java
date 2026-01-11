@@ -56,7 +56,7 @@ public class Robot extends BaseComponent{
         intake = new Intake(context, this);
         // END COMPONENTS
 
-        addSubComponents(driveTrain, intake, turret, shooter, transfer, endoscope);
+        addSubComponents(driveTrain, intake, transfer, turret, shooter, endoscope);
     }
 
     public RobotContext getRobotContext() {
@@ -117,11 +117,24 @@ public class Robot extends BaseComponent{
     }
 
     public void savePositionToDisk() {
-        savePositionToDisk("robot-position");
+        savePositionToDisk("robot-position", getPose());
     }
 
     public void savePositionToDisk(String filename) {
+        savePositionToDisk(filename, getPose());
+    }
 
+    public void savePositionToDisk(Pose pose) {
+        savePositionToDisk("robot-position", pose);
+    }
+
+    public void savePositionToDisk(String filename, Pose pose) {
+        FileUtil.writeLines(
+                filename,
+                pose.getX(),
+                pose.getY(),
+                pose.getHeading()
+        );
     }
 
     public void loadPositionFromDisk() {
@@ -221,5 +234,30 @@ public class Robot extends BaseComponent{
             }
         }
         return result;
+    }
+
+    class RobotState {
+        Pose pose;
+        boolean alliance;
+        int turretPos;
+        /**
+         * 0 - N/A<br>
+         * 1 - GPP<br>
+         * 2 - PGP<br>
+         * 3 - PPG<br>
+         */
+        int pattern;
+        int[] balls;
+
+        public RobotState(Pose pose, int turretPos, int pattern, int[] balls, boolean alliance){
+            this.pose = pose;
+            this.alliance = alliance;
+            this.turretPos = turretPos;
+            this.pattern = pattern;
+            this.balls = balls;
+        }
+
+        
+
     }
 }

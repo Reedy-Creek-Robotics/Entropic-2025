@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import android.text.method.Touch;
+
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
@@ -26,6 +29,18 @@ public class HardwareUtil {
             result = EmptyObjectUtil.getEmptyMotorEx();
         }
         
+        return result;
+    }
+
+    public TouchSensor getTouchSensor(String deviceName) {
+        TouchSensor result;
+        try{
+            result = map.get(TouchSensor.class, deviceName);
+        }catch(Exception e){
+            log.hardwareCatch(deviceName, e);
+            result = EmptyObjectUtil.getEmptyTouchSensor();
+        }
+
         return result;
     }
 

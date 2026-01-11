@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.game.Controller;
 
-@Disabled
 @TeleOp
 public class TurretManualPositionTest extends OpMode {
 
@@ -20,9 +19,8 @@ public class TurretManualPositionTest extends OpMode {
 
     static double gearRatio = turretPulleyTeeth / drivePulleyTeeth;
 
-    static double effectiveTicksPerRev = 145.1 * gearRatio;
+    static double effectiveTicksPerRev = ticksPerRev * gearRatio;
     static double effectiveTicksPerDeg = effectiveTicksPerRev / 360;
-
 
     DcMotorEx turret;
     Controller controller;
@@ -48,16 +46,16 @@ public class TurretManualPositionTest extends OpMode {
         telemetry.addData("difference", turret.getCurrentPosition() - pos);
 
         if(controller.isPressed(Controller.Button.DPAD_UP)){
-            pos = effectiveTicksPerDeg * 0;
+            pos = effectiveTicksPerDeg * -0;
         }
         if(controller.isPressed(Controller.Button.DPAD_RIGHT)){
-            pos = effectiveTicksPerDeg * 90;
+            pos = effectiveTicksPerDeg * -90;
         }
         if(controller.isPressed(Controller.Button.DPAD_DOWN)){
-            pos = effectiveTicksPerDeg * 180;
+            pos = effectiveTicksPerDeg * -180;
         }
         if(controller.isPressed(Controller.Button.DPAD_LEFT)){
-            pos = effectiveTicksPerDeg * 270;
+            //pos = effectiveTicksPerDeg * 270;
         }
 
         if(controller.isPressed(Controller.Button.LEFT_STICK_BUTTON)){
@@ -66,12 +64,12 @@ public class TurretManualPositionTest extends OpMode {
         }
 
         if(simpleMovement) {
-            if (Math.abs(turret.getCurrentPosition() - pos) <= 3) {
+            if (Math.abs(turret.getCurrentPosition() - pos) <= 2) {
                 turret.setPower(0);
-            } else if (Math.abs(turret.getCurrentPosition() - pos) <= 25) {
-                turret.setPower(turret.getCurrentPosition() < (int) pos ? 0.2 : -0.2);
+            } else if (Math.abs(turret.getCurrentPosition() - pos) <= 30) {
+                turret.setPower(turret.getCurrentPosition() < (int) pos ? 0.05 : -0.05);
             } else {
-                turret.setPower(turret.getCurrentPosition() < (int) pos ? 1 : -1);
+                turret.setPower(turret.getCurrentPosition() < (int) pos ? 0.2 : -0.2);
             }
         }else{
             turret.setTargetPosition((int) pos);

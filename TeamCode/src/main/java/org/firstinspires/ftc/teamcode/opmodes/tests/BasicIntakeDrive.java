@@ -26,7 +26,7 @@ public class BasicIntakeDrive extends OpMode {
 
     @Override
     public void loop() {
-        transfer.runIntake(controller.analogValue(Controller.AnalogControl.RIGHT_TRIGGER)-controller.analogValue(Controller.AnalogControl.LEFT_TRIGGER));
+        robot.getIntake().setIntakePower(controller.analogValue(Controller.AnalogControl.RIGHT_TRIGGER)-controller.analogValue(Controller.AnalogControl.LEFT_TRIGGER));
         if(controller.isButtonDown(Controller.Button.NORTH)){
             transfer.runFrontRoller(1);
         }

@@ -60,20 +60,20 @@ import com.qualcomm.robotcore.util.Range;
  * https://www.sparkfun.com/products/25596
  */
 @TeleOp(name = "Concept: LED Stick", group = "Concept")
-@Disabled
+//@Disabled
 public class ConceptLEDStick extends OpMode {
     private boolean wasUp;
     private boolean wasDown;
     private int brightness = 5;  // this needs to be between 0 and 31
-    private final static double END_GAME_TIME = 120 - 30;
+    private final static double END_GAME_TIME = 120 - 20;
 
     private SparkFunLEDStick ledStick;
 
     @Override
     public void init() {
-        ledStick = hardwareMap.get(SparkFunLEDStick.class, "back_leds");
+        ledStick = hardwareMap.get(SparkFunLEDStick.class, "internalLight");
         ledStick.setBrightness(brightness);
-        ledStick.setColor(Color.GREEN);
+        ledStick.setColor(Color.WHITE);
     }
 
     @Override
@@ -83,8 +83,9 @@ public class ConceptLEDStick extends OpMode {
 
     @Override
     public void loop() {
-        telemetry.addLine("Hold the A button to turn blue");
-        telemetry.addLine("Hold the B button to turn red");
+        telemetry.addLine("Hold the CROSS button to turn blue");
+        telemetry.addLine("Hold the CIRCLE button to turn red");
+        telemetry.addLine("Hold the SQUARE button to turn green");
         telemetry.addLine("Hold the left bumper to turn off");
         telemetry.addLine("Use DPAD Up/Down to change brightness");
         
@@ -92,14 +93,16 @@ public class ConceptLEDStick extends OpMode {
             int[] ledColors = {Color.RED, Color.YELLOW, Color.RED, Color.YELLOW, Color.RED,
                     Color.YELLOW, Color.RED, Color.YELLOW, Color.RED, Color.YELLOW};
             ledStick.setColors(ledColors);
-        } else if (gamepad1.a) {
+        } else if (gamepad1.cross) {
             ledStick.setColor(Color.BLUE);
-        } else if (gamepad1.b) {
+        } else if (gamepad1.circle) {
             ledStick.setColor(Color.RED);
+        } else if(gamepad1.square) {
+            ledStick.setColor(Color.GREEN);
         } else if (gamepad1.left_bumper) {
             ledStick.turnAllOff();
         } else {
-            ledStick.setColor(Color.GREEN);
+            ledStick.setColor(Color.WHITE);
         }
 
         /*

@@ -104,9 +104,7 @@ public class DriveTrain extends BaseComponent {
     @Override
     public void update() {
         curPose = follower.getPose();
-        telemetry.addData("otos x", curPose.getX());
-        telemetry.addData("otos y", curPose.getY());
-        telemetry.addData("otos h", Math.toDegrees(curPose.getHeading()));
+        telemetry.addLine(String.format("XYH %6.2f %6.2f %6.2f  (inch) (degree)", curPose.getX(), curPose.getY(), Math.toDegrees(curPose.getHeading())));
     }
 
     public DriveTrain(RobotContext context){

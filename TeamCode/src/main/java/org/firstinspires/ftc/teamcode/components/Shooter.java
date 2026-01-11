@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -39,6 +40,8 @@ public class Shooter extends BaseComponent {
     int holdVelocity = 1600;
     private int setVelocity;
 
+    boolean autoSpeed = true;
+
     private Robot robot;
 
     ElapsedTime shootTimer;
@@ -52,7 +55,8 @@ public class Shooter extends BaseComponent {
 
     Double distanceToTag;
 
-    Pose2D goalPosition;
+    Pose goalPosition;
+
 
     public Shooter(RobotContext context, Robot robot) {
         super(context);
@@ -90,11 +94,15 @@ public class Shooter extends BaseComponent {
 
     @Override
     public void update() {
-        telemetry.addData("Velocity", shooter.getVelocity());
-        telemetry.addData("Target", shooter.getPower());
+        telemetry.addLine(String.format("Shooter Velocity: %4d / %4d  (tick) | Ready: %b",
+                (int) shooter.getVelocity(),
+                setVelocity,
+                isBusy()));
 
-        distanceToTag = DistanceUtil.distanceBetween(follower.getPose(), goalPosition);
-        setVelocity(velocityFromDistance(distanceToTag));
+        if(autoSpeed) {
+            distanceToTag = follower.getPose().distanceFrom(goalPosition);
+            setVelocity(velocityFromDistance(distanceToTag));
+        }
     }
 
     public double velocityTicksToDegrees(int ticks) {
@@ -165,14 +173,22 @@ public class Shooter extends BaseComponent {
         return speeds.get(findClosestByStream(speeds.keys(), distance));
     }
 
-    int findClosestByStream(Enumeration<Integer> sortedNumbers, double target) {
+    private int findClosestByStream(Enumeration<Integer> sortedNumbers, double target) {
         return findClosestByStream(Collections.list(sortedNumbers), target);
     }
 
-    int findClosestByStream(List<Integer> numbers, double target) {
+    private int findClosestByStream(List<Integer> numbers, double target) {
         return numbers.stream()
                 .min(Comparator.comparingInt(o -> (int) Math.abs(o - target)))
                 .get();
+    }
+
+    public boolean setAutoSpeed(boolean autoSpeed){
+        return this.autoSpeed = autoSpeed;
+    }
+
+    public boolean getAutoSpeed(){
+        return autoSpeed;
     }
 
     /**

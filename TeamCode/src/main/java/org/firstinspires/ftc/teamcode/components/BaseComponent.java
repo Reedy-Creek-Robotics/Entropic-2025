@@ -179,6 +179,7 @@ public abstract class BaseComponent implements Component {
 
         // Also update any sub-components
         for (Component subComponent : subComponents) {
+            telemetry.addLine(String.format("--- %s ---", subComponent));
             subComponent.update();
         }
     }

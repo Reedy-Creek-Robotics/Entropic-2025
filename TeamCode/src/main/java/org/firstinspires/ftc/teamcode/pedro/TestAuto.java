@@ -1,3 +1,11 @@
+
+/*
+ToDo Alliance selection in code
+ToDo Save position auto > tele op2
+ */
+
+
+
 package org.firstinspires.ftc.teamcode.pedro; // make sure this aligns with class location
 
 import com.bylazar.telemetry.TelemetryManager;
