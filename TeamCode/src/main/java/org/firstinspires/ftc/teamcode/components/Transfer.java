@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import android.app.Presentation;
+
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -7,6 +9,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
+import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
+
+import java.util.Arrays;
 
 public class Transfer extends BaseComponent {
 
@@ -21,11 +26,13 @@ public class Transfer extends BaseComponent {
 
     private Servo rollerFront;
     private Servo rollerRear;
+    private Endoscope endoscope;
 
     LogCatUtil log;
     HardwareUtil hardwareUtil;
 
     Robot robot;
+    Command transferCommand;
 
     public Transfer(RobotContext context, Robot robot) {
         super(context);
@@ -45,6 +52,8 @@ public class Transfer extends BaseComponent {
 
         rollerFront = hardwareUtil.getServo("rollerFront");
         rollerRear = hardwareUtil.getServo("rollerRear");
+        endoscope = robot.getEndoscope();
+        transferCommand = null;
 
         //change depending on auto - may need to grab from file
         ballState = 0;
@@ -63,6 +72,8 @@ public class Transfer extends BaseComponent {
         this.ballState = ballState;
     }
 
+    // power > 0 means ball is pushed in and up
+    // power < 0 means ball is pushed down and out
     public void runFrontRoller(double power){
         rollerFront.setPosition((power + 1) / 2);
     }
@@ -71,6 +82,8 @@ public class Transfer extends BaseComponent {
         rollerRear.setPosition((power + 1) / 2);
     }
 
+
+
     public void rollerForTime(Servo roller, double power, double timeMs){
         robot.executeCommand(new RollerForTime(roller, power, timeMs));
     }
@@ -78,6 +91,8 @@ public class Transfer extends BaseComponent {
     public void rollersForTime(double power, double timeMs){
         robot.executeCommand(new RollersForTime(power, timeMs));
     }
+
+
 
 /**BMS PLAN
 
@@ -94,51 +109,55 @@ third ball enters<br>
       push second ball from entry side to center<br>
       put on side it entered in<br>
 **/
-    public void incomingFront() {
-        switch (ballState){
-            case 0: //no ball in yet
+public void incomingFront() {
+    telemetry.addData("front income detected. ballState", ballState);
+    switch (ballState){
+        case 0: //no ball in yet
 
-                //run rollerFront in for 2 seconds
-                executeCommand(new RollerForTime(rollerFront, 1, 2000));
-                break;
+            //run rollerFront in
+            robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 1));
 
-            case 1: //ball in center
 
-                //run rollerBack out for 2 seconds
-                executeCommand(new RollerForTime(rollerRear, -1, 2000));
-                //run rollerFront in for 2 seconds
-                executeCommand(new RollerForTime(rollerFront, 1, 2000));
-                break;
+            break;
 
-            case 2: //balls in center & front
+        case 1: //ball in center
 
-                //run rollerFront in AND rollerBack out for 3 seconds
-                executeCommand(new RollerForTime(rollerFront, 1, 3000));
-                executeCommand(new RollerForTime(rollerRear, -1, 3000));
-                break;
+            //run rollerRear out
+            robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getRearBallSensor(), -1, -1));
+            //run rollerFront in
+            robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 3));
+            break;
 
-            case 3: //balls in center & back
+        case 2: //balls in center & front
 
-                //run rollerFront in for 2 seconds
-                executeCommand(new RollerForTime(rollerFront, 1, 2000));
-                break;
-        }
+            //run rollerFront in AND rollerRear out
+            robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getRearBallSensor(), -1, -1));
+            robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 4));
+            break;
+
+        case 3: //balls in center & rear
+
+            //run rollerFront in
+            //robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getFrontBallSensor(), 1, 4));
+            ballState = 4;
+            break;
     }
+}
 
-    public void incomingBack() {
+    public void incomingRear() {
         switch(ballState){
             case 0: //no ball in yet
 
                 //run rollerBack in for 2 seconds
-                executeCommand(new RollerForTime(rollerRear, 1, 2000));
+                robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getCenterBallSensor(), 1, 1));
                 break;
 
             case 1: //ball in center
 
                 //run rollerFront out for 2 seconds
-                executeCommand(new RollerForTime(rollerFront, -1, 2000));
+                //executeCommand(new RollerForTime(rollerFront, -1, 2000));
                 //run rollerBack in for 2 seconds
-                executeCommand(new RollerForTime(rollerRear, 1, 2000));
+                //executeCommand(new RollerForTime(rollerRear, 1, 2000));
                 break;
 
             case 2: //balls in center & front
@@ -150,6 +169,41 @@ third ball enters<br>
                 break;
         }
     }
+
+private class RollerUntilSensor implements Command {
+
+    Servo roller;
+    double power;
+    int finishState;
+    PredominantColorProcessor sensor;
+
+    public RollerUntilSensor(Servo roller, PredominantColorProcessor sensor, double power, int finishState){
+        this.roller = roller;
+        this.power = power;
+        this.sensor = sensor;
+        this.finishState = finishState;
+    }
+
+    @Override
+    public void start(){
+        roller.setPosition((power + 1) / 2);
+    }
+
+    @Override
+    public void stop() {
+        if (finishState != -1){
+            ballState = finishState;
+        }
+
+        roller.setPosition(0.5);
+    }
+
+    @Override
+    public boolean update() {
+        telemetry.addLine("moving roller '" + roller.getPortNumber() + "' until sensor" + Arrays.toString(sensor.getAnalysis().HSV));
+        return endoscope.getPresence(sensor.getAnalysis().HSV) > 0;
+    }
+}
 
     private class RollerForTime implements Command {
 
