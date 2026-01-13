@@ -59,7 +59,7 @@ public class TeloOpMain extends OpMode {
 
         robot.getDriveTrain().drive(drive, strafe, turn);
 
-        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) + (driver.isButtonDown(Controller.Button.SOUTH) ? 1:0));
+        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) + (driver.isButtonDown(Controller.Button.SOUTH) ? .2:0));
 
         /*if(driver.isButtonDown(Controller.Button.NORTH) || driver.isButtonDown(Controller.Button.RIGHT_BUMPER)){
             transfer.runFrontRoller(1);
@@ -85,20 +85,29 @@ public class TeloOpMain extends OpMode {
             robot.getDriveTrain().getFollower().setPose(smallZoneReset);
         }
 
+        //serve balls
         if(driver.isButtonDown(Controller.Button.SOUTH)){
             serving = true;
             transfer.runFrontRoller(1);
             transfer.runRearRoller(1);
-        } else{
+        }
+        //purge
+        else if(driver.isButtonDown(Controller.Button.NORTH)){
+            serving = true;
+            transfer.runFrontRoller(-1);
+            transfer.runRearRoller(-1);
+            robot.stopAllCommands();
+        }
+        else{
             if(serving){
                 transfer.runFrontRoller(0);
                 transfer.runRearRoller(0);
                 serving = false;
+                transfer.setBallState(0);
             }
         }
-        if(driver.isButtonDown(Controller.Button.NORTH)){
-            transfer.setBallState(0);
-        }
+
+
 
         //if(driver.isPressed(Controller.Button.TOUCH_PAD)){
         //    robot.getTurret().resetEncoder();

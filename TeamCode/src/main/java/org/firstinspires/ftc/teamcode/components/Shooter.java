@@ -38,6 +38,9 @@ public class Shooter extends BaseComponent {
     int velocityTolerance = 60;
     int stabilizationTime = 750;
     int holdVelocity = 1600;
+
+    double shotCurrent = 5.2;
+
     private int setVelocity;
 
     boolean autoSpeed = true;

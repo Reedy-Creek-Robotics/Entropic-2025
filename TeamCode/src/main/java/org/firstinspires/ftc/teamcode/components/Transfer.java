@@ -27,12 +27,14 @@ public class Transfer extends BaseComponent {
     private Servo rollerFront;
     private Servo rollerRear;
     private Endoscope endoscope;
+    private Shooter shooter;
 
     LogCatUtil log;
     HardwareUtil hardwareUtil;
 
     Robot robot;
     Command transferCommand;
+    Boolean waitForStateChange = false;
 
     public Transfer(RobotContext context, Robot robot) {
         super(context);
@@ -53,6 +55,7 @@ public class Transfer extends BaseComponent {
         rollerFront = hardwareUtil.getServo("rollerFront");
         rollerRear = hardwareUtil.getServo("rollerRear");
         endoscope = robot.getEndoscope();
+        shooter = robot.getShooter();
         transferCommand = null;
 
         //change depending on auto - may need to grab from file
@@ -111,36 +114,40 @@ third ball enters<br>
 **/
 public void incomingFront() {
     telemetry.addData("front income detected. ballState", ballState);
-    switch (ballState){
-        case 0: //no ball in yet
+    if(!waitForStateChange) {
+        switch (ballState) {
+            case 0: //no ball in yet
 
-            //run rollerFront in
-            robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 1));
+                //run rollerFront in
+                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 1));
 
+                waitForStateChange = true;
+                break;
 
-            break;
+            case 1: //ball in center
 
-        case 1: //ball in center
+                //run rollerRear out
+                robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getRearBallSensor(), -1, -1));
+                //run rollerFront in
+                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 3));
+                waitForStateChange = true;
+                break;
 
-            //run rollerRear out
-            robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getRearBallSensor(), -1, -1));
-            //run rollerFront in
-            robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 3));
-            break;
+            case 2: //balls in center & front
 
-        case 2: //balls in center & front
+                //run rollerFront in AND rollerRear out
+                robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getRearBallSensor(), -1, -1));
+                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 4));
+                waitForStateChange = true;
+                break;
 
-            //run rollerFront in AND rollerRear out
-            robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getRearBallSensor(), -1, -1));
-            robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 4));
-            break;
+            case 3: //balls in center & rear
 
-        case 3: //balls in center & rear
-
-            //run rollerFront in
-            //robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getFrontBallSensor(), 1, 4));
-            ballState = 4;
-            break;
+                //run rollerFront in
+                //robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getFrontBallSensor(), 1, 4));
+                ballState = 4;
+                break;
+        }
     }
 }
 
@@ -148,24 +155,31 @@ public void incomingFront() {
         switch(ballState){
             case 0: //no ball in yet
 
-                //run rollerBack in for 2 seconds
+                //run rollerRear
                 robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getCenterBallSensor(), 1, 1));
+                waitForStateChange = true;
                 break;
 
             case 1: //ball in center
 
-                //run rollerFront out for 2 seconds
-                //executeCommand(new RollerForTime(rollerFront, -1, 2000));
-                //run rollerBack in for 2 seconds
-                //executeCommand(new RollerForTime(rollerRear, 1, 2000));
+                //run rollerFront out
+                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getFrontBallSensor(), 1, -1));
+                //run rollerBack
+                robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getCenterBallSensor(), 1, 2));
+                waitForStateChange = true;
                 break;
 
             case 2: //balls in center & front
-
+                //robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 1));
+                ballState = 4;
                 break;
 
             case 3: //balls in center & back
-
+                //run rollerFront out
+                //run rollerRear in
+                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getFrontBallSensor(), -1, -1));
+                robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getCenterBallSensor(), 1, 4));
+                waitForStateChange = true;
                 break;
         }
     }
@@ -193,6 +207,7 @@ private class RollerUntilSensor implements Command {
     public void stop() {
         if (finishState != -1){
             ballState = finishState;
+            waitForStateChange = false;
         }
 
         roller.setPosition(0.5);
@@ -204,6 +219,44 @@ private class RollerUntilSensor implements Command {
         return endoscope.getPresence(sensor.getAnalysis().HSV) > 0;
     }
 }
+
+    private class ServeUntilShot implements Command {
+
+        public ServeUntilShot() {
+
+        }
+
+        @Override
+        public void start(){
+            rollerFront.setPosition(1);
+            rollerRear.setPosition(1);
+        }
+
+        @Override
+        public void stop() {
+            switch (ballState){
+                case 4:
+                    ballState = 3;
+                    break;
+                case 3:
+                case 2:
+                    ballState = 1;
+                    break;
+                case 1:
+                    ballState = 0;
+                    break;
+            }
+
+            rollerFront.setPosition(0.5);
+            rollerRear.setPosition(0.5);
+        }
+
+        @Override
+        public boolean update() {
+            telemetry.addLine("Serving Until Shot (" +  shooter.getShooterCurrent() + "/" + shooter.shotCurrent + ")");
+            return shooter.getShooterCurrent() > shooter.shotCurrent;
+        }
+    }
 
     private class RollerForTime implements Command {
 

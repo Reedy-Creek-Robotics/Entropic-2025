@@ -43,7 +43,7 @@ public class Endoscope extends BaseComponent {
         this.robot = robot;
 
         frontBallSensor = blobMaker(-0.514867, -0.382046, -0.317684, -0.878914);
-        centerBallSensor = blobMaker(-0.114241, 0.795407, 0.170579, 0.415449);
+        centerBallSensor = blobMaker(-0.114241, 0.955, 0.170579, 0.7);
         rearBallSensor = blobMaker(0.411581, -0.348643, 0.605634, -0.845511);
         prelimFrontSensor = blobMaker(-0.984351, 0.043841, -0.837246, -0.077244);
         prelimRearSensor = blobMaker(0.809077, 0.018789, 0.968701, -0.089770);
