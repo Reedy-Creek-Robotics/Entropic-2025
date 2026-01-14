@@ -157,7 +157,6 @@ public abstract class BaseComponent implements Component {
     @Override
     public void update() {
 
-        //telemetry.addData("Current Command",currentCommand);
 
         // If there is not a current command, but there are commands in the queue, start the next one.
         if (currentCommand == null && !nextCommands.isEmpty()) {
@@ -168,6 +167,7 @@ public abstract class BaseComponent implements Component {
 
         // If there is a current command we are trying to execute, delegate to it for update status
         if (currentCommand != null) {
+            telemetry.addData("Current Command",currentCommand);
             boolean finished = currentCommand.update();
 
             // If the command is finished, remove it
