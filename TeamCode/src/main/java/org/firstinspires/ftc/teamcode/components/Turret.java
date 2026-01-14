@@ -40,7 +40,7 @@ public class Turret extends BaseComponent{
     static String logTag = "Turret";
 
     // Must be at least 360 degrees
-    static double maxHeading = 30;
+    static double maxHeading = 90;
     static double minHeading = -180;
 
     static double fx = 595.21, fy = 595.21, cx = 984.515, cy = 599.035; //TODO: Fix these
@@ -118,6 +118,9 @@ public class Turret extends BaseComponent{
 
     double theta;
 
+    int turretOffset;
+    int turretPos;
+
     Robot robot;
 
     /**
@@ -181,8 +184,9 @@ public class Turret extends BaseComponent{
     @Override
     public void update(){
         curPos = robot.getPose();
+        turretPos = turretMotor.getCurrentPosition() + turretOffset;
 
-        telemetry.addLine(String.format("Turret Pos: %d / %d  (tick)", turretMotor.getCurrentPosition(), (int) targetPos));
+        telemetry.addLine(String.format("Turret Pos: %d / %d  (tick)", turretPos, (int) targetPos));
         telemetry.addLine(String.format("Turret Pos: %3.1f / %3.1f  (deg)", getPositionDegrees(), targetDeg));
         telemetry.addLine(String.format("Theta: %2.2f  (deg)", Math.toDegrees(theta)));
 
@@ -223,11 +227,15 @@ public class Turret extends BaseComponent{
     }
 
     private double getPositionDegrees(){
-        return turretMotor.getCurrentPosition() / effectiveTicksPerDeg;
+        return turretPos / effectiveTicksPerDeg;
     }
 
     public int getPositionTicks(){
-        return turretMotor.getCurrentPosition();
+        return turretPos;
+    }
+
+    public void setPositionTicks(int ticks){
+        turretOffset = ticks - turretMotor.getCurrentPosition();
     }
 
     public void resetEncoder(){
@@ -285,12 +293,12 @@ public class Turret extends BaseComponent{
     }
 
     private void movePid(){
-        if (Math.abs(turretMotor.getCurrentPosition() - targetPos) <= 2) {
+        if (Math.abs(turretPos - targetPos) <= 2) {
             turretMotor.setPower(0);
-        } else if (Math.abs(turretMotor.getCurrentPosition() - targetPos) <= 30) {
-            turretMotor.setPower(turretMotor.getCurrentPosition() < (int) targetPos ? 0.05 : -0.05);
+        } else if (Math.abs(turretPos - targetPos) <= 30) {
+            turretMotor.setPower(turretPos < (int) targetPos ? 0.05 : -0.05);
         } else {
-            turretMotor.setPower(turretMotor.getCurrentPosition() < (int) targetPos ? 0.2 : -0.2);
+            turretMotor.setPower(turretPos < (int) targetPos ? 0.2 : -0.2);
         }
     }
 

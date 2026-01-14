@@ -37,7 +37,6 @@ public class Endoscope extends BaseComponent {
                 .build();
     }
 
-
     public Endoscope(RobotContext context, Robot robot) {
         super(context);
         log = new LogCatUtil("Endoscope");

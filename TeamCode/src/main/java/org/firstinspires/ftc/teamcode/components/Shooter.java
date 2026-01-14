@@ -42,7 +42,7 @@ public class Shooter extends BaseComponent {
 
     boolean autoSpeed = true;
 
-    private Robot robot;
+    private final Robot robot;
 
     ElapsedTime shootTimer;
 
@@ -76,18 +76,6 @@ public class Shooter extends BaseComponent {
         shootTimer = new ElapsedTime();
 
         goalPosition = context.alliance ? Turret.blueGoal : Turret.redGoal;
-
-        speeds.put(40, 1640);
-        speeds.put(50, 1500);
-        speeds.put(60, 1440);
-        speeds.put(70, 1440);
-        speeds.put(80, 1520);
-        speeds.put(90, 1520);
-        speeds.put(100, 1560);
-        speeds.put(110, 1640);
-        speeds.put(120, 1600);
-        speeds.put(130, 1640);
-        speeds.put(140, 1780);
 
         follower = robot.getDriveTrain().getFollower();
     }

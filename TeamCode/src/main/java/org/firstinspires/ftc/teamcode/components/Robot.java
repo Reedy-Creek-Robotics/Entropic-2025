@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.components;
 import android.annotation.SuppressLint;
 
 
-import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
@@ -14,8 +13,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
-import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Robot extends BaseComponent{
@@ -116,48 +117,102 @@ public class Robot extends BaseComponent{
         telemetry.update(ftcTelemetry);
     }
 
-    public void savePositionToDisk() {
-        savePositionToDisk("robot-position", getPose());
+    public void saveStateToDisk() {
+        saveStateToDisk("robot-state");
     }
 
-    public void savePositionToDisk(String filename) {
-        savePositionToDisk(filename, getPose());
+    public void saveStateToDisk(String filename) {
+        saveStateToDisk(filename, new RobotState(
+                follower.getPose(),
+                turret.getPositionTicks(),
+                0, //ToDo get pattern from AMS
+                new int[] {}, //ToDo get balls from AMS
+                context.alliance
+        ));
     }
 
-    public void savePositionToDisk(Pose pose) {
-        savePositionToDisk("robot-position", pose);
+    public void saveStateToDisk(RobotState state) {
+        saveStateToDisk("robot-state", state);
     }
 
-    public void savePositionToDisk(String filename, Pose pose) {
+    public void saveStateToDisk(String filename, RobotState state) {
         FileUtil.writeLines(
                 filename,
-                pose.getX(),
-                pose.getY(),
-                pose.getHeading()
+                state.posX(),
+                state.posY(),
+                state.posH(),
+                state.alliance(),
+                state.posT(),
+                state.pattern(),
+                state.balls()
         );
     }
 
-    public void loadPositionFromDisk() {
-        loadPositionFromDisk("robot-position");
+    public void loadStateFromDisk() {
+        loadStateFromDisk("robot-state");
     }
 
-    public void loadPositionFromDisk(String filename) {
+    public void loadStateFromDisk(String filename) {
         List<String> lines = FileUtil.readLines(filename);
         if (!lines.isEmpty()) {
             try {
-                if (lines.size() != 5) {
-                    throw new IllegalArgumentException("Expected 4 lines but found [" + lines.size() + "]");
+                if (lines.size() != 7) {
+                    throw new IllegalArgumentException("Expected 7 lines but found [" + lines.size() + "]");
+                }
+            } catch (Exception e) {
+                telemetry.addData("Error loading robot state", ErrorUtil.convertToString(e));
+            }
+
+            double posX = 0;
+            double posY = 0;
+            double posH = 0;
+            boolean alliance = false;
+            int posT = 0;
+            int pattern = 0;
+            int[] balls = {};
+            String line = "";
+            for(int i = 0; i < lines.size(); i++){
+                line = lines.get(i);
+                switch(i){
+                    case 0:
+                        posX = Double.parseDouble(line);
+                        break;
+                    case 1:
+                        posY = Double.parseDouble(line);
+                        break;
+                    case 2:
+                        posH = Double.parseDouble(line);
+                        break;
+                    case 3:
+                        alliance = Boolean.parseBoolean(line);
+                        break;
+                    case 4:
+                        posT = Integer.parseInt(line);
+                        break;
+                    case 5:
+                        pattern = Integer.parseInt(line);
+                        break;
+                    case 6:
+                        balls = Arrays.stream(line.split(","))
+                                .mapToInt(Integer::parseInt)
+                                .toArray();
+                    }
                 }
 
-
-            } catch (Exception e) {
-                telemetry.addData("Error loading position", ErrorUtil.convertToString(e));
-            }
+            follower.setPose(new Pose(
+                    posX,
+                    posY,
+                    posH
+            ));
+            context.alliance = alliance;
+            turret.setPositionTicks(posT);
+            //ToDo: Jonathan, add logic here to get pattern and balls into the ball management system
+        }
 
             // Now that the position has been consumed, remove the file
             FileUtil.removeFile(filename);
-        }
     }
+
 
     @SuppressLint("DefaultLocale")
     private void computeUpdatesPerSecond() {
@@ -236,7 +291,9 @@ public class Robot extends BaseComponent{
         return result;
     }
 
-    class RobotState {
+
+
+    public static class RobotState {
         Pose pose;
         boolean alliance;
         int turretPos;
@@ -257,7 +314,32 @@ public class Robot extends BaseComponent{
             this.balls = balls;
         }
 
-        
+        public double posX(){
+            return pose.getX();
+        }
 
+        public double posY(){
+            return pose.getY();
+        }
+
+        public double posH(){
+            return pose.getHeading();
+        }
+
+        public boolean alliance(){
+            return alliance;
+        }
+
+        public int posT(){
+            return turretPos;
+        }
+
+        public int pattern(){
+            return pattern;
+        }
+
+        public int[] balls() {
+            return balls;
+        }
     }
 }
