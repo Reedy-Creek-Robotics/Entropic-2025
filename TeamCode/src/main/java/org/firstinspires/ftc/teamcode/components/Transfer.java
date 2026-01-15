@@ -86,6 +86,9 @@ public class Transfer extends BaseComponent {
     }
 
 
+    public void serveUntilShot(int color){
+        robot.executeCommand(new ServeUntilShot(color));
+    }
 
     public void rollerForTime(Servo roller, double power, double timeMs){
         robot.executeCommand(new RollerForTime(roller, power, timeMs));

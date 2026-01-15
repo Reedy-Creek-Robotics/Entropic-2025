@@ -106,6 +106,9 @@ public class TeloOpMain extends OpMode {
                 transfer.setBallState(0);
             }
         }
+        if(driver.isPressed(Controller.Button.EAST)){
+            transfer.serveUntilShot(0);
+        }
 
 
 
