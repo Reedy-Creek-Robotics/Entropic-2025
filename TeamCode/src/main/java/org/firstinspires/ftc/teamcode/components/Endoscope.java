@@ -25,6 +25,9 @@ public class Endoscope extends BaseComponent {
     int prelimDetectSaturation = 200;
     int prelimDetectValue = 100;
 
+
+    boolean enableArtifactManagement = true;
+
     Robot robot;
     Transfer transfer;
 
@@ -86,20 +89,23 @@ public class Endoscope extends BaseComponent {
         telemetry.addData("PrelimFront Detect", resultPrelimFront.HSV[1] > prelimDetectSaturation && resultPrelimFront.HSV[2] > prelimDetectValue);
         telemetry.addData("PrelimRear Detect", resultPrelimRear.HSV[1] > prelimDetectSaturation && resultPrelimRear.HSV[2] > prelimDetectValue);
 
-        if((resultPrelimFront.HSV[1] > prelimDetectSaturation) && (resultPrelimFront.HSV[2] > prelimDetectValue) && (getPresence(resultFront.HSV) == 0)){
+        if((enableArtifactManagement) && (resultPrelimFront.HSV[1] > prelimDetectSaturation) && (resultPrelimFront.HSV[2] > prelimDetectValue) && (getPresence(resultFront.HSV) == 0)){
             transfer.incomingFront();
             telemetry.addLine("incoming Front!");
         }
-        if((resultPrelimRear.HSV[1] > prelimDetectSaturation) && (resultPrelimRear.HSV[2] > prelimDetectValue) && (getPresence(resultRear.HSV) == 0)){
+        if((enableArtifactManagement) && (resultPrelimRear.HSV[1] > prelimDetectSaturation) && (resultPrelimRear.HSV[2] > prelimDetectValue) && (getPresence(resultRear.HSV) == 0)){
             transfer.incomingRear();
             telemetry.addLine("incoming Rear!");
         }
     }
 
-    // 0 = no ball
-    // 1 = purple ball
-    // 2 = green ball
-    // 3 = unknown
+    /**
+    Colors:
+     0 = no ball
+     1 = purple ball
+     2 = green ball
+     3 = unknown
+     **/
     public int getPresence(int[] HSV){
         if (HSV[1] < 160){
             return 0;
@@ -122,5 +128,9 @@ public class Endoscope extends BaseComponent {
 
     public PredominantColorProcessor getRearBallSensor() {
         return rearBallSensor;
+    }
+
+    public void setEnableArtifactManagement(boolean enableArtifactManagement) {
+        this.enableArtifactManagement = enableArtifactManagement;
     }
 }

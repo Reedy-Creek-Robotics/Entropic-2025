@@ -222,14 +222,22 @@ private class RollerUntilSensor implements Command {
 
     private class ServeUntilShot implements Command {
 
-        public ServeUntilShot() {
+        /**
+        Colors:
+         0 = either one
+         1 = purple
+         2 = green
+         **/
+        int color;
 
+        public ServeUntilShot(int color) {
+            this.color = color;
         }
 
         @Override
         public void start(){
-            rollerFront.setPosition(1);
-            rollerRear.setPosition(1);
+            runFrontRoller(1);
+            runRearRoller(1);
         }
 
         @Override
@@ -247,8 +255,8 @@ private class RollerUntilSensor implements Command {
                     break;
             }
 
-            rollerFront.setPosition(0.5);
-            rollerRear.setPosition(0.5);
+            runFrontRoller(0);
+            runRearRoller(0);
         }
 
         @Override
