@@ -247,20 +247,20 @@ public class Turret extends BaseComponent{
         // select the goal aim position based on shooting zone and alliance
         Pose targetGoal;
         if (context.alliance) {
-            if (curPos.getY() < 24) {
+            if (curPos.getY() < 48) {
                 targetGoal = blueGoalBack;
             } else {
                 targetGoal = blueGoal;
             }
         } else {
-            if (curPos.getY() < 24) {
+            if (curPos.getY() < 48) {
                 targetGoal = redGoalBack;
             } else {
                 targetGoal = redGoal;
             }
         }
 
-        // Calculates the theta using the atan2 function
+        // Calculates the theta using the arctangent function
 //        theta = Math.tanh(((context.alliance ? blueGoal.getY() : redGoal.getY()) - curPos.getY()) / ((context.alliance ? blueGoal.getX() : redGoal.getX()) - curPos.getX()));
         theta = Math.atan2(targetGoal.getY() - curPos.getY(), targetGoal.getX() - curPos.getX());
         //log.debug("theta : " + theta + " | degrees : " + Math.toDegrees(curPos.getHeading() - theta));
