@@ -106,6 +106,7 @@ public class Shooter extends BaseComponent {
             distanceToTag = follower.getPose().distanceFrom(goalPosition);
             setVelocity(velocityFromDistance(distanceToTag));
         }
+        telemetry.addData("Shooter Current", getShooterCurrent());
     }
 
     public double velocityTicksToDegrees(int ticks) {
