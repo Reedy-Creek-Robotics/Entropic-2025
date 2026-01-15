@@ -7,6 +7,7 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -68,6 +69,7 @@ public class Shooter extends BaseComponent {
         this.robot = robot;
 
         shooter = hardwareUtil.getMotorEx("shooter");
+        batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
     }
 
     @Override
@@ -76,15 +78,25 @@ public class Shooter extends BaseComponent {
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        setPIDFCoefficients(new PIDFCoefficients(600, 3, 0, 0, MotorControlAlgorithm.PIDF));
         shootTimer = new ElapsedTime();
 
-        goalPosition = context.alliance ? Turret.blueGoal : Turret.redGoal;
+        speeds.put(46, 1300);
+        speeds.put(56, 1260);
+        speeds.put(66, 1200);
+        speeds.put(76, 1240);
+        speeds.put(86, 1280);
+        speeds.put(96, 1300);
+        speeds.put(116, 1380);
+        speeds.put(126, 1440);
+        speeds.put(134, 1480);
 
         follower = robot.getDriveTrain().getFollower();
     }
 
     @Override
     public void update() {
+        goalPosition = context.alliance ? Turret.blueGoal : Turret.redGoal;
         telemetry.addLine(String.format("Shooter Velocity: %4d / %4d  (tick) | Ready: %b",
                 (int) shooter.getVelocity(),
                 setVelocity,

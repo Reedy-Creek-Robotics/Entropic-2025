@@ -43,7 +43,7 @@ public class Turret extends BaseComponent{
     static double maxHeading = 90;
     static double minHeading = -180;
 
-    static double fx = 595.21, fy = 595.21, cx = 984.515, cy = 599.035; //TODO: Fix these
+    static double fx = 595.21, fy = 595.21, cx = 984.515, cy = 599.035; //ToDo: Fix these
     /**
      * When using OTOS and April Tag Only<br>
      * If the center of the tag is not within +- tagTolerance, then the localizer will use the OTOS instead
@@ -122,6 +122,7 @@ public class Turret extends BaseComponent{
     int turretPos;
 
     Robot robot;
+    RobotContext context;
 
     /**
      * 0 - otos only<br>
@@ -137,22 +138,17 @@ public class Turret extends BaseComponent{
      */
     static int moveMethod = 1;
 
-    /**
-     * false - red (tag 24)<br>
-     * true - blue (tag 20)
-     */
-    boolean alliance = false;
     boolean autoAim = true;
 
 
     public Turret(RobotContext context, Robot robot) {
         super(context);
 
+        this.context = context;
+
         log = new LogCatUtil(logTag);
 
         hardwareUtil = new HardwareUtil(log, hardwareMap);
-
-        this.alliance = context.alliance;
 
         //initAprilTag();
 
@@ -187,6 +183,7 @@ public class Turret extends BaseComponent{
         turretPos = turretMotor.getCurrentPosition() + turretOffset;
 
         telemetry.addLine(String.format("Turret Pos: %d / %d  (tick)", turretPos, (int) targetPos));
+        telemetry.addLine(String.format("Real Pos: %d | Offset: %d", turretMotor.getCurrentPosition(), turretOffset));
         telemetry.addLine(String.format("Turret Pos: %3.1f / %3.1f  (deg)", getPositionDegrees(), targetDeg));
         telemetry.addLine(String.format("Theta: %2.2f  (deg)", Math.toDegrees(theta)));
 
@@ -245,14 +242,14 @@ public class Turret extends BaseComponent{
 
     private void otosAutoAim(){
         // Calculates the theta using the tanh function
-        theta = Math.tanh(((alliance ? blueGoal.getY() : redGoal.getY()) - curPos.getY()) / ((alliance ? blueGoal.getX() : redGoal.getX()) - curPos.getX()));
+        theta = Math.tanh(((context.alliance ? blueGoal.getY() : redGoal.getY()) - curPos.getY()) / ((context.alliance ? blueGoal.getX() : redGoal.getX()) - curPos.getX()));
         //log.debug("theta : " + theta + " | degrees : " + Math.toDegrees(curPos.getHeading() - theta));
         // We subtract the theta from the heading to account for robot rotation.
         targetDeg = Math.toDegrees(curPos.getHeading() - theta);
     }
 
     private void tagAutoAim(){
-        tag = alliance ? getTag20() : getTag24();
+        tag = context.alliance ? getTag20() : getTag24();
         if(tag != null){
             targetDeg = tag.ftcPose.bearing;
         } else{
@@ -261,7 +258,7 @@ public class Turret extends BaseComponent{
     }
 
     private void tagOtosAutoAim(){
-        tag = alliance ? getTag20() : getTag24();
+        tag = context.alliance ? getTag20() : getTag24();
         // Will use the otos if frame has already been used, or if no tag is found.
         if(tag == null){
             otosAutoAim();
@@ -271,7 +268,7 @@ public class Turret extends BaseComponent{
     }
 
     private void otosRelocalizeAutoAim(){
-        tag = alliance ? getTag20() : getTag24();
+        tag = context.alliance ? getTag20() : getTag24();
         // Will use the otos if frame has already been used, or if no tag is found.
         if(tag == null){
             otosAutoAim();

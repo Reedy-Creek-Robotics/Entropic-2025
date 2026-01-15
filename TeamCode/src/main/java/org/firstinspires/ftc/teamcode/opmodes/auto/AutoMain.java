@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 
 import com.bylazar.telemetry.TelemetryManager;
@@ -33,7 +33,6 @@ public abstract class AutoMain extends LinearOpMode {
         runPath();
 
         robot.saveStateToDisk();
-
     }
 
     public void initRobot(){
@@ -50,8 +49,6 @@ public abstract class AutoMain extends LinearOpMode {
 
         robot.waitForCommandsToFinish();
     }
-
-
 
 
     /*public abstract void park();*/
