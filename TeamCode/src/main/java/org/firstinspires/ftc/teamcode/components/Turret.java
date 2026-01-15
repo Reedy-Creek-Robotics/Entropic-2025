@@ -89,7 +89,9 @@ public class Turret extends BaseComponent{
 
     //TODO Setup aim positions for when at back of field
     static Pose redGoal = new Pose(140, 144 , 0);
+    static Pose redGoalBack = new Pose(144, 140 , 0);
     static Pose blueGoal = new Pose(4, 144, 0);
+    static Pose blueGoalBack = new Pose(0, 140, 0);
 
     Pose curPos = new Pose();
 
@@ -242,8 +244,25 @@ public class Turret extends BaseComponent{
     }
 
     private void otosAutoAim(){
-        // Calculates the theta using the tanh function
-        theta = Math.tanh(((context.alliance ? blueGoal.getY() : redGoal.getY()) - curPos.getY()) / ((context.alliance ? blueGoal.getX() : redGoal.getX()) - curPos.getX()));
+        // select the goal aim position based on shooting zone and alliance
+        Pose targetGoal;
+        if (context.alliance) {
+            if (curPos.getY() < 24) {
+                targetGoal = blueGoalBack;
+            } else {
+                targetGoal = blueGoal;
+            }
+        } else {
+            if (curPos.getY() < 24) {
+                targetGoal = redGoalBack;
+            } else {
+                targetGoal = redGoal;
+            }
+        }
+
+        // Calculates the theta using the atan2 function
+//        theta = Math.tanh(((context.alliance ? blueGoal.getY() : redGoal.getY()) - curPos.getY()) / ((context.alliance ? blueGoal.getX() : redGoal.getX()) - curPos.getX()));
+        theta = Math.atan2(targetGoal.getY() - curPos.getY(), targetGoal.getX() - curPos.getX());
         //log.debug("theta : " + theta + " | degrees : " + Math.toDegrees(curPos.getHeading() - theta));
         // We subtract the theta from the heading to account for robot rotation.
         targetDeg = Math.toDegrees(curPos.getHeading() - theta);
