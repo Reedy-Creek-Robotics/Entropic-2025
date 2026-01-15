@@ -59,7 +59,7 @@ public class TeloOpMain extends OpMode {
 
         robot.getDriveTrain().drive(drive, strafe, turn);
 
-        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) + (driver.isButtonDown(Controller.Button.SOUTH) ? .2:0));
+        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) + (driver.isButtonDown(Controller.Button.SOUTH) ? 0.5:0));
 
         /*if(driver.isButtonDown(Controller.Button.NORTH) || driver.isButtonDown(Controller.Button.RIGHT_BUMPER)){
             transfer.runFrontRoller(1);
@@ -100,9 +100,9 @@ public class TeloOpMain extends OpMode {
         }
         else{
             if(serving){
+                serving = false;
                 transfer.runFrontRoller(0);
                 transfer.runRearRoller(0);
-                serving = false;
                 transfer.setBallState(0);
             }
         }
@@ -112,9 +112,9 @@ public class TeloOpMain extends OpMode {
 
 
 
-        //if(driver.isPressed(Controller.Button.TOUCH_PAD)){
-        //    robot.getTurret().resetEncoder();
-        //}
+        if(driver.isPressed(Controller.Button.TOUCH_PAD)){
+            robotContext.alliance = !robotContext.alliance;
+        }
 
         telemetry.addData("alliance", robotContext.getAlliance());
         robot.update();

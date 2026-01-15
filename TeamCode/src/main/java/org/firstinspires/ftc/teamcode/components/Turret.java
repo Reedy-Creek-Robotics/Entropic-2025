@@ -87,8 +87,9 @@ public class Turret extends BaseComponent{
     //206 ticks per 90 deg
     //824 ticks per 360 deg
 
-    static Pose redGoal = new Pose(144, 144, 0);
-    static Pose blueGoal = new Pose(144, 0, 0);
+    //TODO Setup aim positions for when at back of field
+    static Pose redGoal = new Pose(140, 144 , 0);
+    static Pose blueGoal = new Pose(4, 144, 0);
 
     Pose curPos = new Pose();
 

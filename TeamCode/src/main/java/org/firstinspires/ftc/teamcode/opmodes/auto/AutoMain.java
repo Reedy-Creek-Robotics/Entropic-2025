@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.util.Timer;
@@ -19,18 +20,22 @@ public abstract class AutoMain extends LinearOpMode {
     protected Timer pathTimer, opmodeTimer;
 
     protected int pathState;
+    protected boolean running = true;
 
     protected TelemetryManager panelsTelemetry;
 
     @Override
     public void runOpMode() throws InterruptedException {
         initRobot();
-
+        buildPaths();
+        initAuto();
         panelsTelemetry.addLine("Waiting for start...");
 
         waitForStart();
-
-        runPath();
+        while(running && opModeIsActive()) {
+            runPath();
+            robot.update();
+        }
 
         robot.saveStateToDisk();
     }
@@ -39,14 +44,24 @@ public abstract class AutoMain extends LinearOpMode {
         robot = new Robot(this);
         robot.init();
 
-        follower = Constants.createFollower(hardwareMap);
+        follower = robot.getDriveTrain().getFollower();
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
     }
 
-    public void runPath(){
+    /**
+     * Run once on init
+     */
+    public abstract void buildPaths();
 
+    public abstract void initAuto();
+
+    /**
+     * Looped every iteration until <b>running</b> is false
+     */
+    public void runPath(){
         robot.waitForCommandsToFinish();
     }
 

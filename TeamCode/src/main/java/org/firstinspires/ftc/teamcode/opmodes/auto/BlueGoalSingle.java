@@ -4,43 +4,45 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-public class BlueGoalSingleStack extends AutoMain{
-    Paths paths = new Paths(follower);
+@Autonomous
+public class BlueGoalSingle extends GoalSingle{
 
     @Override
-    public void runPath() {
+    public void buildPaths(){
+        paths = new Paths(follower);
     }
 
-    public static class Paths {
-        public PathChain shootpreload;
-        public PathChain alignwithballset1;
-        public PathChain pickupballset1;
-        public PathChain shootballset1;
-        public PathChain parking;
+    public static class Paths extends GoalSingle.Paths{
 
-        public Paths(Follower follower) {
-            shootpreload = follower.pathBuilder().addPath(
+        public Paths(Follower follower){
+            super(follower);
+        }
+
+        @Override
+        public void createPaths(Follower follower){
+            shootPreload = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(33.000, 138.000),
 
                                     new Pose(48.000, 96.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(90))
 
                     .build();
 
-            alignwithballset1 = follower.pathBuilder().addPath(
+            alignWithBallSet1 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(48.000, 96.000),
 
                                     new Pose(42.000, 84.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                    ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
 
                     .build();
 
-            pickupballset1 = follower.pathBuilder().addPath(
+            pickupBallSet1 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(42.000, 84.000),
 
@@ -50,7 +52,7 @@ public class BlueGoalSingleStack extends AutoMain{
 
                     .build();
 
-            shootballset1 = follower.pathBuilder().addPath(
+            shootBallSet1 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(22.000, 84.000),
 

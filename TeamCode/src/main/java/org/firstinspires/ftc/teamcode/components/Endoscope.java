@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.components;
 
 import android.util.Size;
 
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
@@ -30,6 +32,7 @@ public class Endoscope extends BaseComponent {
 
     Robot robot;
     Transfer transfer;
+    Servo internalLight;
 
     PredominantColorProcessor blobMaker(double left, double top, double right, double bottom){
         return new PredominantColorProcessor.Builder()
@@ -60,8 +63,11 @@ public class Endoscope extends BaseComponent {
                 .setCameraResolution(new Size(320, 240))
                 .setStreamFormat(VisionPortal.StreamFormat.YUY2)
                 .setShowStatsOverlay(true)
-                .setCamera(hardwareMap.get(WebcamName.class, "Endoscope"))
+                .setCamera(hardwareUtil.getWebcamName("Endoscope"))
                 .build();
+
+        internalLight = hardwareUtil.getServo("internalLight");
+        internalLight.setPosition(10);
     }
 
     @Override

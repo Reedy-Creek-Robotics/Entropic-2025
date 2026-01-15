@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
 @TeleOp
+@Disabled
 public class TurretManualPositionTest extends OpMode {
 
     static double ticksPerRev = 145.1;

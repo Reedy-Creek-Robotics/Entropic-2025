@@ -81,15 +81,16 @@ public class Shooter extends BaseComponent {
         setPIDFCoefficients(new PIDFCoefficients(600, 3, 0, 0, MotorControlAlgorithm.PIDF));
         shootTimer = new ElapsedTime();
 
-        speeds.put(46, 1300);
-        speeds.put(56, 1260);
-        speeds.put(66, 1200);
-        speeds.put(76, 1240);
-        speeds.put(86, 1280);
-        speeds.put(96, 1300);
-        speeds.put(116, 1380);
-        speeds.put(126, 1440);
-        speeds.put(134, 1480);
+        // All distances were measured to the april tag, 18in is added for the distance to the corner from the tag
+        speeds.put(46+18, 1260);
+        speeds.put(56+18, 1260);
+        speeds.put(66+18, 1200);
+        speeds.put(76+18, 1240);
+        speeds.put(86+18, 1280);
+        speeds.put(96+18, 1300);
+        speeds.put(116+18, 1380);
+        speeds.put(126+18, 1440);
+        speeds.put(134+18, 1480);
 
         follower = robot.getDriveTrain().getFollower();
     }
@@ -101,6 +102,7 @@ public class Shooter extends BaseComponent {
                 (int) shooter.getVelocity(),
                 setVelocity,
                 isBusy()));
+        telemetry.addData("Distance", follower.getPose().distanceFrom(goalPosition));
 
         if(autoSpeed) {
             distanceToTag = follower.getPose().distanceFrom(goalPosition);
