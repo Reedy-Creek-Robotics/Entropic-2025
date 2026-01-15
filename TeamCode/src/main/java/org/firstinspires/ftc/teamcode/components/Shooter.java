@@ -7,7 +7,6 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -60,7 +59,6 @@ public class Shooter extends BaseComponent {
     Double distanceToTag;
 
     Pose goalPosition;
-
 
     public Shooter(RobotContext context, Robot robot) {
         super(context);
@@ -174,7 +172,33 @@ public class Shooter extends BaseComponent {
 
     public int velocityFromDistance(double distance){
         //log.debug("distance : " + distance + " | speed : " + speeds.get(findClosestByStream(speeds.keys(), distance)) + " | real : " + shooter.getVelocity());
-        return speeds.get(findClosestByStream(speeds.keys(), distance));
+//        return speeds.get(findClosestByStream(speeds.keys(), distance));
+
+        // linear search through speeds values to find the 2 neighbouring values
+        int lowerBound = -1;
+        int upperBound = -1;
+        Enumeration<Integer> measuredDistances = speeds.keys();
+        while (measuredDistances.hasMoreElements()) {
+            int measuredDistance = measuredDistances.nextElement();
+            if (distance >= measuredDistance) {
+                lowerBound = measuredDistance;
+                if (measuredDistances.hasMoreElements()) {
+                    upperBound = measuredDistances.nextElement();
+                } else {
+                    return 0;
+                }
+                break;
+            }
+        }
+        // check if we actually found a speed value
+        if (lowerBound == -1) {
+            return 0;
+        }
+
+        // interpolate values with point slope
+        double slope = (double) (speeds.get(upperBound) - speeds.get(lowerBound)) / (upperBound - lowerBound);
+        double expectedTPS = slope * (distance - lowerBound) + speeds.get(lowerBound);
+        return (int) expectedTPS;
     }
 
     private int findClosestByStream(Enumeration<Integer> sortedNumbers, double target) {
