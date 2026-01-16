@@ -174,37 +174,25 @@ public class Shooter extends BaseComponent {
     }
 
     public int velocityFromDistance(double distance){
-        //log.debug("distance : " + distance + " | speed : " + speeds.get(findClosestByStream(speeds.keys(), distance)) + " | real : " + shooter.getVelocity());
-        return speeds.get(findClosestByStream(speeds.keys(), distance));
-//
-//        if (distance < 46) {
-//            distance = 46;
-//        }
-        // linear search through speeds values to find the 2 neighbouring values
-//        int lowerBound = -1;
-//        int upperBound = -1;
-//        Enumeration<Integer> measuredDistances = speeds.keys();
-//        while (measuredDistances.hasMoreElements()) {
-//            int measuredDistance = measuredDistances.nextElement();
-//            if (distance >= measuredDistance) {
-//                lowerBound = measuredDistance;
-//                if (measuredDistances.hasMoreElements()) {
-//                    upperBound = measuredDistances.nextElement();
-//                } else {
-//                    return 0;
-//                }
-//                break;
-//            }
-//        }
-//        // check if we actually found a speed value
-//        if (lowerBound == -1) {
-//            return 0;
-//        }
-//
-//        // interpolate values with point slope
-//        double slope = (double) (speeds.get(upperBound) - speeds.get(lowerBound)) / (upperBound - lowerBound);
-//        double expectedTPS = slope * (distance - lowerBound) + speeds.get(lowerBound);
-//        return (int) expectedTPS;
+        // log.debug("distance : " + distance + " | speed : " + speeds.get(findClosestByStream(speeds.keys(), distance)) + " | real : " + shooter.getVelocity());
+        // return speeds.get(findClosestByStream(speeds.keys(), distance));
+
+        if (distance < 46) {
+            distance = 46;
+        }
+        // search through speeds values to find the 2 neighbouring values
+        int lowerBound = findClosestSmallerByStream(speeds.keys(), distance);
+        int upperBound = findClosestLargerByStream(speeds.keys(), distance);
+
+        // if the bot is exactly on a distance (or beyond the boundaries), return that speed to prevent division by 0
+        if (lowerBound == upperBound) {
+            return speeds.get(lowerBound);
+        }
+
+        // interpolate values with point slope
+        double slope = (double) (speeds.get(upperBound) - speeds.get(lowerBound)) / (upperBound - lowerBound);
+        double expectedTPS = slope * (distance - lowerBound) + speeds.get(lowerBound);
+        return (int) expectedTPS;
     }
 
     private int findClosestByStream(Enumeration<Integer> sortedNumbers, double target) {
@@ -214,6 +202,30 @@ public class Shooter extends BaseComponent {
     private int findClosestByStream(List<Integer> numbers, double target) {
         return numbers.stream()
                 .min(Comparator.comparingInt(o -> (int) Math.abs(o - target)))
+                .get();
+    }
+    private int findClosestSmallerByStream(Enumeration<Integer> sortedNumbers, double target) {
+        return findClosestSmallerByStream(Collections.list(sortedNumbers), target);
+    }
+    private int findClosestSmallerByStream(List<Integer> numbers, double target) {
+        // returns the largest value less than the target, or the smallest value if none exists
+        if (target < Collections.min(numbers)) {
+            return Collections.min(numbers);
+        }
+        return numbers.stream()
+                .max(Comparator.comparingInt(o -> (int) o <= target ? (int) o : Integer.MIN_VALUE))
+                .get();
+    }
+    private int findClosestLargerByStream(Enumeration<Integer> sortedNumbers, double target) {
+        return findClosestLargerByStream(Collections.list(sortedNumbers), target);
+    }
+    private int findClosestLargerByStream(List<Integer> numbers, double target) {
+        // returns the smallest value greater than the target, or the largest value if none exists
+        if (target > Collections.max(numbers)) {
+            return Collections.max(numbers);
+        }
+        return numbers.stream()
+                .min(Comparator.comparingInt(o -> (int) o >= target ? (int) o : Integer.MAX_VALUE))
                 .get();
     }
 
