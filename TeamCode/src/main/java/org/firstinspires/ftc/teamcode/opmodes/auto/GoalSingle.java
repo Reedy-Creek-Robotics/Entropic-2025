@@ -24,7 +24,7 @@ public abstract class GoalSingle extends AutoMain {
             case 1:
                 if(!follower.isBusy()){
                     robot.getIntake().setIntakePower(0.5);
-                    robot.getTransfer().rollersForTime(1, 3000);
+                    robot.getTransfer().rollersForTime(1, 5000);
                     pathState = 2;
                 }
                 break;
@@ -55,7 +55,7 @@ public abstract class GoalSingle extends AutoMain {
                 if(!follower.isBusy()){
                     robot.stopAllCommands();
                     robot.getIntake().setIntakePower(0.5);
-                    robot.getTransfer().rollersForTime(1, 4000);
+                    robot.getTransfer().rollersForTime(1, 5000);
                     pathState = 6;
                 }
                 break;
