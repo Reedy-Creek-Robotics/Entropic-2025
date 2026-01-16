@@ -175,35 +175,36 @@ public class Shooter extends BaseComponent {
 
     public int velocityFromDistance(double distance){
         //log.debug("distance : " + distance + " | speed : " + speeds.get(findClosestByStream(speeds.keys(), distance)) + " | real : " + shooter.getVelocity());
-//        return speeds.get(findClosestByStream(speeds.keys(), distance));
-        if (distance < 46) {
-            distance = 46;
-        }
+        return speeds.get(findClosestByStream(speeds.keys(), distance));
+//
+//        if (distance < 46) {
+//            distance = 46;
+//        }
         // linear search through speeds values to find the 2 neighbouring values
-        int lowerBound = -1;
-        int upperBound = -1;
-        Enumeration<Integer> measuredDistances = speeds.keys();
-        while (measuredDistances.hasMoreElements()) {
-            int measuredDistance = measuredDistances.nextElement();
-            if (distance >= measuredDistance) {
-                lowerBound = measuredDistance;
-                if (measuredDistances.hasMoreElements()) {
-                    upperBound = measuredDistances.nextElement();
-                } else {
-                    return 0;
-                }
-                break;
-            }
-        }
-        // check if we actually found a speed value
-        if (lowerBound == -1) {
-            return 0;
-        }
-
-        // interpolate values with point slope
-        double slope = (double) (speeds.get(upperBound) - speeds.get(lowerBound)) / (upperBound - lowerBound);
-        double expectedTPS = slope * (distance - lowerBound) + speeds.get(lowerBound);
-        return (int) expectedTPS;
+//        int lowerBound = -1;
+//        int upperBound = -1;
+//        Enumeration<Integer> measuredDistances = speeds.keys();
+//        while (measuredDistances.hasMoreElements()) {
+//            int measuredDistance = measuredDistances.nextElement();
+//            if (distance >= measuredDistance) {
+//                lowerBound = measuredDistance;
+//                if (measuredDistances.hasMoreElements()) {
+//                    upperBound = measuredDistances.nextElement();
+//                } else {
+//                    return 0;
+//                }
+//                break;
+//            }
+//        }
+//        // check if we actually found a speed value
+//        if (lowerBound == -1) {
+//            return 0;
+//        }
+//
+//        // interpolate values with point slope
+//        double slope = (double) (speeds.get(upperBound) - speeds.get(lowerBound)) / (upperBound - lowerBound);
+//        double expectedTPS = slope * (distance - lowerBound) + speeds.get(lowerBound);
+//        return (int) expectedTPS;
     }
 
     private int findClosestByStream(Enumeration<Integer> sortedNumbers, double target) {
