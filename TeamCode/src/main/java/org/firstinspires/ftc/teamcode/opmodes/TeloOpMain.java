@@ -152,7 +152,7 @@ public class TeloOpMain extends OpMode {
 
         //manual control turret
         if(manualMode){
-            turret.getTurretMotor().setPower(Math.pow(meta.leftStickX(), 3));
+            turret.getTurretMotor().setPower(Math.pow(-meta.leftStickX(), 3)/2);
         }
 
 
