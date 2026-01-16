@@ -61,7 +61,8 @@ public class TeloOpMain extends OpMode {
 
         follower = robot.getDriveTrain().getFollower();
 
-        follower.setStartingPose(startPose);
+        robot.loadStateFromDisk();
+
     }
 
     @Override
