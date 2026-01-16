@@ -1,35 +1,30 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.*;
+import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.LEFT_STICK_X;
+import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.LEFT_STICK_Y;
+import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.LEFT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.RIGHT_STICK_X;
+import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.RIGHT_TRIGGER;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-
-import org.firstinspires.ftc.teamcode.components.Endoscope;
-import org.firstinspires.ftc.teamcode.components.Robot;
 
 import org.firstinspires.ftc.teamcode.components.BaseComponent;
+import org.firstinspires.ftc.teamcode.components.Endoscope;
+import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.components.Transfer;
-import org.firstinspires.ftc.teamcode.components.Turret;
-import org.firstinspires.ftc.teamcode.game.ColorValue;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
-@TeleOp(name = "Tele Op", group = "!!Main")
-public class TeloOpMain extends OpMode {
+@TeleOp(name = " Development Tele Op", group = "!Main")
+public class DevelopmentTeleOpMain extends OpMode {
 
     RobotContext robotContext;
     Robot robot;
 
     protected Controller driver;
-    protected Controller meta;
-    boolean manualMode;
-    ColorValue manualEnabledColor = new ColorValue(255, 0 ,0);
-    ColorValue manualDisabledColor = new ColorValue(0, 70 ,70);
 
     double drive, strafe, turn;
 
@@ -37,7 +32,6 @@ public class TeloOpMain extends OpMode {
     
     Transfer transfer;
     Endoscope endoscope;
-    Turret turret;
     Boolean serving = false;
 
     //Pose startPose = new Pose(112, 134.5, Math.toRadians(0)); // Start Pose of our robot.
@@ -51,11 +45,9 @@ public class TeloOpMain extends OpMode {
 
         robot = new Robot(this, false);
         driver = new Controller(gamepad1);
-        meta = new Controller(gamepad2);
 
         transfer = robot.getTransfer();
         endoscope = robot.getEndoscope();
-        turret = robot.getTurret();
         
         robot.init();
 
@@ -66,35 +58,50 @@ public class TeloOpMain extends OpMode {
 
     @Override
     public void loop() {
-        /* DRIVER CONTROLS */
         drive = driver.analogValue(LEFT_STICK_Y);
         strafe = driver.analogValue(LEFT_STICK_X);
         turn = driver.analogValue(RIGHT_STICK_X);
-        //drive, strafe, and turning
+
         robot.getDriveTrain().drive(drive, strafe, turn);
 
-        //intake, outake, purge -.5, and shoot .5
         robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) + (driver.isButtonDown(Controller.Button.NORTH) ? 0.5:0) + (driver.isButtonDown(Controller.Button.SOUTH) ? -0.5:0));
 
+        /*if(driver.isButtonDown(Controller.Button.NORTH) || driver.isButtonDown(Controller.Button.RIGHT_BUMPER)){
+            transfer.runFrontRoller(1);
+        }
+        else if(driver.isButtonDown(Controller.Button.SOUTH)){
+            transfer.runFrontRoller(-1);
+        }else{
+            transfer.runFrontRoller(0);
+        }
 
-        //shoot run rollers up
+        if(driver.isButtonDown(Controller.Button.DPAD_UP) || driver.isButtonDown(Controller.Button.LEFT_BUMPER)){
+            transfer.runRearRoller(1);
+        }else if(driver.isButtonDown(Controller.Button.DPAD_DOWN)){
+            transfer.runRearRoller(-1);
+        }else{
+            transfer.runRearRoller(0);
+        }*/
+
+        if(driver.isPressed(Controller.Button.SHARE)){
+            robot.getDriveTrain().getFollower().setPose(largeZoneReset);
+
+        }else if(driver.isPressed(Controller.Button.OPTIONS)){
+            robot.getDriveTrain().getFollower().setPose(smallZoneReset);
+        }
+
+        //serve balls
         if(driver.isButtonDown(Controller.Button.NORTH)){
             serving = true;
             transfer.runFrontRoller(1);
             transfer.runRearRoller(1);
         }
-        //purge run rollers out
+        //purge
         else if(driver.isButtonDown(Controller.Button.SOUTH)){
             serving = true;
             transfer.runFrontRoller(-1);
             transfer.runRearRoller(-1);
             robot.stopAllCommands();
-        }
-        else if(driver.isButtonDown(Controller.Button.EAST)){
-            transfer.runRearRoller(1);
-        }
-        else if(driver.isButtonDown(Controller.Button.WEST)){
-            transfer.runFrontRoller(1);
         }
         else{
             if(serving){
@@ -104,54 +111,20 @@ public class TeloOpMain extends OpMode {
                 transfer.setBallState(0);
             }
         }
-
-
-
-
-        /* META CONTROLS */
-        //toggle artifact management
-        if(meta.isPressed(Controller.Button.WEST)){
+        if(driver.isPressed(Controller.Button.EAST)){
+            transfer.serveUntilShot(0);
+        }
+        if(driver.isPressed(Controller.Button.WEST)){
             endoscope.setEnableArtifactManagement(!endoscope.getEnableArtifactManagement());
         }
-        // set alliances
-        if(meta.isPressed(Controller.Button.SHARE)){
-            robotContext.alliance = true;
-        }
-        if(meta.isPressed(Controller.Button.OPTIONS)){
-            robotContext.alliance = false;
-        }
-        //re-localize @ goal zone
-        if(meta.isPressed(Controller.Button.NORTH)){
-            robot.getDriveTrain().getFollower().setPose(largeZoneReset);
-        //re-localize @ far zone
-        }if(meta.isPressed(Controller.Button.SOUTH)){
-            robot.getDriveTrain().getFollower().setPose(smallZoneReset);
-        }
-        //manual mode toggle
-        if(meta.isPressed(Controller.Button.PS)){
-            if (manualMode){
-                turret.setAutoAim(false);
-                turret.getTurretMotor().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-                manualMode = false;
-            }
-            else {
-                turret.setAutoAim(true);
-                turret.getTurretMotor().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-                manualMode = true;
-            }
+
+        if(driver.isPressed(Controller.Button.TOUCH_PAD)){
+            robotContext.alliance = !robotContext.alliance;
         }
-
-        //manual control turret
-        if(manualMode){
-            turret.getTurretMotor().setPower(Math.pow(meta.leftStickX(), 3));
-        }
-
 
         telemetry.addData("alliance", robotContext.getAlliance());
-        telemetry.addData("MANUAL MODE", manualMode);
-        meta.setLED(manualMode ? manualEnabledColor : manualDisabledColor, 100);
         robot.update();
     }
 }
