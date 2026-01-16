@@ -91,9 +91,11 @@ public class TeloOpMain extends OpMode {
             robot.stopAllCommands();
         }
         else if(driver.isButtonDown(Controller.Button.EAST)){
+            serving = true;
             transfer.runRearRoller(1);
         }
         else if(driver.isButtonDown(Controller.Button.WEST)){
+            serving = true;
             transfer.runFrontRoller(1);
         }
         else{
