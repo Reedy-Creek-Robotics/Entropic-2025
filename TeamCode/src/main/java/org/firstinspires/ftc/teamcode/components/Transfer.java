@@ -193,6 +193,8 @@ private class RollerUntilSensor implements Command {
     double power;
     int finishState;
     PredominantColorProcessor sensor;
+    ElapsedTime timer;
+    double timeLimit = 4000;
 
     public RollerUntilSensor(Servo roller, PredominantColorProcessor sensor, double power, int finishState){
         this.roller = roller;
@@ -204,6 +206,7 @@ private class RollerUntilSensor implements Command {
     @Override
     public void start(){
         roller.setPosition((power + 1) / 2);
+        timer = new ElapsedTime();
     }
 
     @Override
@@ -220,7 +223,7 @@ private class RollerUntilSensor implements Command {
     public boolean update() {
         roller.setPosition((power + 1) / 2);
         telemetry.addLine("moving roller '" + roller.getPortNumber() + "' until sensor" + Arrays.toString(sensor.getAnalysis().HSV));
-        return endoscope.getPresence(sensor.getAnalysis().HSV) > 0;
+        return (endoscope.getPresence(sensor.getAnalysis().HSV) > 0) || (timer.milliseconds() > timeLimit);
     }
 }
 
