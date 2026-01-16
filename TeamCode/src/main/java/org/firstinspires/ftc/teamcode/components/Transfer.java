@@ -94,8 +94,12 @@ public class Transfer extends BaseComponent {
         robot.executeCommand(new RollerForTime(roller, power, timeMs));
     }
 
-    public void rollersForTime(double power, double timeMs){
-        robot.executeCommand(new RollersForTime(power, timeMs));
+    public void rollersForTime(double powerBoth, double timeMs){
+        robot.executeCommand(new RollersForTime(powerBoth, powerBoth, timeMs));
+    }
+
+    public void rollersForTime(double powerFront, double powerRear, double timeMs){
+        robot.executeCommand(new RollersForTime(powerFront, powerRear, timeMs));
     }
 
 
@@ -304,18 +308,19 @@ private class RollerUntilSensor implements Command {
 
     private class RollersForTime implements Command {
 
-        double power, time;
+        double powerFront, powerRear, time;
         ElapsedTime timer;
 
-        public RollersForTime(double power, double timeMs){
-            this.power = power;
+        public RollersForTime(double powerFront, double powerRear, double timeMs){
+            this.powerFront = powerFront;
+            this.powerRear = powerRear;
             this.time = timeMs;
         }
 
         @Override
         public void start(){
-            runFrontRoller(power);
-            runRearRoller(power);
+            runFrontRoller(powerFront);
+            runRearRoller(powerRear);
             timer = new ElapsedTime();
         }
 
@@ -330,4 +335,5 @@ private class RollerUntilSensor implements Command {
             return timer.milliseconds() > time;
         }
     }
+
 }
