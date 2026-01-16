@@ -9,6 +9,7 @@ public abstract class GoalSingle extends AutoMain {
     @Override
     public void initAuto(){
         robot.getEndoscope().setEnableArtifactManagement(false);
+        robot.getTurret().setAutoAim(false);
         follower.setStartingPose(paths.shootPreload.getPose(new PathChain.PathT(0, 0)));
     }
 
@@ -17,18 +18,20 @@ public abstract class GoalSingle extends AutoMain {
         switch(pathState){
             case 0:
                 follower.followPath(paths.shootPreload, true);
+                robot.getTurret().setTargetFromPose(paths.shootPreload.endPose());
                 pathState = 1;
                 break;
             case 1:
                 if(!follower.isBusy()){
-                    robot.getIntake().setIntakePower(0.25);
-                    robot.getTransfer().rollersForTime(1, 2500);
+                    robot.getIntake().setIntakePower(0.5);
+                    robot.getTransfer().rollersForTime(1, 3000);
                     pathState = 2;
                 }
                 break;
             case 2:
                 if(!robot.isBusy()){
                     robot.getIntake().setIntakePower(0);
+                    robot.getTurret().setTargetFromPose(paths.shootBallSet1.endPose());
                     follower.followPath(paths.alignWithBallSet1, true);
                     pathState = 3;
                 }
@@ -37,7 +40,7 @@ public abstract class GoalSingle extends AutoMain {
                 if(!follower.isBusy()){
                     robot.getEndoscope().setEnableArtifactManagement(true);
                     robot.getIntake().setIntakePower(1);
-                    follower.followPath(paths.pickupBallSet1, 0.5, true);
+                    follower.followPath(paths.pickupBallSet1, 0.25, true);
                     pathState = 4;
                 }
                 break;
@@ -50,8 +53,9 @@ public abstract class GoalSingle extends AutoMain {
                 break;
             case 5:
                 if(!follower.isBusy()){
-                    robot.getIntake().setIntakePower(0.25);
-                    robot.getTransfer().rollersForTime(1, 2500);
+                    robot.stopAllCommands();
+                    robot.getIntake().setIntakePower(0.5);
+                    robot.getTransfer().rollersForTime(1, 4000);
                     pathState = 6;
                 }
                 break;

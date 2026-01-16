@@ -94,6 +94,7 @@ public class Turret extends BaseComponent{
     static Pose blueGoalBack = new Pose(0, 140, 0);
 
     Pose curPos = new Pose();
+    Pose targetGoal;
 
     /**
      * Configured like the motor, with it's base stats (rpm, tps, torque) <br> points to "turret" hardware map
@@ -143,7 +144,6 @@ public class Turret extends BaseComponent{
 
     boolean autoAim = true;
 
-
     public Turret(RobotContext context, Robot robot) {
         super(context);
 
@@ -178,6 +178,26 @@ public class Turret extends BaseComponent{
         turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         follower = robot.getDriveTrain().getFollower();
+
+        curPos = follower.getPose();
+
+        if (context.alliance) {
+            if (curPos.getY() < 48) {
+                targetGoal = blueGoalBack;
+//                log.debug("goal: " + targetGoal.toString());
+            } else {
+                targetGoal = blueGoal;
+//                log.debug("goal: " + targetGoal.toString());
+            }
+        } else {
+            if (curPos.getY() < 48) {
+                targetGoal = redGoalBack;
+//                log.debug("goal: " + targetGoal.toString());
+            } else {
+                targetGoal = redGoal;
+//                log.debug("goal: " + targetGoal.toString());
+            }
+        }
     }
 
     @Override
@@ -190,11 +210,31 @@ public class Turret extends BaseComponent{
         telemetry.addLine(String.format("Turret Pos: %3.1f / %3.1f  (deg)", getPositionDegrees(), targetDeg));
         telemetry.addLine(String.format("Theta: %2.2f  (deg)", Math.toDegrees(theta)));
 
+        if (context.alliance) {
+            if (curPos.getY() < 48) {
+                targetGoal = blueGoalBack;
+//                log.debug("goal: " + targetGoal.toString());
+            } else {
+                targetGoal = blueGoal;
+//                log.debug("goal: " + targetGoal.toString());
+            }
+        } else {
+            if (curPos.getY() < 48) {
+                targetGoal = redGoalBack;
+//                log.debug("goal: " + targetGoal.toString());
+            } else {
+                targetGoal = redGoal;
+//                log.debug("goal: " + targetGoal.toString());
+            }
+        }
+
         if(autoAim) { otosAutoAim(); setTargetDegrees();}
 
         if(resetSwitch.isPressed()){
             resetEncoder();
         }
+
+        // select the goal aim position based on shooting zone and alliance
 
         switch(moveMethod){
             case 0:
@@ -212,15 +252,15 @@ public class Turret extends BaseComponent{
     }
 
     private void setTargetDegrees(){
-
+//        log.debug("settargetdegrees");
         while(targetDeg > maxHeading){
-            targetDeg = maxHeading;
             log.warn("target over max heading");
+            targetDeg = Math.min((targetDeg - 360), maxHeading);
         }
 
         while(targetDeg < minHeading){
-            targetDeg = minHeading;
             log.warn("target under min heading");
+            targetDeg = Math.max((targetDeg + 360), minHeading);
         }
 
         targetPos = targetDeg * effectiveTicksPerDeg;
@@ -244,28 +284,25 @@ public class Turret extends BaseComponent{
     }
 
     private void otosAutoAim(){
-        // select the goal aim position based on shooting zone and alliance
-        Pose targetGoal;
-        if (context.alliance) {
-            if (curPos.getY() < 48) {
-                targetGoal = blueGoalBack;
-            } else {
-                targetGoal = blueGoal;
-            }
-        } else {
-            if (curPos.getY() < 48) {
-                targetGoal = redGoalBack;
-            } else {
-                targetGoal = redGoal;
-            }
-        }
 
-        // Calculates the theta using the arctangent function
+//        log.debug("otosautoaim");
 //        theta = Math.tanh(((context.alliance ? blueGoal.getY() : redGoal.getY()) - curPos.getY()) / ((context.alliance ? blueGoal.getX() : redGoal.getX()) - curPos.getX()));
         theta = Math.atan2(targetGoal.getY() - curPos.getY(), targetGoal.getX() - curPos.getX());
         //log.debug("theta : " + theta + " | degrees : " + Math.toDegrees(curPos.getHeading() - theta));
         // We subtract the theta from the heading to account for robot rotation.
         targetDeg = Math.toDegrees(curPos.getHeading() - theta);
+    }
+
+    public double headingToGoalFromPose(Pose pose){
+        log.debug(pose.toString());
+        log.debug(targetGoal.toString());
+        log.debug(String.valueOf(Math.toDegrees(pose.getHeading() - (Math.atan2(targetGoal.getY() - pose.getY(), targetGoal.getX() - pose.getX())))));
+        // Calculates the theta using the arctangent function
+        return Math.toDegrees(pose.getHeading() - (Math.atan2(targetGoal.getY() - pose.getY(), targetGoal.getX() - pose.getX())));
+    }
+
+    public void setTargetFromPose(Pose pose){
+        setTargetDegrees(headingToGoalFromPose(pose));
     }
 
     private void tagAutoAim(){
@@ -310,6 +347,7 @@ public class Turret extends BaseComponent{
     }
 
     private void movePid(){
+//        log.debug("movepid");
         if (Math.abs(turretPos - targetPos) <= 2) {
             turretMotor.setPower(0);
         } else if (Math.abs(turretPos - targetPos) <= 30) {

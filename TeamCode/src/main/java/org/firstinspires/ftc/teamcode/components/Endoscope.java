@@ -5,6 +5,8 @@ import android.util.Size;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -13,6 +15,7 @@ import org.firstinspires.ftc.vision.opencv.ImageRegion;
 import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 public class Endoscope extends BaseComponent {
     LogCatUtil log;

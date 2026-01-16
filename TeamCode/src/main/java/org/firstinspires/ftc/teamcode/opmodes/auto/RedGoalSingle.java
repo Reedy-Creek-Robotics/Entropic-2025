@@ -13,6 +13,12 @@ public class RedGoalSingle extends GoalSingle{
         paths = new Paths(follower);
     }
 
+    @Override
+    public void initRobot() {
+        alliance = false;
+        super.initRobot();
+    }
+
     public static class Paths extends GoalSingle.Paths{
         public Paths(Follower follower) {
             super(follower);
@@ -26,7 +32,7 @@ public class RedGoalSingle extends GoalSingle{
 
                                     new Pose(96.000, 96.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
 
                     .build();
 
@@ -34,17 +40,17 @@ public class RedGoalSingle extends GoalSingle{
                             new BezierLine(
                                     new Pose(96.000, 96.000),
 
-                                    new Pose(102.000, 84.000)
+                                    new Pose(102.000, 87.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0))
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
 
                     .build();
 
             pickupBallSet1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(102.000, 84.000),
+                                    new Pose(102.000, 87.000),
 
-                                    new Pose(122.000, 84.000)
+                                    new Pose(122.000, 87.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
 
@@ -52,7 +58,7 @@ public class RedGoalSingle extends GoalSingle{
 
             shootBallSet1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(122.000, 84.000),
+                                    new Pose(122.000, 87.000),
 
                                     new Pose(96.000, 96.000)
                             )
@@ -64,7 +70,7 @@ public class RedGoalSingle extends GoalSingle{
                             new BezierLine(
                                     new Pose(96.000, 96.000),
 
-                                    new Pose(96.000, 60.000)
+                                    new Pose(96.000, 64.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
 

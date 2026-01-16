@@ -20,6 +20,11 @@ public abstract class AutoMain extends LinearOpMode {
     protected Timer pathTimer, opmodeTimer;
 
     protected int pathState;
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     */
+    protected boolean alliance;
     protected boolean running = true;
 
     protected TelemetryManager panelsTelemetry;
@@ -41,7 +46,7 @@ public abstract class AutoMain extends LinearOpMode {
     }
 
     public void initRobot(){
-        robot = new Robot(this);
+        robot = new Robot(this, alliance);
         robot.init();
 
         follower = robot.getDriveTrain().getFollower();

@@ -3,14 +3,22 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-public class BlueCobySingle extends CobySingle{
+@Autonomous
+public class BlueFarSingle extends FarSingle {
     @Override
     public void buildPaths() {
         paths = new Paths(follower);
     }
 
-    public static class Paths extends CobySingle.Paths{
+    @Override
+    public void initRobot() {
+        alliance = true;
+        super.initRobot();
+    }
+
+    public static class Paths extends FarSingle.Paths{
 
         public Paths(Follower follower) {
             super(follower);

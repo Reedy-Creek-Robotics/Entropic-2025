@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
 
-public abstract class CobySingle extends AutoMain {
+public abstract class FarSingle extends AutoMain {
     Paths paths;
 
 

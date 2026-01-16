@@ -175,7 +175,7 @@ public class Shooter extends BaseComponent {
 
     public int velocityFromDistance(double distance){
         // log.debug("distance : " + distance + " | speed : " + speeds.get(findClosestByStream(speeds.keys(), distance)) + " | real : " + shooter.getVelocity());
-        // return speeds.get(findClosestByStream(speeds.keys(), distance));
+//         return speeds.get(findClosestByStream(speeds.keys(), distance));
 
         if (distance < 46) {
             distance = 46;
