@@ -29,7 +29,7 @@ public class TeloOpMain extends OpMode {
     protected Controller meta;
     boolean manualMode;
     ColorValue manualEnabledColor = new ColorValue(255, 0 ,0);
-    ColorValue manualDisabledColor = new ColorValue(0, 70 ,70);
+    ColorValue manualDisabledColor = new ColorValue(0, 140 ,70);
 
     double drive, strafe, turn;
 
@@ -42,7 +42,7 @@ public class TeloOpMain extends OpMode {
 
     //Pose startPose = new Pose(112, 134.5, Math.toRadians(0)); // Start Pose of our robot.
     Pose largeZoneReset = new Pose(96, 96, Math.toRadians(90)); // share button
-    Pose smallZoneReset = new Pose(24, 72, Math.toRadians(90)); // options button
+    Pose smallZoneReset = new Pose(72, 24, Math.toRadians(90)); // options button
     Pose startPose = largeZoneReset;
 
     @Override
@@ -61,7 +61,8 @@ public class TeloOpMain extends OpMode {
 
         follower = robot.getDriveTrain().getFollower();
 
-        follower.setStartingPose(startPose);
+        robot.loadStateFromDisk();
+
     }
 
     @Override
@@ -133,13 +134,15 @@ public class TeloOpMain extends OpMode {
         if(meta.isPressed(Controller.Button.PS)){
             if (manualMode){
                 turret.setAutoAim(false);
+                turret.setAutoMove(false);
                 turret.getTurretMotor().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                 manualMode = false;
             }
             else {
-                turret.setAutoAim(true);
                 turret.getTurretMotor().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                turret.setAutoAim(true);
+                turret.setAutoMove(true);
 
                 manualMode = true;
             }
@@ -153,7 +156,7 @@ public class TeloOpMain extends OpMode {
 
         telemetry.addData("alliance", robotContext.getAlliance());
         telemetry.addData("MANUAL MODE", manualMode);
-        meta.setLED(manualMode ? manualEnabledColor : manualDisabledColor, 100);
+        meta.setLED(manualMode ? manualEnabledColor : manualDisabledColor, 500);
         robot.update();
     }
 }

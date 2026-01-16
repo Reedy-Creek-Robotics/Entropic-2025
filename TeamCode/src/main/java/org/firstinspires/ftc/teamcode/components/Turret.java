@@ -143,6 +143,7 @@ public class Turret extends BaseComponent{
     static int moveMethod = 1;
 
     boolean autoAim = true;
+    boolean autoMove = true;
 
     public Turret(RobotContext context, Robot robot) {
         super(context);
@@ -235,14 +236,15 @@ public class Turret extends BaseComponent{
         }
 
         // select the goal aim position based on shooting zone and alliance
-
-        switch(moveMethod){
-            case 0:
-                moveRtp();
-                break;
-            case 1:
-                movePid();
-                break;
+        if(autoMove) {
+            switch (moveMethod) {
+                case 0:
+                    moveRtp();
+                    break;
+                case 1:
+                    movePid();
+                    break;
+            }
         }
     }
 
@@ -359,6 +361,9 @@ public class Turret extends BaseComponent{
 
     public boolean setAutoAim(boolean autoAim){
         return this.autoAim = autoAim;
+    }
+    public boolean setAutoMove(boolean autoMove){
+        return this.autoMove = autoMove;
     }
 
     public boolean getAutoAim(){
