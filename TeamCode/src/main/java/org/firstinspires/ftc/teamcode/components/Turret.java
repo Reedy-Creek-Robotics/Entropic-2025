@@ -495,4 +495,8 @@ public class Turret extends BaseComponent{
         if(radOne + radTwo <=  2 * Math.PI) return radOne + radTwo;
         return (radOne + radTwo) - 2 * Math.PI;
     }
+
+    public DcMotorEx getTurretMotor() {
+        return turretMotor;
+    }
 }
