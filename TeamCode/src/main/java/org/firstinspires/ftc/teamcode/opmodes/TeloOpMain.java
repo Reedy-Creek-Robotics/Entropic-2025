@@ -7,6 +7,8 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.components.Endoscope;
 import org.firstinspires.ftc.teamcode.components.Robot;
 
 import org.firstinspires.ftc.teamcode.components.BaseComponent;
@@ -28,6 +30,7 @@ public class TeloOpMain extends OpMode {
     Follower follower;
     
     Transfer transfer;
+    Endoscope endoscope;
     Boolean serving = false;
 
     //Pose startPose = new Pose(112, 134.5, Math.toRadians(0)); // Start Pose of our robot.
@@ -43,6 +46,7 @@ public class TeloOpMain extends OpMode {
         driver = new Controller(gamepad1);
 
         transfer = robot.getTransfer();
+        endoscope = robot.getEndoscope();
         
         robot.init();
 
@@ -59,7 +63,7 @@ public class TeloOpMain extends OpMode {
 
         robot.getDriveTrain().drive(drive, strafe, turn);
 
-        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) + (driver.isButtonDown(Controller.Button.SOUTH) ? 0.5:0));
+        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) + (driver.isButtonDown(Controller.Button.NORTH) ? 0.5:0) + (driver.isButtonDown(Controller.Button.SOUTH) ? -0.5:0));
 
         /*if(driver.isButtonDown(Controller.Button.NORTH) || driver.isButtonDown(Controller.Button.RIGHT_BUMPER)){
             transfer.runFrontRoller(1);
@@ -86,13 +90,13 @@ public class TeloOpMain extends OpMode {
         }
 
         //serve balls
-        if(driver.isButtonDown(Controller.Button.SOUTH)){
+        if(driver.isButtonDown(Controller.Button.NORTH)){
             serving = true;
             transfer.runFrontRoller(1);
             transfer.runRearRoller(1);
         }
         //purge
-        else if(driver.isButtonDown(Controller.Button.NORTH)){
+        else if(driver.isButtonDown(Controller.Button.SOUTH)){
             serving = true;
             transfer.runFrontRoller(-1);
             transfer.runRearRoller(-1);
@@ -108,6 +112,9 @@ public class TeloOpMain extends OpMode {
         }
         if(driver.isPressed(Controller.Button.EAST)){
             transfer.serveUntilShot(0);
+        }
+        if(driver.isPressed(Controller.Button.WEST)){
+            endoscope.setEnableArtifactManagement(!endoscope.getEnableArtifactManagement());
         }
 
 

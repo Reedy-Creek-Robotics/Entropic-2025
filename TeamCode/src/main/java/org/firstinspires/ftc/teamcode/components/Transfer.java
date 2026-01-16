@@ -166,7 +166,7 @@ public void incomingFront() {
             case 1: //ball in center
 
                 //run rollerFront out
-                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getFrontBallSensor(), 1, -1));
+                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getFrontBallSensor(), -1, -1));
                 //run rollerBack
                 robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getCenterBallSensor(), 1, 2));
                 waitForStateChange = true;
@@ -213,11 +213,12 @@ private class RollerUntilSensor implements Command {
             waitForStateChange = false;
         }
 
-        roller.setPosition(0.5);
+        rollerForTime(roller, power, 50);
     }
 
     @Override
     public boolean update() {
+        roller.setPosition((power + 1) / 2);
         telemetry.addLine("moving roller '" + roller.getPortNumber() + "' until sensor" + Arrays.toString(sensor.getAnalysis().HSV));
         return endoscope.getPresence(sensor.getAnalysis().HSV) > 0;
     }
