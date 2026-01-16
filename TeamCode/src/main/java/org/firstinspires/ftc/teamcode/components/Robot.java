@@ -189,13 +189,13 @@ public class Robot extends BaseComponent{
                     case 4:
                         posT = Integer.parseInt(line);
                         break;
-                    case 5:
-                        pattern = Integer.parseInt(line);
-                        break;
-                    case 6:
-                        balls = Arrays.stream(line.split(","))
-                                .mapToInt(Integer::parseInt)
-                                .toArray();
+//                    case 5:
+//                        pattern = Integer.parseInt(line);
+//                        break;
+//                    case 6:
+//                        balls = Arrays.stream(line.split(","))
+//                                .mapToInt(Integer::parseInt)
+//                                .toArray();
                     }
                 }
 
