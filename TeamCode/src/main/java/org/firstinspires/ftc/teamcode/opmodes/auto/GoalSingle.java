@@ -22,11 +22,16 @@ public abstract class GoalSingle extends AutoMain {
                 pathState = 1;
                 break;
             case 1:
-                if(!follower.isBusy()){
+            case 5:
+                if(!follower.isBusy() && robot.isBusy()){
+                    robot.getEndoscope().setEnableArtifactManagement(false);
                     robot.stopAllCommands();
-                    robot.getIntake().setIntakePower(0.5);
-                    robot.getTransfer().rollersForTime(1, 0.75, 5000);
-                    pathState = 2;
+                }
+                if(!follower.isBusy() && !robot.isBusy()){
+                    robot.getTransfer().rollersForTime(0.75, 1500);
+                    robot.getIntake().runIntakeCommand(0.5);
+                    robot.getTransfer().rollersForTime(1, 1000);
+                    pathState++;
                 }
                 break;
             case 2:
@@ -34,7 +39,7 @@ public abstract class GoalSingle extends AutoMain {
                     robot.getIntake().setIntakePower(0);
                     robot.getTurret().setTargetFromPose(paths.shootBallSet1.endPose());
                     follower.followPath(paths.alignWithBallSet1, true);
-                    pathState = 3;
+                    pathState++;
                 }
                 break;
             case 3:
@@ -50,14 +55,6 @@ public abstract class GoalSingle extends AutoMain {
                     robot.getIntake().setIntakePower(0);
                     follower.followPath(paths.shootBallSet1);
                     pathState = 5;
-                }
-                break;
-            case 5:
-                if(!follower.isBusy()){
-                    robot.stopAllCommands();
-                    robot.getIntake().setIntakePower(0.5);
-                    robot.getTransfer().rollersForTime(1, 5000);
-                    pathState = 6;
                 }
                 break;
             case 6:

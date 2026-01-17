@@ -21,15 +21,19 @@ public abstract class FarSingle extends AutoMain {
                 follower.followPath(paths.shootPreload, true);
                 robot.getTurret().setTargetFromPose(paths.shootPreload.endPose());
                 robot.getShooter().setVelocity(1386);
-                pathState = 1;
+                pathState++;
                 break;
             case 1:
+            case 5:
+                if(!follower.isBusy() && robot.isBusy()){
+                    robot.getEndoscope().setEnableArtifactManagement(false);
+                    robot.stopAllCommands();
+                }
                 if(!follower.isBusy() && !robot.isBusy()){
-                    //log.debug(String.valueOf(robot.getShooter().isBusy()));
-                    robot.getIntake().setIntakePower(0.5);
-                    robot.getTransfer().rollersForTime(1, 0, 3000);
-                    robot.getTransfer().rollersForTime(1, 3000);
-                    pathState = 2;
+                    robot.getTransfer().rollersForTime(0.75, 1500);
+                    robot.getIntake().runIntakeCommand(0.5);
+                    robot.getTransfer().rollersForTime(1, 1000);
+                    pathState++;
                 }
                 break;
             case 2:
@@ -38,7 +42,7 @@ public abstract class FarSingle extends AutoMain {
                     robot.getTurret().setTargetFromPose(paths.shootBallSet3.endPose());
                     robot.getShooter().setVelocity(1386);
                     follower.followPath(paths.alignWithBallSet3, true);
-                    pathState = 3;
+                    pathState++;
                 }
                 break;
             case 3:
@@ -46,29 +50,21 @@ public abstract class FarSingle extends AutoMain {
                     robot.getEndoscope().setEnableArtifactManagement(true);
                     robot.getIntake().setIntakePower(1);
                     follower.followPath(paths.pickupBallSet3, 0.5, true);
-                    pathState = 4;
+                    pathState++;
                 }
                 break;
             case 4:
                 if(!follower.isBusy()){
                     robot.getIntake().setIntakePower(0);
                     follower.followPath(paths.shootBallSet3);
-                    pathState = 5;
-                }
-                break;
-            case 5:
-                if(!follower.isBusy()){
-                    robot.getIntake().setIntakePower(0.5);
-                    robot.getTransfer().rollersForTime(1, 0, 3000);
-                    robot.getTransfer().rollersForTime(0, 1, 3000);
-                    pathState = 6;
+                    pathState++;
                 }
                 break;
             case 6:
                 if(!robot.isBusy()){
                     robot.getIntake().setIntakePower(0);
                     follower.followPath(paths.parking);
-                    pathState = 7;
+                    pathState++;
                 }
                 break;
             case 7:
