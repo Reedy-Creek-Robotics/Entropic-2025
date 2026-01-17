@@ -19,7 +19,6 @@ public class RedFarSingle extends FarSingle {
         super.initRobot();
     }
 
-
     public static class Paths extends FarSingle.Paths {
 
         public Paths(Follower follower) {
@@ -33,28 +32,28 @@ public class RedFarSingle extends FarSingle {
                                     new Pose(90.000, 6.000),
                                     new Pose(84.000, 12.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .build();
 
             alignWithBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(84.000, 12.000),
-                                    new Pose(102.000, 36.000)
+                                    new Pose(102.000, 30.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0))
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .build();
 
             pickupBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(102.000, 36.000),
-                                    new Pose(122.000, 36.000)
+                                    new Pose(102.000, 26.000),
+                                    new Pose(122.000, 30.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .build();
 
             shootBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(122.000, 36.000),
+                                    new Pose(122.000, 30.000),
                                     new Pose(84.000, 12.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))

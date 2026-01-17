@@ -296,9 +296,9 @@ public class Turret extends BaseComponent{
     }
 
     public double headingToGoalFromPose(Pose pose){
-        log.debug(pose.toString());
-        log.debug(targetGoal.toString());
-        log.debug(String.valueOf(Math.toDegrees(pose.getHeading() - (Math.atan2(targetGoal.getY() - pose.getY(), targetGoal.getX() - pose.getX())))));
+//        log.debug(pose.toString());
+//        log.debug(targetGoal.toString());
+//        log.debug(String.valueOf(Math.toDegrees(pose.getHeading() - (Math.atan2(targetGoal.getY() - pose.getY(), targetGoal.getX() - pose.getX())))));
         // Calculates the theta using the arctangent function
         return Math.toDegrees(pose.getHeading() - (Math.atan2(targetGoal.getY() - pose.getY(), targetGoal.getX() - pose.getX())));
     }
@@ -369,6 +369,8 @@ public class Turret extends BaseComponent{
     public boolean getAutoAim(){
         return autoAim;
     }
+
+    public Pose getTargetGoal(){return targetGoal;};
 
     private void initAprilTag() {
 

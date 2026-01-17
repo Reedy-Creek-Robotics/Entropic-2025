@@ -51,6 +51,7 @@ public abstract class AutoMain extends LinearOpMode {
 
         follower = robot.getDriveTrain().getFollower();
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+        log = new LogCatUtil("Autonomous", false);
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();

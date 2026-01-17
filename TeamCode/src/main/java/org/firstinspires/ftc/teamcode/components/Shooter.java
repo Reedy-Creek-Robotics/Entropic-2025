@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.components;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -13,7 +11,6 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.teamcode.util.DistanceUtil;
 import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 
@@ -57,13 +54,13 @@ public class Shooter extends BaseComponent {
     LogCatUtil log;
     HardwareUtil hardwareUtil;
 
-    Double distanceToTag;
+    Double distanceToGoal;
 
     Pose goalPosition;
 
     public Shooter(RobotContext context, Robot robot) {
         super(context);
-        log = new LogCatUtil("shooter");
+        log = new LogCatUtil("Shooter");
         hardwareUtil = new HardwareUtil(log, hardwareMap);
         this.robot = robot;
 
@@ -104,8 +101,8 @@ public class Shooter extends BaseComponent {
         telemetry.addData("Distance", follower.getPose().distanceFrom(goalPosition));
 
         if(autoSpeed) {
-            distanceToTag = follower.getPose().distanceFrom(goalPosition);
-            setVelocity(velocityFromDistance(distanceToTag));
+            distanceToGoal = follower.getPose().distanceFrom(goalPosition);
+            setVelocity(velocityFromDistance(distanceToGoal));
         }
         telemetry.addData("Shooter Current", getShooterCurrent());
     }
@@ -174,11 +171,11 @@ public class Shooter extends BaseComponent {
     }
 
     public int velocityFromDistance(double distance){
-        // log.debug("distance : " + distance + " | speed : " + speeds.get(findClosestByStream(speeds.keys(), distance)) + " | real : " + shooter.getVelocity());
+        log.debug("distance : " + distance + " | speed : " + speeds.get(findClosestByStream(speeds.keys(), distance)) + " | real : " + shooter.getVelocity());
 //         return speeds.get(findClosestByStream(speeds.keys(), distance));
 
-        if (distance < 46) {
-            distance = 46;
+        if (distance < 46+18) {
+            distance = 46+18;
         }
         // search through speeds values to find the 2 neighbouring values
         int lowerBound = findClosestSmallerByStream(speeds.keys(), distance);
@@ -266,13 +263,18 @@ public class Shooter extends BaseComponent {
 
     @Override
     public boolean isBusy() {
-        // If the shooter velocity is outside of the tolerance, reset the timer.
-        if(shooter.getVelocity() < setVelocity - velocityTolerance && shooter.getVelocity() > setVelocity + velocityTolerance) {
-            shootTimer.reset();
-        }
-
         // If the velocity is within the tolerance for stabilizationTime milliseconds, return false (not busy)
-        return shootTimer.milliseconds() < stabilizationTime;
+        log.debug("Current Velocity: " + shooter.getVelocity());
+        log.debug("Set Velocity: " + setVelocity);
+        log.debug("Velocity Tolerance: " + velocityTolerance);
+
+        log.debug("is Busy: " + (shooter.getVelocity() < setVelocity - velocityTolerance && shooter.getVelocity() > setVelocity + velocityTolerance));
+        log.debug("Jonathan is Smarter: " + String.valueOf((shooter.getVelocity() < (setVelocity - velocityTolerance)) && (shooter.getVelocity() > (setVelocity + velocityTolerance))));
+
+        log.debug("Auto Speed: " + autoSpeed);
+
+        return (shooter.getVelocity() < (setVelocity - velocityTolerance)) && (shooter.getVelocity() > (setVelocity + velocityTolerance));
+
     }
 
     /**

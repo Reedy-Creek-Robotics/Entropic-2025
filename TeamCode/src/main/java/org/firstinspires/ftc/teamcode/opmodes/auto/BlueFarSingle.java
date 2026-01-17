@@ -31,7 +31,7 @@ public class BlueFarSingle extends FarSingle {
                                     new Pose(54.000, 6.000),
                                     new Pose(60.000, 12.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
 
             alignWithBallSet3 = follower.pathBuilder().addPath(
@@ -40,7 +40,7 @@ public class BlueFarSingle extends FarSingle {
 
                                     new Pose(42.000, 36.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180))
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
 
             pickupBallSet3 = follower.pathBuilder().addPath(
