@@ -62,7 +62,7 @@ public class RedGoalFull extends GoalFull{
             alignWithBallSet2 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(96.000, 96.000),
-                                    new Pose(102.000, 69.000)
+                                    new Pose(102.000, 66.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     //.setBrakingStart(2)
@@ -70,15 +70,15 @@ public class RedGoalFull extends GoalFull{
 
             pickupBallSet2 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(102.000, 69.000),
-                                    new Pose(130.000, 69.000)
+                                    new Pose(102.000, 66.000),
+                                    new Pose(130.000, 66.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .build();
 
             shootBallSet2 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(130.000, 69.000),
+                                    new Pose(130.000, 66.000),
                                     new Pose(96.000, 96.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
