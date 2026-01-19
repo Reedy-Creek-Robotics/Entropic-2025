@@ -29,7 +29,7 @@ public class TestAuto extends OpMode {
     LogCatUtil log;
 
     private Follower follower;
-    private Timer pathTimer, actionTimer, opmodeTimer;
+    private Timer pathTimer, opmodeTimer;
 
     private int pathState;
     
@@ -166,14 +166,17 @@ public class TestAuto extends OpMode {
             case 6:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!robot.isBusy()) {
-                    robot.getIntake().setIntakePower(0);
                     log.info("Done with Path State " + pathState);
+                    robot.getIntake().setIntakePower(0);
                     follower.followPath(preparePickup2,true);
                     setPathState(7);
                 }
                 break;
             case 7:
-                stop();
+                if(!follower.isBusy()) {
+                    log.info("Done with Path State " + pathState);
+                    stop();
+                }
                 break;
         }
     }

@@ -32,6 +32,7 @@ package org.firstinspires.ftc.robotcontroller.external.samples;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
@@ -64,7 +65,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 @TeleOp(name="Optimize AprilTag Exposure", group = "Concept")
-@Disabled
+//@Disabled
 public class ConceptAprilTagOptimizeExposure extends LinearOpMode
 {
     private VisionPortal visionPortal = null;        // Used to manage the video source.
@@ -85,15 +86,20 @@ public class ConceptAprilTagOptimizeExposure extends LinearOpMode
     boolean lastExpDn = false;
     boolean lastGainUp = false;
     boolean lastGainDn = false;
+
+    Servo light;
     @Override public void runOpMode()
     {
         // Initialize the Apriltag Detection process
         initAprilTag();
 
+        light = hardwareMap.get(Servo.class, "internalLight");
+        light.setPosition(10);
+
         // Establish Min and Max Gains and Exposure.  Then set a low exposure with high gain
         getCameraSetting();
-        myExposure = Math.min(5, minExposure);
-        myGain = maxGain;
+        myExposure = 2;
+        myGain = minGain;
         setManualExposure(myExposure, myGain);
 
         // Wait for the match to begin.
@@ -128,10 +134,10 @@ public class ConceptAprilTagOptimizeExposure extends LinearOpMode
 
             // look for clicks to change exposure
             if (thisExpUp && !lastExpUp) {
-                myExposure = Range.clip(myExposure + 1, minExposure, maxExposure);
+                myExposure = Range.clip(myExposure * 2, minExposure, maxExposure);
                 setManualExposure(myExposure, myGain);
             } else if (thisExpDn && !lastExpDn) {
-                myExposure = Range.clip(myExposure - 1, minExposure, maxExposure);
+                myExposure = Range.clip(myExposure / 2, minExposure, maxExposure);
                 setManualExposure(myExposure, myGain);
             }
 
@@ -162,7 +168,7 @@ public class ConceptAprilTagOptimizeExposure extends LinearOpMode
 
         // Create the WEBCAM vision portal by using a builder.
         visionPortal = new VisionPortal.Builder()
-                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .setCamera(hardwareMap.get(WebcamName.class, "Endoscope"))
                 .addProcessor(aprilTag)
                 .build();
     }

@@ -1,8 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes.tests;
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -16,6 +21,7 @@ import org.firstinspires.ftc.teamcode.components.Shooter;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
 //@Disabled
+@Configurable
 @TeleOp
 public class ShooterTester extends OpMode {
 
@@ -27,6 +33,8 @@ public class ShooterTester extends OpMode {
 
     VoltageSensor voltage;
 
+    TelemetryManager panelsTelem;
+
     double power = 1500;
     double avgInactiveCurrent = 1;
 
@@ -36,6 +44,8 @@ public class ShooterTester extends OpMode {
     int velocityTolerance = 50;
 
     ElapsedTime shootTimer;
+
+    static PIDFCoefficients pidf = new PIDFCoefficients(600, 3, 0, 0, MotorControlAlgorithm.PIDF);
 
 //    private static double SHOOTER_CURRENT_THRESHOLD = 0.5;
 
@@ -50,7 +60,7 @@ public class ShooterTester extends OpMode {
         voltage = hardwareMap.voltageSensor.iterator().next();
 
         shootTimer = new ElapsedTime();
-
+        panelsTelem = PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
     @Override
@@ -62,6 +72,8 @@ public class ShooterTester extends OpMode {
         telemetry.addLine("DPAD UP/DOWN to change power x100");
         telemetry.addLine("DPAD LEFT/RIGHT to change power x20");
         telemetry.addLine("------------------------");
+
+        shooter.setPIDFCoefficients(pidf);
 
         if(controller.isPressed(Controller.Button.DPAD_UP)){
             power += 100;
@@ -94,9 +106,9 @@ public class ShooterTester extends OpMode {
             reversed = !reversed;
         }
 
-        telemetry.addData("Active", active);
+        panelsTelem.addData("Active", active);
         telemetry.addData("Reversed", reversed);
-        telemetry.addData("Set Power (tps)", power);
+        panelsTelem.addData("Set Power (tps)", power);
 
         if(active){
             shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -111,7 +123,7 @@ public class ShooterTester extends OpMode {
 
          */
 
-        telemetry.addData("Velocity", shooter.getVelocity());
+        panelsTelem.addData("Velocity", shooter.getVelocity());
         telemetry.addData("Current", shooter.getShooterCurrent());
         telemetry.addData("Voltage", voltage.getVoltage());
         telemetry.addData("Avg Inactive", avgInactiveCurrent);
@@ -122,7 +134,7 @@ public class ShooterTester extends OpMode {
             shootTimer.reset();
         }
 
-        telemetry.update();
+        panelsTelem.update(telemetry);
     }
 
 //    private boolean isShot(){

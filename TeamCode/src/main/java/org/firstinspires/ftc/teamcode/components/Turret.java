@@ -40,10 +40,10 @@ public class Turret extends BaseComponent{
     static String logTag = "Turret";
 
     // Must be at least 360 degrees
-    static double maxHeading = 30;
+    static double maxHeading = 90;
     static double minHeading = -180;
 
-    static double fx = 595.21, fy = 595.21, cx = 984.515, cy = 599.035; //TODO: Fix these
+    static double fx = 595.21, fy = 595.21, cx = 984.515, cy = 599.035; //ToDo: Fix these
     /**
      * When using OTOS and April Tag Only<br>
      * If the center of the tag is not within +- tagTolerance, then the localizer will use the OTOS instead
@@ -87,10 +87,14 @@ public class Turret extends BaseComponent{
     //206 ticks per 90 deg
     //824 ticks per 360 deg
 
-    static Pose redGoal = new Pose(144, 144, 0);
-    static Pose blueGoal = new Pose(144, 0, 0);
+    //TODO Setup aim positions for when at back of field
+    static Pose redGoal = new Pose(140, 144 , 0);
+    static Pose redGoalBack = new Pose(144, 140 , 0);
+    static Pose blueGoal = new Pose(4, 144, 0);
+    static Pose blueGoalBack = new Pose(0, 140, 0);
 
     Pose curPos = new Pose();
+    Pose targetGoal;
 
     /**
      * Configured like the motor, with it's base stats (rpm, tps, torque) <br> points to "turret" hardware map
@@ -118,7 +122,11 @@ public class Turret extends BaseComponent{
 
     double theta;
 
+    int turretOffset;
+    int turretPos;
+
     Robot robot;
+    RobotContext context;
 
     /**
      * 0 - otos only<br>
@@ -134,22 +142,17 @@ public class Turret extends BaseComponent{
      */
     static int moveMethod = 1;
 
-    /**
-     * false - red (tag 24)<br>
-     * true - blue (tag 20)
-     */
-    boolean alliance = false;
     boolean autoAim = true;
-
+    boolean autoMove = true;
 
     public Turret(RobotContext context, Robot robot) {
         super(context);
 
+        this.context = context;
+
         log = new LogCatUtil(logTag);
 
         hardwareUtil = new HardwareUtil(log, hardwareMap);
-
-        this.alliance = context.alliance;
 
         //initAprilTag();
 
@@ -176,15 +179,55 @@ public class Turret extends BaseComponent{
         turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         follower = robot.getDriveTrain().getFollower();
+
+        curPos = follower.getPose();
+
+        if (context.alliance) {
+            if (curPos.getY() < 48) {
+                targetGoal = blueGoalBack;
+//                log.debug("goal: " + targetGoal.toString());
+            } else {
+                targetGoal = blueGoal;
+//                log.debug("goal: " + targetGoal.toString());
+            }
+        } else {
+            if (curPos.getY() < 48) {
+                targetGoal = redGoalBack;
+//                log.debug("goal: " + targetGoal.toString());
+            } else {
+                targetGoal = redGoal;
+//                log.debug("goal: " + targetGoal.toString());
+            }
+        }
     }
 
     @Override
     public void update(){
         curPos = robot.getPose();
+        turretPos = turretMotor.getCurrentPosition() + turretOffset;
 
-        telemetry.addLine(String.format("Turret Pos: %d / %d  (tick)", turretMotor.getCurrentPosition(), (int) targetPos));
+        telemetry.addLine(String.format("Turret Pos: %d / %d  (tick)", turretPos, (int) targetPos));
+        telemetry.addLine(String.format("Real Pos: %d | Offset: %d", turretMotor.getCurrentPosition(), turretOffset));
         telemetry.addLine(String.format("Turret Pos: %3.1f / %3.1f  (deg)", getPositionDegrees(), targetDeg));
         telemetry.addLine(String.format("Theta: %2.2f  (deg)", Math.toDegrees(theta)));
+
+        if (context.alliance) {
+            if (curPos.getY() < 48) {
+                targetGoal = blueGoalBack;
+//                log.debug("goal: " + targetGoal.toString());
+            } else {
+                targetGoal = blueGoal;
+//                log.debug("goal: " + targetGoal.toString());
+            }
+        } else {
+            if (curPos.getY() < 48) {
+                targetGoal = redGoalBack;
+//                log.debug("goal: " + targetGoal.toString());
+            } else {
+                targetGoal = redGoal;
+//                log.debug("goal: " + targetGoal.toString());
+            }
+        }
 
         if(autoAim) { otosAutoAim(); setTargetDegrees();}
 
@@ -192,13 +235,16 @@ public class Turret extends BaseComponent{
             resetEncoder();
         }
 
-        switch(moveMethod){
-            case 0:
-                moveRtp();
-                break;
-            case 1:
-                movePid();
-                break;
+        // select the goal aim position based on shooting zone and alliance
+        if(autoMove) {
+            switch (moveMethod) {
+                case 0:
+                    moveRtp();
+                    break;
+                case 1:
+                    movePid();
+                    break;
+            }
         }
     }
 
@@ -208,26 +254,30 @@ public class Turret extends BaseComponent{
     }
 
     private void setTargetDegrees(){
-
+//        log.debug("settargetdegrees");
         while(targetDeg > maxHeading){
-            targetDeg = maxHeading;
             log.warn("target over max heading");
+            targetDeg = Math.min((targetDeg - 360), maxHeading);
         }
 
         while(targetDeg < minHeading){
-            targetDeg = minHeading;
             log.warn("target under min heading");
+            targetDeg = Math.max((targetDeg + 360), minHeading);
         }
 
         targetPos = targetDeg * effectiveTicksPerDeg;
     }
 
     private double getPositionDegrees(){
-        return turretMotor.getCurrentPosition() / effectiveTicksPerDeg;
+        return turretPos / effectiveTicksPerDeg;
     }
 
     public int getPositionTicks(){
-        return turretMotor.getCurrentPosition();
+        return turretPos;
+    }
+
+    public void setPositionTicks(int ticks){
+        turretOffset = ticks - turretMotor.getCurrentPosition();
     }
 
     public void resetEncoder(){
@@ -236,15 +286,29 @@ public class Turret extends BaseComponent{
     }
 
     private void otosAutoAim(){
-        // Calculates the theta using the tanh function
-        theta = Math.tanh(((alliance ? blueGoal.getY() : redGoal.getY()) - curPos.getY()) / ((alliance ? blueGoal.getX() : redGoal.getX()) - curPos.getX()));
+
+//        log.debug("otosautoaim");
+//        theta = Math.tanh(((context.alliance ? blueGoal.getY() : redGoal.getY()) - curPos.getY()) / ((context.alliance ? blueGoal.getX() : redGoal.getX()) - curPos.getX()));
+        theta = Math.atan2(targetGoal.getY() - curPos.getY(), targetGoal.getX() - curPos.getX());
         //log.debug("theta : " + theta + " | degrees : " + Math.toDegrees(curPos.getHeading() - theta));
         // We subtract the theta from the heading to account for robot rotation.
         targetDeg = Math.toDegrees(curPos.getHeading() - theta);
     }
 
+    public double headingToGoalFromPose(Pose pose){
+//        log.debug(pose.toString());
+//        log.debug(targetGoal.toString());
+//        log.debug(String.valueOf(Math.toDegrees(pose.getHeading() - (Math.atan2(targetGoal.getY() - pose.getY(), targetGoal.getX() - pose.getX())))));
+        // Calculates the theta using the arctangent function
+        return Math.toDegrees(pose.getHeading() - (Math.atan2(targetGoal.getY() - pose.getY(), targetGoal.getX() - pose.getX())));
+    }
+
+    public void setTargetFromPose(Pose pose){
+        setTargetDegrees(headingToGoalFromPose(pose));
+    }
+
     private void tagAutoAim(){
-        tag = alliance ? getTag20() : getTag24();
+        tag = context.alliance ? getTag20() : getTag24();
         if(tag != null){
             targetDeg = tag.ftcPose.bearing;
         } else{
@@ -253,7 +317,7 @@ public class Turret extends BaseComponent{
     }
 
     private void tagOtosAutoAim(){
-        tag = alliance ? getTag20() : getTag24();
+        tag = context.alliance ? getTag20() : getTag24();
         // Will use the otos if frame has already been used, or if no tag is found.
         if(tag == null){
             otosAutoAim();
@@ -263,7 +327,7 @@ public class Turret extends BaseComponent{
     }
 
     private void otosRelocalizeAutoAim(){
-        tag = alliance ? getTag20() : getTag24();
+        tag = context.alliance ? getTag20() : getTag24();
         // Will use the otos if frame has already been used, or if no tag is found.
         if(tag == null){
             otosAutoAim();
@@ -285,22 +349,28 @@ public class Turret extends BaseComponent{
     }
 
     private void movePid(){
-        if (Math.abs(turretMotor.getCurrentPosition() - targetPos) <= 2) {
+//        log.debug("movepid");
+        if (Math.abs(turretPos - targetPos) <= 2) {
             turretMotor.setPower(0);
-        } else if (Math.abs(turretMotor.getCurrentPosition() - targetPos) <= 30) {
-            turretMotor.setPower(turretMotor.getCurrentPosition() < (int) targetPos ? 0.05 : -0.05);
+        } else if (Math.abs(turretPos - targetPos) <= 30) {
+            turretMotor.setPower(turretPos < (int) targetPos ? 0.05 : -0.05);
         } else {
-            turretMotor.setPower(turretMotor.getCurrentPosition() < (int) targetPos ? 0.2 : -0.2);
+            turretMotor.setPower(turretPos < (int) targetPos ? 0.2 : -0.2);
         }
     }
 
     public boolean setAutoAim(boolean autoAim){
         return this.autoAim = autoAim;
     }
+    public boolean setAutoMove(boolean autoMove){
+        return this.autoMove = autoMove;
+    }
 
     public boolean getAutoAim(){
         return autoAim;
     }
+
+    public Pose getTargetGoal(){return targetGoal;};
 
     private void initAprilTag() {
 
@@ -431,5 +501,9 @@ public class Turret extends BaseComponent{
     private double addRadians(double radOne, double radTwo){
         if(radOne + radTwo <=  2 * Math.PI) return radOne + radTwo;
         return (radOne + radTwo) - 2 * Math.PI;
+    }
+
+    public DcMotorEx getTurretMotor() {
+        return turretMotor;
     }
 }

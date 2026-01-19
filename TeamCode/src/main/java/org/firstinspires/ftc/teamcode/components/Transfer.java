@@ -86,13 +86,20 @@ public class Transfer extends BaseComponent {
     }
 
 
+    public void serveUntilShot(int color){
+        robot.executeCommand(new ServeUntilShot(color));
+    }
 
     public void rollerForTime(Servo roller, double power, double timeMs){
         robot.executeCommand(new RollerForTime(roller, power, timeMs));
     }
 
-    public void rollersForTime(double power, double timeMs){
-        robot.executeCommand(new RollersForTime(power, timeMs));
+    public void rollersForTime(double powerBoth, double timeMs){
+        robot.executeCommand(new RollersForTime(powerBoth, powerBoth, timeMs));
+    }
+
+    public void rollersForTime(double powerFront, double powerRear, double timeMs){
+        robot.executeCommand(new RollersForTime(powerFront, powerRear, timeMs));
     }
 
 
@@ -163,7 +170,7 @@ public void incomingFront() {
             case 1: //ball in center
 
                 //run rollerFront out
-                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getFrontBallSensor(), 1, -1));
+                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getFrontBallSensor(), -1, -1));
                 //run rollerBack
                 robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getCenterBallSensor(), 1, 2));
                 waitForStateChange = true;
@@ -190,6 +197,8 @@ private class RollerUntilSensor implements Command {
     double power;
     int finishState;
     PredominantColorProcessor sensor;
+    ElapsedTime timer;
+    double timeLimit = 4000;
 
     public RollerUntilSensor(Servo roller, PredominantColorProcessor sensor, double power, int finishState){
         this.roller = roller;
@@ -201,6 +210,7 @@ private class RollerUntilSensor implements Command {
     @Override
     public void start(){
         roller.setPosition((power + 1) / 2);
+        timer = new ElapsedTime();
     }
 
     @Override
@@ -210,26 +220,35 @@ private class RollerUntilSensor implements Command {
             waitForStateChange = false;
         }
 
-        roller.setPosition(0.5);
+        rollerForTime(roller, power, 50);
     }
 
     @Override
     public boolean update() {
+        roller.setPosition((power + 1) / 2);
         telemetry.addLine("moving roller '" + roller.getPortNumber() + "' until sensor" + Arrays.toString(sensor.getAnalysis().HSV));
-        return endoscope.getPresence(sensor.getAnalysis().HSV) > 0;
+        return (endoscope.getPresence(sensor.getAnalysis().HSV) > 0) || (timer.milliseconds() > timeLimit);
     }
 }
 
     private class ServeUntilShot implements Command {
 
-        public ServeUntilShot() {
+        /**
+        Colors:
+         0 = either one
+         1 = purple
+         2 = green
+         **/
+        int color;
 
+        public ServeUntilShot(int color) {
+            this.color = color;
         }
 
         @Override
         public void start(){
-            rollerFront.setPosition(1);
-            rollerRear.setPosition(1);
+            runFrontRoller(1);
+            runRearRoller(1);
         }
 
         @Override
@@ -247,8 +266,8 @@ private class RollerUntilSensor implements Command {
                     break;
             }
 
-            rollerFront.setPosition(0.5);
-            rollerRear.setPosition(0.5);
+            runFrontRoller(0);
+            runRearRoller(0);
         }
 
         @Override
@@ -289,18 +308,19 @@ private class RollerUntilSensor implements Command {
 
     private class RollersForTime implements Command {
 
-        double power, time;
+        double powerFront, powerRear, time;
         ElapsedTime timer;
 
-        public RollersForTime(double power, double timeMs){
-            this.power = power;
+        public RollersForTime(double powerFront, double powerRear, double timeMs){
+            this.powerFront = powerFront;
+            this.powerRear = powerRear;
             this.time = timeMs;
         }
 
         @Override
         public void start(){
-            runFrontRoller(power);
-            runRearRoller(power);
+            runFrontRoller(powerFront);
+            runRearRoller(powerRear);
             timer = new ElapsedTime();
         }
 
@@ -315,4 +335,5 @@ private class RollerUntilSensor implements Command {
             return timer.milliseconds() > time;
         }
     }
+
 }

@@ -60,7 +60,7 @@ import com.qualcomm.robotcore.util.Range;
  * https://www.sparkfun.com/products/25596
  */
 @TeleOp(name = "Concept: LED Stick", group = "Concept")
-//@Disabled
+@Disabled
 public class ConceptLEDStick extends OpMode {
     private boolean wasUp;
     private boolean wasDown;

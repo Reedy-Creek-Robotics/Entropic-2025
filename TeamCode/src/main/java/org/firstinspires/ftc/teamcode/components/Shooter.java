@@ -2,17 +2,15 @@ package org.firstinspires.ftc.teamcode.components;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.teamcode.util.DistanceUtil;
 import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 
@@ -45,7 +43,7 @@ public class Shooter extends BaseComponent {
 
     boolean autoSpeed = true;
 
-    private Robot robot;
+    private final Robot robot;
 
     ElapsedTime shootTimer;
 
@@ -56,18 +54,18 @@ public class Shooter extends BaseComponent {
     LogCatUtil log;
     HardwareUtil hardwareUtil;
 
-    Double distanceToTag;
+    Double distanceToGoal;
 
     Pose goalPosition;
 
-
     public Shooter(RobotContext context, Robot robot) {
         super(context);
-        log = new LogCatUtil("shooter");
+        log = new LogCatUtil("Shooter");
         hardwareUtil = new HardwareUtil(log, hardwareMap);
         this.robot = robot;
 
         shooter = hardwareUtil.getMotorEx("shooter");
+        batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
     }
 
     @Override
@@ -76,36 +74,37 @@ public class Shooter extends BaseComponent {
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        setPIDFCoefficients(new PIDFCoefficients(600, 3, 0, 0, MotorControlAlgorithm.PIDF));
         shootTimer = new ElapsedTime();
 
-        goalPosition = context.alliance ? Turret.blueGoal : Turret.redGoal;
-
-        speeds.put(40, 1640);
-        speeds.put(50, 1500);
-        speeds.put(60, 1440);
-        speeds.put(70, 1440);
-        speeds.put(80, 1520);
-        speeds.put(90, 1520);
-        speeds.put(100, 1560);
-        speeds.put(110, 1640);
-        speeds.put(120, 1600);
-        speeds.put(130, 1640);
-        speeds.put(140, 1780);
+        // All distances were measured to the april tag, 18in is added for the distance to the corner from the tag
+        speeds.put(46+18, 1260);
+        speeds.put(56+18, 1260);
+        speeds.put(66+18, 1200);
+        speeds.put(76+18, 1240);
+        speeds.put(86+18, 1280);
+        speeds.put(96+18, 1300);
+        speeds.put(116+18, 1380);
+        speeds.put(126+18, 1440);
+        speeds.put(134+18, 1480);
 
         follower = robot.getDriveTrain().getFollower();
     }
 
     @Override
     public void update() {
+        goalPosition = context.alliance ? Turret.blueGoal : Turret.redGoal;
         telemetry.addLine(String.format("Shooter Velocity: %4d / %4d  (tick) | Ready: %b",
                 (int) shooter.getVelocity(),
                 setVelocity,
                 isBusy()));
+        telemetry.addData("Distance", follower.getPose().distanceFrom(goalPosition));
 
         if(autoSpeed) {
-            distanceToTag = follower.getPose().distanceFrom(goalPosition);
-            setVelocity(velocityFromDistance(distanceToTag));
+            distanceToGoal = follower.getPose().distanceFrom(goalPosition);
+            setVelocity(velocityFromDistance(distanceToGoal));
         }
+        telemetry.addData("Shooter Current", getShooterCurrent());
     }
 
     public double velocityTicksToDegrees(int ticks) {
@@ -172,8 +171,25 @@ public class Shooter extends BaseComponent {
     }
 
     public int velocityFromDistance(double distance){
-        //log.debug("distance : " + distance + " | speed : " + speeds.get(findClosestByStream(speeds.keys(), distance)) + " | real : " + shooter.getVelocity());
-        return speeds.get(findClosestByStream(speeds.keys(), distance));
+        log.debug("distance : " + distance + " | speed : " + speeds.get(findClosestByStream(speeds.keys(), distance)) + " | real : " + shooter.getVelocity());
+//         return speeds.get(findClosestByStream(speeds.keys(), distance));
+
+        if (distance < 46+18) {
+            distance = 46+18;
+        }
+        // search through speeds values to find the 2 neighbouring values
+        int lowerBound = findClosestSmallerByStream(speeds.keys(), distance);
+        int upperBound = findClosestLargerByStream(speeds.keys(), distance);
+
+        // if the bot is exactly on a distance (or beyond the boundaries), return that speed to prevent division by 0
+        if (lowerBound == upperBound) {
+            return speeds.get(lowerBound);
+        }
+
+        // interpolate values with point slope
+        double slope = (double) (speeds.get(upperBound) - speeds.get(lowerBound)) / (upperBound - lowerBound);
+        double expectedTPS = slope * (distance - lowerBound) + speeds.get(lowerBound);
+        return (int) expectedTPS;
     }
 
     private int findClosestByStream(Enumeration<Integer> sortedNumbers, double target) {
@@ -183,6 +199,30 @@ public class Shooter extends BaseComponent {
     private int findClosestByStream(List<Integer> numbers, double target) {
         return numbers.stream()
                 .min(Comparator.comparingInt(o -> (int) Math.abs(o - target)))
+                .get();
+    }
+    private int findClosestSmallerByStream(Enumeration<Integer> sortedNumbers, double target) {
+        return findClosestSmallerByStream(Collections.list(sortedNumbers), target);
+    }
+    private int findClosestSmallerByStream(List<Integer> numbers, double target) {
+        // returns the largest value less than the target, or the smallest value if none exists
+        if (target < Collections.min(numbers)) {
+            return Collections.min(numbers);
+        }
+        return numbers.stream()
+                .max(Comparator.comparingInt(o -> (int) o <= target ? (int) o : Integer.MIN_VALUE))
+                .get();
+    }
+    private int findClosestLargerByStream(Enumeration<Integer> sortedNumbers, double target) {
+        return findClosestLargerByStream(Collections.list(sortedNumbers), target);
+    }
+    private int findClosestLargerByStream(List<Integer> numbers, double target) {
+        // returns the smallest value greater than the target, or the largest value if none exists
+        if (target > Collections.max(numbers)) {
+            return Collections.max(numbers);
+        }
+        return numbers.stream()
+                .min(Comparator.comparingInt(o -> (int) o >= target ? (int) o : Integer.MAX_VALUE))
                 .get();
     }
 
@@ -223,13 +263,18 @@ public class Shooter extends BaseComponent {
 
     @Override
     public boolean isBusy() {
-        // If the shooter velocity is outside of the tolerance, reset the timer.
-        if(shooter.getVelocity() < setVelocity - velocityTolerance && shooter.getVelocity() > setVelocity + velocityTolerance) {
-            shootTimer.reset();
-        }
-
         // If the velocity is within the tolerance for stabilizationTime milliseconds, return false (not busy)
-        return shootTimer.milliseconds() < stabilizationTime;
+        log.debug("Current Velocity: " + shooter.getVelocity());
+        log.debug("Set Velocity: " + setVelocity);
+        log.debug("Velocity Tolerance: " + velocityTolerance);
+
+        log.debug("is Busy: " + (shooter.getVelocity() < setVelocity - velocityTolerance && shooter.getVelocity() > setVelocity + velocityTolerance));
+        log.debug("Jonathan is Smarter: " + String.valueOf((shooter.getVelocity() < (setVelocity - velocityTolerance)) && (shooter.getVelocity() > (setVelocity + velocityTolerance))));
+
+        log.debug("Auto Speed: " + autoSpeed);
+
+        return (shooter.getVelocity() < (setVelocity - velocityTolerance)) && (shooter.getVelocity() > (setVelocity + velocityTolerance));
+
     }
 
     /**

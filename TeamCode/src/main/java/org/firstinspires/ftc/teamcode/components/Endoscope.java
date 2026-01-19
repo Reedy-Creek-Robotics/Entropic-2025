@@ -2,15 +2,20 @@ package org.firstinspires.ftc.teamcode.components;
 
 import android.util.Size;
 
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.custom.ImageRegion;
 import org.firstinspires.ftc.teamcode.custom.PredominantColorProcessor;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.ColorRange;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 public class Endoscope extends BaseComponent {
     LogCatUtil log;
@@ -22,11 +27,14 @@ public class Endoscope extends BaseComponent {
     PredominantColorProcessor prelimFrontSensor;
     PredominantColorProcessor prelimRearSensor;
 
-    int prelimDetectSaturation = 200;
     int prelimDetectValue = 100;
+
+
+    boolean enableArtifactManagement = true;
 
     Robot robot;
     Transfer transfer;
+    Servo internalLight;
 
     PredominantColorProcessor blobMaker(double left, double top, double right, double bottom, String name){
         return new PredominantColorProcessor.Builder()
@@ -36,16 +44,15 @@ public class Endoscope extends BaseComponent {
                 .build();
     }
 
-
     public Endoscope(RobotContext context, Robot robot) {
         super(context);
         log = new LogCatUtil("Endoscope");
         hardwareUtil = new HardwareUtil(log, hardwareMap);
         this.robot = robot;
 
-        frontBallSensor = blobMaker(-0.514867, -0.382046, -0.317684, -0.878914, "frontBallSensor");
-        centerBallSensor = blobMaker(-0.114241, 0.955, 0.170579, 0.7, "centerBallSensor");
-        rearBallSensor = blobMaker(0.411581, -0.348643, 0.605634, -0.845511, "rearBallSensor");
+        frontBallSensor = blobMaker(-0.514867, -0.25, -0.317684, -0.53, "frontBallSensor");
+        centerBallSensor = blobMaker(-0.043, 0.15, 0.06, -.05, "centerBallSensor");
+        rearBallSensor = blobMaker(0.411581, -0.25, 0.605634, -0.53, "rearBallSensor");
         prelimFrontSensor = blobMaker(-0.984351, 0.043841, -0.837246, -0.077244, "prelimFrontSensor");
         prelimRearSensor = blobMaker(0.809077, 0.018789, 0.968701, -0.089770, "prelimRearSensor");
 
@@ -59,8 +66,11 @@ public class Endoscope extends BaseComponent {
                 .setCameraResolution(new Size(320, 240))
                 .setStreamFormat(VisionPortal.StreamFormat.YUY2)
                 .setShowStatsOverlay(true)
-                .setCamera(hardwareMap.get(WebcamName.class, "Endoscope"))
+                .setCamera(hardwareUtil.getWebcamName("Endoscope"))
                 .build();
+
+        internalLight = hardwareUtil.getServo("internalLight");
+        internalLight.setPosition(10);
     }
 
     @Override
@@ -85,29 +95,33 @@ public class Endoscope extends BaseComponent {
         telemetry.addData("Front Detect", getPresence(resultFront.HSV));
         telemetry.addData("Center Detect", getPresence(resultCenter.HSV));
         telemetry.addData("Rear Detect", getPresence(resultRear.HSV));
-        telemetry.addData("PrelimFront Detect", resultPrelimFront.HSV[1] > prelimDetectSaturation && resultPrelimFront.HSV[2] > prelimDetectValue);
-        telemetry.addData("PrelimRear Detect", resultPrelimRear.HSV[1] > prelimDetectSaturation && resultPrelimRear.HSV[2] > prelimDetectValue);
+        telemetry.addLine("------ Management: " + enableArtifactManagement + " ------");
+        telemetry.addData("PrelimFront Detect",  resultPrelimFront.HSV[2] > prelimDetectValue);
+        telemetry.addData("PrelimRear Detect",  resultPrelimRear.HSV[2] > prelimDetectValue);
 
-        if((resultPrelimFront.HSV[1] > prelimDetectSaturation) && (resultPrelimFront.HSV[2] > prelimDetectValue) && (getPresence(resultFront.HSV) == 0)){
+        if((enableArtifactManagement)  && (resultPrelimFront.HSV[2] > prelimDetectValue) && (getPresence(resultFront.HSV) == 0)){
             transfer.incomingFront();
             telemetry.addLine("incoming Front!");
         }
-        if((resultPrelimRear.HSV[1] > prelimDetectSaturation) && (resultPrelimRear.HSV[2] > prelimDetectValue) && (getPresence(resultRear.HSV) == 0)){
+        if((enableArtifactManagement) && (resultPrelimRear.HSV[2] > prelimDetectValue) && (getPresence(resultRear.HSV) == 0)){
             transfer.incomingRear();
             telemetry.addLine("incoming Rear!");
         }
     }
 
-    // 0 = no ball
-    // 1 = purple ball
-    // 2 = green ball
-    // 3 = unknown
+    /**
+    Colors:
+     0 = no ball
+     1 = purple ball
+     2 = green ball
+     3 = unknown
+     **/
     public int getPresence(int[] HSV){
-        if (HSV[1] < 160){
+        if (HSV[1] < 130){
             return 0;
-        } else if (HSV[0] > 120) {
+        } else if (HSV[0] > 100) {
             return 1;
-        } else if (HSV[0] <= 120){
+        } else if (HSV[0] <= 100){
             return 2;
         } else {
             return 3;
@@ -124,5 +138,12 @@ public class Endoscope extends BaseComponent {
 
     public PredominantColorProcessor getRearBallSensor() {
         return rearBallSensor;
+    }
+
+    public void setEnableArtifactManagement(boolean enableArtifactManagement) {
+        this.enableArtifactManagement = enableArtifactManagement;
+    }
+    public boolean getEnableArtifactManagement(){
+        return enableArtifactManagement;
     }
 }
