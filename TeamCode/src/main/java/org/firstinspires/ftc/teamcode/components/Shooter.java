@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import android.annotation.SuppressLint;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -91,19 +93,24 @@ public class Shooter extends BaseComponent {
         follower = robot.getDriveTrain().getFollower();
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void update() {
         goalPosition = context.alliance ? Turret.blueGoal : Turret.redGoal;
+
+        //getvelocity and isbusy = 5ms
         telemetry.addLine(String.format("Shooter Velocity: %4d / %4d  (tick) | Ready: %b",
                 (int) shooter.getVelocity(),
                 setVelocity,
                 isBusy()));
-        telemetry.addData("Distance", follower.getPose().distanceFrom(goalPosition));
-
+//        telemetry.addData("Distance", follower.getPose().distanceFrom(goalPosition));
+//
+         // autoSpeed = 10ms
         if(autoSpeed) {
             distanceToGoal = follower.getPose().distanceFrom(goalPosition);
             setVelocity(velocityFromDistance(distanceToGoal));
         }
+        // get current = 5ms
         telemetry.addData("Shooter Current", getShooterCurrent());
     }
 
@@ -177,6 +184,7 @@ public class Shooter extends BaseComponent {
         if (distance < 46+18) {
             distance = 46+18;
         }
+
         // search through speeds values to find the 2 neighbouring values
         int lowerBound = findClosestSmallerByStream(speeds.keys(), distance);
         int upperBound = findClosestLargerByStream(speeds.keys(), distance);
@@ -264,14 +272,14 @@ public class Shooter extends BaseComponent {
     @Override
     public boolean isBusy() {
         // If the velocity is within the tolerance for stabilizationTime milliseconds, return false (not busy)
-        log.debug("Current Velocity: " + shooter.getVelocity());
-        log.debug("Set Velocity: " + setVelocity);
-        log.debug("Velocity Tolerance: " + velocityTolerance);
-
-        log.debug("is Busy: " + (shooter.getVelocity() < setVelocity - velocityTolerance && shooter.getVelocity() > setVelocity + velocityTolerance));
-        log.debug("Jonathan is Smarter: " + String.valueOf((shooter.getVelocity() < (setVelocity - velocityTolerance)) && (shooter.getVelocity() > (setVelocity + velocityTolerance))));
-
-        log.debug("Auto Speed: " + autoSpeed);
+//        log.debug("Current Velocity: " + shooter.getVelocity());
+//        log.debug("Set Velocity: " + setVelocity);
+//        log.debug("Velocity Tolerance: " + velocityTolerance);
+//
+//        log.debug("is Busy: " + (shooter.getVelocity() < setVelocity - velocityTolerance && shooter.getVelocity() > setVelocity + velocityTolerance));
+//        log.debug("Jonathan is Smarter: " + String.valueOf((shooter.getVelocity() < (setVelocity - velocityTolerance)) && (shooter.getVelocity() > (setVelocity + velocityTolerance))));
+//
+//        log.debug("Auto Speed: " + autoSpeed);
 
         return (shooter.getVelocity() < (setVelocity - velocityTolerance)) && (shooter.getVelocity() > (setVelocity + velocityTolerance));
 

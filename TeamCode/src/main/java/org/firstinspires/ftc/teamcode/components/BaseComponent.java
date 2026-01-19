@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import android.annotation.SuppressLint;
+
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -44,6 +46,8 @@ public abstract class BaseComponent implements Component {
     public static String logPrefix = "Comp-";
 
     private LogCatUtil log;
+
+    ElapsedTime componentTimer;
 
     public BaseComponent(RobotContext context) {
         this.context = context;
@@ -145,6 +149,7 @@ public abstract class BaseComponent implements Component {
     @Override
     public void init() {
         log = new LogCatUtil("Base");
+        componentTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         for (Component subComponent : subComponents) {
             telemetry.addData("Init SubComponent", subComponent);
             updateTelemetry();
@@ -154,6 +159,7 @@ public abstract class BaseComponent implements Component {
         updateTelemetry();
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void update() {
 
@@ -177,10 +183,14 @@ public abstract class BaseComponent implements Component {
             }
         }
 
+
         // Also update any sub-components
         for (Component subComponent : subComponents) {
+            componentTimer.reset();
             telemetry.addLine(String.format("--- %s ---", subComponent));
             subComponent.update();
+            telemetry.addLine(String.format("--- %3.3f ---", componentTimer.time()));
+            telemetry.addLine("");
         }
     }
 

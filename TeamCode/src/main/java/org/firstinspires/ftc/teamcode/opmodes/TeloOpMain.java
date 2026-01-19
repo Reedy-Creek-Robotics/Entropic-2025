@@ -77,17 +77,18 @@ public class TeloOpMain extends OpMode {
         robot.getDriveTrain().drive(drive, strafe, turn);
 
         //intake, outake, purge -.5, and shoot .5
-        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) + (driver.isButtonDown(Controller.Button.NORTH) ? 0.5:0) + (driver.isButtonDown(Controller.Button.SOUTH) ? -0.5:0));
+        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) + (driver.isButtonDown(Controller.Button.SOUTH) ? 0.5:0) + (driver.isButtonDown(Controller.Button.NORTH) ? -0.5:0));
 
 
         //shoot run rollers up
-        if(driver.isButtonDown(Controller.Button.NORTH)){
+        if(driver.isButtonDown(Controller.Button.SOUTH)){
             serving = true;
+            robot.stopAllCommands();
             transfer.runFrontRoller(1);
             transfer.runRearRoller(1);
         }
         //purge run rollers out
-        else if(driver.isButtonDown(Controller.Button.SOUTH)){
+        else if(driver.isButtonDown(Controller.Button.NORTH)){
             serving = true;
             transfer.runFrontRoller(-1);
             transfer.runRearRoller(-1);
@@ -110,7 +111,9 @@ public class TeloOpMain extends OpMode {
             }
         }
 
-
+        if(driver.isPressed(Controller.Button.PS)){
+            robot.getShooter().setAutoSpeed(!robot.getShooter().getAutoSpeed());
+        }
 
 
         /* META CONTROLS */
@@ -121,9 +124,11 @@ public class TeloOpMain extends OpMode {
         // set alliances
         if(meta.isPressed(Controller.Button.SHARE)){
             robotContext.alliance = true;
+            robot.getTurret().setAlliance(true);
         }
         if(meta.isPressed(Controller.Button.OPTIONS)){
             robotContext.alliance = false;
+            robot.getTurret().setAlliance(false);
         }
         //re-localize @ goal zone
         if(meta.isPressed(Controller.Button.NORTH)){
@@ -156,7 +161,7 @@ public class TeloOpMain extends OpMode {
         }
 
 
-        telemetry.addData("alliance", robotContext.getAlliance());
+        telemetry.addData("alliance", robotContext.getAlliance() ? "Blue" : "Red");
         telemetry.addData("MANUAL MODE", manualMode);
         meta.setLED(manualMode ? manualEnabledColor : manualDisabledColor, 500);
         robot.update();

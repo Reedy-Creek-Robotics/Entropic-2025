@@ -8,6 +8,7 @@ import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.Encoder;
+import com.pedropathing.ftc.localization.constants.DriveEncoderConstants;
 import com.pedropathing.ftc.localization.constants.OTOSConstants;
 import com.pedropathing.ftc.localization.constants.ThreeWheelIMUConstants;
 import com.pedropathing.paths.PathConstraints;
@@ -59,7 +60,7 @@ public class Constants {
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
 
-    public static double[] linearScalars = {0.9760748986073785, 0.9718011578691315, 0.9813496831245394, 0.9893696285289747};
+    public static double[] linearScalars = {1.294, 1.294};
     public static double[] angularScalars = {0.9905234043196346, 0.987627529876274, 0.9892674385255185, 0.9897305787120929};
 
     public static OTOSConstants otosNormalLocalizerConstants = new OTOSConstants()
@@ -70,6 +71,24 @@ public class Constants {
             .angularScalar(getAverage(angularScalars))
             .offset(new SparkFunOTOS.Pose2D(-2.75, 3, Math.toRadians(180)));
 
+    public static DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants()
+            .rightFrontMotorName("rf")
+            .rightRearMotorName("rr")
+            .leftRearMotorName("lr")
+            .leftFrontMotorName("lf")
+            .leftFrontEncoderDirection(Encoder.REVERSE)
+            .leftRearEncoderDirection(Encoder.REVERSE)
+            .rightFrontEncoderDirection(Encoder.FORWARD)
+            .rightRearEncoderDirection(Encoder.FORWARD)
+            .robotWidth(9.500)
+            .robotLength(7.875)
+            .forwardTicksToInches(0.021956045405421835 * 0.3943661972)
+            .strafeTicksToInches((0.05284855454518251 * 0.3943661972) * 0.4528301887)
+            .turnTicksToInches((0.01772821447097184 * 0.3943661972) * 2.6111920708)
+            ;
+
+
+
     public static PathConstraints pathConstraints = new PathConstraints(
             0.99,
             100,
@@ -77,7 +96,7 @@ public class Constants {
             1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
-            .maxPower(1)
+            .maxPower(0.5)
             .rightFrontMotorName("rf")
             .rightRearMotorName("rr")
             .leftRearMotorName("lr")
@@ -94,6 +113,7 @@ public class Constants {
                 //.setLocalizer(new otosAprilTagLocalizer(hardwareMap, otosLocalizerConstants))
                 .OTOSLocalizer(otosNormalLocalizerConstants)
                 //.threeWheelIMULocalizer(localizerConstants)
+//                .driveEncoderLocalizer(driveEncoderConstants)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
                 .build();

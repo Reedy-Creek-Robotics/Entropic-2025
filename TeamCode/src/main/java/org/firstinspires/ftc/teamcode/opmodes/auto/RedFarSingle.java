@@ -30,14 +30,14 @@ public class RedFarSingle extends FarSingle {
             shootPreload = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(90.000, 6.000),
-                                    new Pose(84.000, 12.000)
+                                    new Pose(90.000, 12.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .build();
 
             alignWithBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(84.000, 12.000),
+                                    new Pose(90.000, 12.000),
                                     new Pose(102.000, 30.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))

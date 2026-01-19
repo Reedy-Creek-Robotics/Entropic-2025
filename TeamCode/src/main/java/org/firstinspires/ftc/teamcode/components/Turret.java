@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import android.annotation.SuppressLint;
 import android.util.Size;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -11,6 +12,8 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
@@ -33,6 +36,8 @@ public class Turret extends BaseComponent{
 
     LogCatUtil log;
     HardwareUtil hardwareUtil;
+
+    static double PIDF_P = 10;
 
     /**
      * Will be appended to the prefix defined in LogCatUtil
@@ -140,10 +145,15 @@ public class Turret extends BaseComponent{
      * 0 - run to position<br>
      * 1 - rough 'pid' like system
      */
-    static int moveMethod = 1;
+    static int moveMethod = 0;
 
     boolean autoAim = true;
     boolean autoMove = true;
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     */
+    boolean alliance = false;
 
     public Turret(RobotContext context, Robot robot) {
         super(context);
@@ -174,7 +184,7 @@ public class Turret extends BaseComponent{
         turretMotor.setMotorType(motorConfiguration);
 
         turretMotor.setTargetPositionTolerance((int) (baseTicksPerDeg * toleranceDeg));
-        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -182,7 +192,7 @@ public class Turret extends BaseComponent{
 
         curPos = follower.getPose();
 
-        if (context.alliance) {
+        if (alliance) {
             if (curPos.getY() < 48) {
                 targetGoal = blueGoalBack;
 //                log.debug("goal: " + targetGoal.toString());
@@ -201,17 +211,19 @@ public class Turret extends BaseComponent{
         }
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void update(){
         curPos = robot.getPose();
         turretPos = turretMotor.getCurrentPosition() + turretOffset;
+        turretMotor.setPositionPIDFCoefficients(PIDF_P);
 
         telemetry.addLine(String.format("Turret Pos: %d / %d  (tick)", turretPos, (int) targetPos));
         telemetry.addLine(String.format("Real Pos: %d | Offset: %d", turretMotor.getCurrentPosition(), turretOffset));
         telemetry.addLine(String.format("Turret Pos: %3.1f / %3.1f  (deg)", getPositionDegrees(), targetDeg));
         telemetry.addLine(String.format("Theta: %2.2f  (deg)", Math.toDegrees(theta)));
 
-        if (context.alliance) {
+        if (alliance) {
             if (curPos.getY() < 48) {
                 targetGoal = blueGoalBack;
 //                log.debug("goal: " + targetGoal.toString());
@@ -246,6 +258,22 @@ public class Turret extends BaseComponent{
                     break;
             }
         }
+    }
+
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     */
+    public void setAlliance(boolean newAlliance){
+        alliance = newAlliance;
+    }
+
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     */
+    public boolean getAlliance(){
+        return alliance;
     }
 
     private void setTargetDegrees(double newTarget){
@@ -345,7 +373,7 @@ public class Turret extends BaseComponent{
     private void moveRtp(){
         turretMotor.setTargetPosition((int) targetPos);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        turretMotor.setPower(0.5);
+        turretMotor.setPower(0.6);
     }
 
     private void movePid(){
@@ -353,9 +381,9 @@ public class Turret extends BaseComponent{
         if (Math.abs(turretPos - targetPos) <= 2) {
             turretMotor.setPower(0);
         } else if (Math.abs(turretPos - targetPos) <= 30) {
-            turretMotor.setPower(turretPos < (int) targetPos ? 0.05 : -0.05);
+            turretMotor.setPower(turretPos < (int) targetPos ? 0.1 : -0.1);
         } else {
-            turretMotor.setPower(turretPos < (int) targetPos ? 0.2 : -0.2);
+            turretMotor.setPower(turretPos < (int) targetPos ? 0.6 : -0.6);
         }
     }
 
