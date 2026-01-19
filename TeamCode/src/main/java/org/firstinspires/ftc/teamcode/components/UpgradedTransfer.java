@@ -147,18 +147,22 @@ public void incomingFront() {
 
             case 3: //two balls in front + center
 
-                robot.executeCommand(new RollersUntilSensor(1, 0, endoscope.getCenterBallSensor(), 4));
-
+                robot.executeCommand(new RollersUntilSensor(0, -1, endoscope.getRearBallSensor(), -1));
+                robot.executeCommand(new RollersUntilSensor(1, 0, endoscope.getCenterBallSensor(), 6));
 
                 waitForStateChange = true;
                 break;
 
             case 4: //two balls in rear + center
 
-                waitForStateChange = true;
+                ballState = 6;
+
+                //waitForStateChange = true;
                 break;
 
             case 5: //two balls in front + rear
+
+                robot.executeCommand(new RollersUntilSensor(1, 0, endoscope.getCenterBallSensor(), 6));
 
 
                 waitForStateChange = true;
@@ -166,7 +170,9 @@ public void incomingFront() {
 
             case 6: //three balls in robot
 
-                waitForStateChange = true;
+                telemetry.addLine("Robot Full!");
+
+                //waitForStateChange = true;
                 break;
         }
     }
