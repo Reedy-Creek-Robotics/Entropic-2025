@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import android.app.Presentation;
-
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -13,14 +9,16 @@ import org.firstinspires.ftc.teamcode.custom.PredominantColorProcessor;
 
 import java.util.Arrays;
 
-public class Transfer extends BaseComponent {
+public class UpgradedTransfer extends BaseComponent {
 
     /**
      * 0 = no balls in robot<br>
-     * 1 = one ball in center<br>
-     * 2 = one ball in center, one ball in front<br>
-     * 3 = one ball in center, one ball in back<br>
-     * 4 = three balls in robot
+     * 1 = one ball in front<br>
+     * 2 = one ball in rear<br>
+     * 3 = two balls in front + center<br>
+     * 4 = two balls in rear + center<br>
+     * 5 = two balls in front + rear<br>
+     * 6 = three balls in robot
      */
     int ballState;
 
@@ -36,7 +34,7 @@ public class Transfer extends BaseComponent {
     Command transferCommand;
     Boolean waitForStateChange = false;
 
-    public Transfer(RobotContext context, Robot robot) {
+    public UpgradedTransfer(RobotContext context, Robot robot) {
         super(context);
 
         log = new LogCatUtil("Transfer");
@@ -45,7 +43,7 @@ public class Transfer extends BaseComponent {
         hardwareUtil = new HardwareUtil(log, hardwareMap);
     }
 
-    public Transfer(RobotContext context){
+    public UpgradedTransfer(RobotContext context){
         this(context, null);
     }
 
@@ -98,54 +96,77 @@ public class Transfer extends BaseComponent {
 
 
 /**BMS PLAN
+ first ball enters from either side
+ push to opposite side
 
-first ball enters from either side<br>
-  put in center position<br>
-second ball enters from either side<br>
-  first ball is moved to opposite side<br>
-  second ball is moved to the center<br>
-third ball enters<br>
-  if on same side as second ball<br>
-      put on side it entered in<br>
-  otherwise<br>
-      push first ball from center to opposite side of entry<br>
-      push second ball from entry side to center<br>
-      put on side it entered in<br>
+ second ball enters same side
+ push to center
+
+ second ball enters opposite side
+ push first ball to opposite side
+ push second ball to center
+
+ third ball enters same as second
+ leave on same side
+
+ third ball enters opposite second
+ push everything back over
+ leave on opposite side
+
+ third ball enters with balls front and rear
+ push ball already on same side to center
+ leave on whichever side
+
 **/
 public void incomingFront() {
     telemetry.addData("front income detected. ballState", ballState);
     if(!waitForStateChange) {
         switch (ballState) {
-            case 0: //no ball in yet
+            case 0: //no balls in robot
 
-                //run rollerFront in
-                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 1));
+                robot.executeCommand(new RollersUntilSensor(0.7, -1, endoscope.getRearBallSensor(), 2));
 
                 waitForStateChange = true;
                 break;
 
-            case 1: //ball in center
+            case 1: //one ball in front
 
-                //run rollerRear out
-                robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getRearBallSensor(), -1, -1));
-                //run rollerFront in
-                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 3));
+                robot.executeCommand(new RollersUntilSensor(0.7, -1, endoscope.getRearBallSensor(), -1));
+                robot.executeCommand(new RollersUntilSensor(1, 0, endoscope.getCenterBallSensor(), 4));
+
                 waitForStateChange = true;
                 break;
 
-            case 2: //balls in center & front
+            case 2: //one ball in rear
 
-                //run rollerFront in AND rollerRear out
-                robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getRearBallSensor(), -1, -1));
-                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 4));
+                robot.executeCommand(new RollersUntilSensor(1, 0, endoscope.getCenterBallSensor(), 4));
+
+
                 waitForStateChange = true;
                 break;
 
-            case 3: //balls in center & rear
+            case 3: //two balls in front + center
 
-                //run rollerFront in
-                //robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getFrontBallSensor(), 1, 4));
-                ballState = 4;
+                robot.executeCommand(new RollersUntilSensor(1, 0, endoscope.getCenterBallSensor(), 4));
+
+
+                waitForStateChange = true;
+                break;
+
+            case 4: //two balls in rear + center
+
+                waitForStateChange = true;
+                break;
+
+            case 5: //two balls in front + rear
+
+
+                waitForStateChange = true;
+                break;
+
+            case 6: //three balls in robot
+
+                waitForStateChange = true;
                 break;
         }
     }
@@ -153,54 +174,61 @@ public void incomingFront() {
 
     public void incomingRear() {
         switch(ballState){
-            case 0: //no ball in yet
+            case 0: //no balls in robot
 
-                //run rollerRear
-                robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getCenterBallSensor(), 1, 1));
                 waitForStateChange = true;
                 break;
 
-            case 1: //ball in center
+            case 1: //one ball in front
 
-                //run rollerFront out
-                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getFrontBallSensor(), 1, -1));
-                //run rollerBack
-                robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getCenterBallSensor(), 1, 2));
                 waitForStateChange = true;
                 break;
 
-            case 2: //balls in center & front
-                //robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getCenterBallSensor(), 1, 1));
-                ballState = 4;
+            case 2: //one ball in rear
+
+                waitForStateChange = true;
                 break;
 
-            case 3: //balls in center & back
-                //run rollerFront out
-                //run rollerRear in
-                robot.executeCommand(new RollerUntilSensor(rollerFront, endoscope.getFrontBallSensor(), -1, -1));
-                robot.executeCommand(new RollerUntilSensor(rollerRear, endoscope.getCenterBallSensor(), 1, 4));
+            case 3: //two balls in front + center
+
+                waitForStateChange = true;
+                break;
+
+            case 4: //two balls in rear + center
+
+                waitForStateChange = true;
+                break;
+
+            case 5: //two balls in front + rear
+
+
+                waitForStateChange = true;
+                break;
+
+            case 6: //three balls in robot
+
                 waitForStateChange = true;
                 break;
         }
     }
 
-private class RollerUntilSensor implements Command {
+private class RollersUntilSensor implements Command {
 
-    Servo roller;
-    double power;
+    double powerFront, powerRear;
     int finishState;
     PredominantColorProcessor sensor;
 
-    public RollerUntilSensor(Servo roller, PredominantColorProcessor sensor, double power, int finishState){
-        this.roller = roller;
-        this.power = power;
+    public RollersUntilSensor(double powerFront, double powerRear, PredominantColorProcessor sensor, int finishState){
+        this.powerFront = powerFront;
+        this.powerRear = powerRear;
         this.sensor = sensor;
         this.finishState = finishState;
     }
 
     @Override
     public void start(){
-        roller.setPosition((power + 1) / 2);
+        rollerFront.setPosition((powerFront + 1) / 2);
+        rollerRear.setPosition((powerRear + 1) / 2);
     }
 
     @Override
@@ -210,12 +238,13 @@ private class RollerUntilSensor implements Command {
             waitForStateChange = false;
         }
 
-        roller.setPosition(0.5);
+        rollerRear.setPosition(0.5);
+        rollerFront.setPosition(0.5);
     }
 
     @Override
     public boolean update() {
-        telemetry.addLine("moving roller '" + roller.getPortNumber() + "' until sensor" + Arrays.toString(sensor.getAnalysis().HSV));
+        telemetry.addLine("moving front @ '" + powerFront + "' and rear @ '" + powerRear + "' until sensor" + sensor.getName());
         return endoscope.getPresence(sensor.getAnalysis().HSV) > 0;
     }
 }

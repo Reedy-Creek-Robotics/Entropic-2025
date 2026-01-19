@@ -3,12 +3,12 @@ package org.firstinspires.ftc.teamcode.components;
 import android.util.Size;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.custom.ImageRegion;
+import org.firstinspires.ftc.teamcode.custom.PredominantColorProcessor;
 import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.ColorRange;
-import org.firstinspires.ftc.vision.opencv.ImageRegion;
-import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
 import java.util.Arrays;
 
@@ -28,10 +28,11 @@ public class Endoscope extends BaseComponent {
     Robot robot;
     Transfer transfer;
 
-    PredominantColorProcessor blobMaker(double left, double top, double right, double bottom){
+    PredominantColorProcessor blobMaker(double left, double top, double right, double bottom, String name){
         return new PredominantColorProcessor.Builder()
                 .setRoi(ImageRegion.asUnityCenterCoordinates(left, top, right, bottom))
                 .setSwatches(PredominantColorProcessor.Swatch.BLACK)
+                .setName(name)
                 .build();
     }
 
@@ -42,11 +43,11 @@ public class Endoscope extends BaseComponent {
         hardwareUtil = new HardwareUtil(log, hardwareMap);
         this.robot = robot;
 
-        frontBallSensor = blobMaker(-0.514867, -0.382046, -0.317684, -0.878914);
-        centerBallSensor = blobMaker(-0.114241, 0.955, 0.170579, 0.7);
-        rearBallSensor = blobMaker(0.411581, -0.348643, 0.605634, -0.845511);
-        prelimFrontSensor = blobMaker(-0.984351, 0.043841, -0.837246, -0.077244);
-        prelimRearSensor = blobMaker(0.809077, 0.018789, 0.968701, -0.089770);
+        frontBallSensor = blobMaker(-0.514867, -0.382046, -0.317684, -0.878914, "frontBallSensor");
+        centerBallSensor = blobMaker(-0.114241, 0.955, 0.170579, 0.7, "centerBallSensor");
+        rearBallSensor = blobMaker(0.411581, -0.348643, 0.605634, -0.845511, "rearBallSensor");
+        prelimFrontSensor = blobMaker(-0.984351, 0.043841, -0.837246, -0.077244, "prelimFrontSensor");
+        prelimRearSensor = blobMaker(0.809077, 0.018789, 0.968701, -0.089770, "prelimRearSensor");
 
 
         portal = new VisionPortal.Builder()
