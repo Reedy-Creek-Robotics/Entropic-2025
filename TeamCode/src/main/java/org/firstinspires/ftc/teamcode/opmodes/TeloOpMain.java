@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.components.BaseComponent;
 import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.components.Transfer;
 import org.firstinspires.ftc.teamcode.components.Turret;
+import org.firstinspires.ftc.teamcode.components.UpgradedTransfer;
 import org.firstinspires.ftc.teamcode.game.ColorValue;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
@@ -35,7 +36,7 @@ public class TeloOpMain extends OpMode {
 
     Follower follower;
     
-    Transfer transfer;
+    UpgradedTransfer transfer;
     Endoscope endoscope;
     Turret turret;
     Boolean serving = false;

@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.components.Endoscope;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.components.Transfer;
+import org.firstinspires.ftc.teamcode.components.UpgradedTransfer;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
 @TeleOp(name = " Development Tele Op", group = "!Main")
@@ -30,7 +31,7 @@ public class DevelopmentTeleOpMain extends OpMode {
 
     Follower follower;
     
-    Transfer transfer;
+    UpgradedTransfer transfer;
     Endoscope endoscope;
     Boolean serving = false;
 
@@ -112,7 +113,7 @@ public class DevelopmentTeleOpMain extends OpMode {
             }
         }
         if(driver.isPressed(Controller.Button.EAST)){
-            transfer.serveUntilShot(0);
+            //transfer.serveUntilShot(0);
         }
         if(driver.isPressed(Controller.Button.WEST)){
             endoscope.setEnableArtifactManagement(!endoscope.getEnableArtifactManagement());

@@ -6,13 +6,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.Transfer;
+import org.firstinspires.ftc.teamcode.components.UpgradedTransfer;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
 @Disabled
 @TeleOp
 public class BasicIntakeDrive extends OpMode {
     Robot robot;
-    Transfer transfer;
+    UpgradedTransfer transfer;
     Controller controller;
 
     @Override

@@ -33,7 +33,7 @@ public class Endoscope extends BaseComponent {
     boolean enableArtifactManagement = true;
 
     Robot robot;
-    Transfer transfer;
+    UpgradedTransfer transfer;
     Servo internalLight;
 
     PredominantColorProcessor blobMaker(double left, double top, double right, double bottom, String name){

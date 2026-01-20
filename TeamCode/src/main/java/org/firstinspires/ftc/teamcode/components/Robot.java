@@ -28,7 +28,7 @@ public class Robot extends BaseComponent{
     private DriveTrain driveTrain;
     private Turret turret;
     private Shooter shooter;
-    private Transfer transfer;
+    private UpgradedTransfer upgradedTransfer;
     private Endoscope endoscope;
     private Intake intake;
     // END COMPONENTS
@@ -52,12 +52,12 @@ public class Robot extends BaseComponent{
         driveTrain = new DriveTrain(context, this);
         turret = new Turret(context, this);
         shooter = new Shooter(context, this);
-        transfer = new Transfer(context, this);
+        upgradedTransfer = new UpgradedTransfer(context, this);
         endoscope = new Endoscope(context, this);
         intake = new Intake(context, this);
         // END COMPONENTS
 
-        addSubComponents(driveTrain, intake, transfer, turret, shooter, endoscope);
+        addSubComponents(driveTrain, intake, upgradedTransfer, turret, shooter, endoscope);
     }
 
     public RobotContext getRobotContext() {
@@ -264,8 +264,8 @@ public class Robot extends BaseComponent{
     public Shooter getShooter() {
         return shooter;
     }
-    public Transfer getTransfer(){
-        return transfer;
+    public UpgradedTransfer getTransfer(){
+        return upgradedTransfer;
     }
     public Intake getIntake(){
         return intake;
