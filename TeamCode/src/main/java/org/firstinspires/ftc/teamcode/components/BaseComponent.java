@@ -45,6 +45,8 @@ public abstract class BaseComponent implements Component {
 
     public static String logPrefix = "Comp-";
 
+    protected boolean useTelemetry = false;
+
     private LogCatUtil log;
 
     ElapsedTime componentTimer;
@@ -187,10 +189,19 @@ public abstract class BaseComponent implements Component {
         // Also update any sub-components
         for (Component subComponent : subComponents) {
             componentTimer.reset();
-            telemetry.addLine(String.format("--- %s ---", subComponent));
             subComponent.update();
-            telemetry.addLine(String.format("--- %3.3f ---", componentTimer.time()));
-            telemetry.addLine("");
+            telemetry.addLine(String.format("--- %s: %3.3f ---", subComponent, componentTimer.time()));
+        }
+
+        addTelemetry();
+    }
+
+    public void addTelemetry() {
+        if(useTelemetry) {
+            for (Component subComponent : subComponents) {
+                telemetry.addLine(String.format("--- %s ---", subComponent));
+                subComponent.addTelemetry();
+            }
         }
     }
 

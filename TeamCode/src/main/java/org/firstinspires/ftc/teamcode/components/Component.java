@@ -19,4 +19,5 @@ public interface Component {
      */
     boolean isBusy();
 
+    void addTelemetry();
 }

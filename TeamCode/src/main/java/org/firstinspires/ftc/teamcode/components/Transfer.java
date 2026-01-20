@@ -64,6 +64,11 @@ public class Transfer extends BaseComponent {
 
     @Override
     public void update(){
+
+    }
+
+    @Override
+    public void addTelemetry(){
         telemetry.addData("ballState", ballState);
     }
 

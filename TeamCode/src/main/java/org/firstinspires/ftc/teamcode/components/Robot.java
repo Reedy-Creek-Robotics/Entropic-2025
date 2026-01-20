@@ -39,6 +39,8 @@ public class Robot extends BaseComponent{
 
     private Follower follower;
 
+    private Pose curPose = new Pose();
+
     public Robot(OpMode opMode){
         this(opMode, false);
     }
@@ -109,12 +111,25 @@ public class Robot extends BaseComponent{
         }
 
         follower.update();
+        curPose = follower.getPose();
 
         // Allow all the subcomponents to do their work.
         super.update();
 
         // Update telemetry once per iteration after all components have been called.
         telemetry.update(ftcTelemetry);
+    }
+
+    public Pose getPose(){
+        return curPose;
+    }
+
+    public boolean getUseTelemetry(){
+        return useTelemetry;
+    }
+
+    public void setUseTelemetry(boolean useTelemetry){
+        this.useTelemetry = useTelemetry;
     }
 
     public void saveStateToDisk() {
@@ -275,9 +290,6 @@ public class Robot extends BaseComponent{
     }
     public TelemetryManager getTelemetry(){
         return telemetry;
-    }
-    public Pose getPose(){
-        return follower.getPose();
     }
 
     private double computeBatteryVoltage() {

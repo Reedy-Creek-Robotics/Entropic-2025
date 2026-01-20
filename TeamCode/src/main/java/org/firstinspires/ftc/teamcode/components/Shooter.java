@@ -96,26 +96,31 @@ public class Shooter extends BaseComponent {
     @SuppressLint("DefaultLocale")
     @Override
     public void update() {
-        goalPosition = context.alliance ? Turret.blueGoal : Turret.redGoal;
+        // 0.2ms
+        goalPosition = robot.getTurret().getAlliance() ? Turret.blueGoal : Turret.redGoal;
 
-        //getvelocity and isbusy = 5ms
-        telemetry.addLine(String.format("Shooter Velocity: %4d / %4d  (tick) | Ready: %b",
-                (int) shooter.getVelocity(),
-                setVelocity,
-                isBusy()));
-//        telemetry.addData("Distance", follower.getPose().distanceFrom(goalPosition));
-//
-         // autoSpeed = 10ms
         if(autoSpeed) {
-            distanceToGoal = follower.getPose().distanceFrom(goalPosition);
+//             effectively nothing?
+            distanceToGoal = robot.getPose().distanceFrom(goalPosition);
+//             5-10ms
             setVelocity(velocityFromDistance(distanceToGoal));
         }
-        // get current = 5ms
-        telemetry.addData("Shooter Current", getShooterCurrent());
     }
 
     public double velocityTicksToDegrees(int ticks) {
         return ticks * degPerTick;
+    }
+
+    @Override
+    public void addTelemetry(){
+        // 5ms
+        telemetry.addLine(String.format("Shooter Velocity: %4d / %4d  (tick) | Ready: %b",
+                (int) shooter.getVelocity(),
+                setVelocity,
+                isBusy()));
+        telemetry.addData("Distance", robot.getPose().distanceFrom(goalPosition));
+        // 3ms
+        telemetry.addData("Shooter Current", getShooterCurrent());
     }
 
     /**

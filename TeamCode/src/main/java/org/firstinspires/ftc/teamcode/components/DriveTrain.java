@@ -103,7 +103,11 @@ public class DriveTrain extends BaseComponent {
 
     @Override
     public void update() {
-        curPose = follower.getPose();
+        curPose = robot.getPose();
+    }
+
+    @Override
+    public void addTelemetry(){
         telemetry.addLine(String.format("XYH %6.2f %6.2f %6.2f  (inch) (degree)", curPose.getX(), curPose.getY(), Math.toDegrees(curPose.getHeading())));
     }
 

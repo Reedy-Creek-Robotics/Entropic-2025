@@ -145,7 +145,7 @@ public class Turret extends BaseComponent{
      * 0 - run to position<br>
      * 1 - rough 'pid' like system
      */
-    static int moveMethod = 0;
+    static int moveMethod = 1;
 
     boolean autoAim = true;
     boolean autoMove = true;
@@ -190,7 +190,7 @@ public class Turret extends BaseComponent{
 
         follower = robot.getDriveTrain().getFollower();
 
-        curPos = follower.getPose();
+        curPos = robot.getPose();
 
         if (alliance) {
             if (curPos.getY() < 48) {
@@ -216,28 +216,19 @@ public class Turret extends BaseComponent{
     public void update(){
         curPos = robot.getPose();
         turretPos = turretMotor.getCurrentPosition() + turretOffset;
-        turretMotor.setPositionPIDFCoefficients(PIDF_P);
-
-        telemetry.addLine(String.format("Turret Pos: %d / %d  (tick)", turretPos, (int) targetPos));
-        telemetry.addLine(String.format("Real Pos: %d | Offset: %d", turretMotor.getCurrentPosition(), turretOffset));
-        telemetry.addLine(String.format("Turret Pos: %3.1f / %3.1f  (deg)", getPositionDegrees(), targetDeg));
-        telemetry.addLine(String.format("Theta: %2.2f  (deg)", Math.toDegrees(theta)));
+//        turretMotor.setPositionPIDFCoefficients(PIDF_P);
 
         if (alliance) {
             if (curPos.getY() < 48) {
                 targetGoal = blueGoalBack;
-//                log.debug("goal: " + targetGoal.toString());
             } else {
                 targetGoal = blueGoal;
-//                log.debug("goal: " + targetGoal.toString());
             }
         } else {
             if (curPos.getY() < 48) {
                 targetGoal = redGoalBack;
-//                log.debug("goal: " + targetGoal.toString());
             } else {
                 targetGoal = redGoal;
-//                log.debug("goal: " + targetGoal.toString());
             }
         }
 
@@ -258,6 +249,15 @@ public class Turret extends BaseComponent{
                     break;
             }
         }
+    }
+
+    @Override
+    public void addTelemetry(){
+        // all telem adds 5ms
+        telemetry.addLine(String.format("Turret Pos: %d / %d  (tick)", turretPos, (int) targetPos));
+        telemetry.addLine(String.format("Real Pos: %d | Offset: %d", turretMotor.getCurrentPosition(), turretOffset));
+        telemetry.addLine(String.format("Turret Pos: %3.1f / %3.1f  (deg)", getPositionDegrees(), targetDeg));
+        telemetry.addLine(String.format("Theta: %2.2f  (deg)", Math.toDegrees(theta)));
     }
 
     /**
@@ -315,10 +315,8 @@ public class Turret extends BaseComponent{
 
     private void otosAutoAim(){
 
-//        log.debug("otosautoaim");
 //        theta = Math.tanh(((context.alliance ? blueGoal.getY() : redGoal.getY()) - curPos.getY()) / ((context.alliance ? blueGoal.getX() : redGoal.getX()) - curPos.getX()));
         theta = Math.atan2(targetGoal.getY() - curPos.getY(), targetGoal.getX() - curPos.getX());
-        //log.debug("theta : " + theta + " | degrees : " + Math.toDegrees(curPos.getHeading() - theta));
         // We subtract the theta from the heading to account for robot rotation.
         targetDeg = Math.toDegrees(curPos.getHeading() - theta);
     }
@@ -363,9 +361,7 @@ public class Turret extends BaseComponent{
         // Will relocalize the otos if the tag is within a certain range
         }else if(Math.abs(tag.center.x - (cameraRes.getWidth() / 2.0)) <= tagTolerance){
             Pose pos = otosPoseFromTag(tag.robotPose);
-            log.info("localize - " + pos);
             follower.setPose(pos);
-            log.debug("otos pos" + follower.getPose());
         }
         targetDeg = tag.ftcPose.bearing;
     }
@@ -377,13 +373,12 @@ public class Turret extends BaseComponent{
     }
 
     private void movePid(){
-//        log.debug("movepid");
         if (Math.abs(turretPos - targetPos) <= 2) {
             turretMotor.setPower(0);
         } else if (Math.abs(turretPos - targetPos) <= 30) {
-            turretMotor.setPower(turretPos < (int) targetPos ? 0.1 : -0.1);
+            turretMotor.setPower(turretPos < (int) targetPos ? 0.2 : -0.2);
         } else {
-            turretMotor.setPower(turretPos < (int) targetPos ? 0.6 : -0.6);
+            turretMotor.setPower(turretPos < (int) targetPos ? 0.4 : -0.4);
         }
     }
 

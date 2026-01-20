@@ -113,7 +113,7 @@ public class TeloOpMain extends OpMode {
         }
 
         if(driver.isPressed(Controller.Button.PS)){
-            robot.getShooter().setAutoSpeed(!robot.getShooter().getAutoSpeed());
+            robot.setUseTelemetry(true);
         }
 
 

@@ -27,6 +27,12 @@ public class Endoscope extends BaseComponent {
     PredominantColorProcessor prelimFrontSensor;
     PredominantColorProcessor prelimRearSensor;
 
+    PredominantColorProcessor.Result resultFront;
+    PredominantColorProcessor.Result resultCenter;
+    PredominantColorProcessor.Result resultRear;
+    PredominantColorProcessor.Result resultPrelimFront;
+    PredominantColorProcessor.Result resultPrelimRear;
+
     int prelimDetectValue = 100;
 
 
@@ -80,12 +86,24 @@ public class Endoscope extends BaseComponent {
 
     @Override
     public void update(){
-        PredominantColorProcessor.Result resultFront = frontBallSensor.getAnalysis();
-        PredominantColorProcessor.Result resultCenter = centerBallSensor.getAnalysis();
-        PredominantColorProcessor.Result resultRear = rearBallSensor.getAnalysis();
-        PredominantColorProcessor.Result resultPrelimFront = prelimFrontSensor.getAnalysis();
-        PredominantColorProcessor.Result resultPrelimRear = prelimRearSensor.getAnalysis();
+        resultFront = frontBallSensor.getAnalysis();
+        resultCenter = centerBallSensor.getAnalysis();
+        resultRear = rearBallSensor.getAnalysis();
+        resultPrelimFront = prelimFrontSensor.getAnalysis();
+        resultPrelimRear = prelimRearSensor.getAnalysis();
 
+        if((enableArtifactManagement)  && (resultPrelimFront.HSV[2] > prelimDetectValue) && (getPresence(resultFront.HSV) == 0)){
+            transfer.incomingFront();
+            telemetry.addLine("incoming Front!");
+        }
+        if((enableArtifactManagement) && (resultPrelimRear.HSV[2] > prelimDetectValue) && (getPresence(resultRear.HSV) == 0)){
+            transfer.incomingRear();
+            telemetry.addLine("incoming Rear!");
+        }
+    }
+
+    @Override
+    public void addTelemetry(){
         telemetry.addData("Front HSV", Arrays.toString(resultFront.HSV));
         telemetry.addData("Center HSV", Arrays.toString(resultCenter.HSV));
         telemetry.addData("Rear HSV", Arrays.toString(resultRear.HSV));
@@ -98,15 +116,6 @@ public class Endoscope extends BaseComponent {
         telemetry.addLine("------ Management: " + enableArtifactManagement + " ------");
         telemetry.addData("PrelimFront Detect",  resultPrelimFront.HSV[2] > prelimDetectValue);
         telemetry.addData("PrelimRear Detect",  resultPrelimRear.HSV[2] > prelimDetectValue);
-
-        if((enableArtifactManagement)  && (resultPrelimFront.HSV[2] > prelimDetectValue) && (getPresence(resultFront.HSV) == 0)){
-            transfer.incomingFront();
-            telemetry.addLine("incoming Front!");
-        }
-        if((enableArtifactManagement) && (resultPrelimRear.HSV[2] > prelimDetectValue) && (getPresence(resultRear.HSV) == 0)){
-            transfer.incomingRear();
-            telemetry.addLine("incoming Rear!");
-        }
     }
 
     /**

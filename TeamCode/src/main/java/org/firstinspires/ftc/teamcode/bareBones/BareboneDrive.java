@@ -17,6 +17,7 @@ public class BareboneDrive extends OpMode {
     @Override
     public void init() {
         driveTrain = new DriveTrain(BaseComponent.createRobotContext(this));
+        driveTrain.init();
         controller = new Controller(gamepad1);
     }
 
