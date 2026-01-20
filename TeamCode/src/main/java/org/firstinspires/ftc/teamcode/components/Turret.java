@@ -38,6 +38,7 @@ public class Turret extends BaseComponent{
     HardwareUtil hardwareUtil;
 
     static double PIDF_P = 10;
+    static int ticksToMaxPower;
 
     /**
      * Will be appended to the prefix defined in LogCatUtil
@@ -143,9 +144,10 @@ public class Turret extends BaseComponent{
 
     /**
      * 0 - run to position<br>
-     * 1 - rough 'pid' like system
+     * 1 - most basic thing i could make system<br>
+     * 2 - PID hold the ID
      */
-    static int moveMethod = 1;
+    static int moveMethod = 2;
 
     boolean autoAim = true;
     boolean autoMove = true;
@@ -246,6 +248,9 @@ public class Turret extends BaseComponent{
                     break;
                 case 1:
                     movePid();
+                    break;
+                case 2:
+                    moveP();
                     break;
             }
         }
@@ -375,11 +380,21 @@ public class Turret extends BaseComponent{
     private void movePid(){
         if (Math.abs(turretPos - targetPos) <= 2) {
             turretMotor.setPower(0);
-        } else if (Math.abs(turretPos - targetPos) <= 30) {
+        } else if (Math.abs(turretPos - targetPos) <= 60) {
             turretMotor.setPower(turretPos < (int) targetPos ? 0.2 : -0.2);
         } else {
             turretMotor.setPower(turretPos < (int) targetPos ? 0.4 : -0.4);
         }
+    }
+
+    private void moveP(){
+        turretMotor.setPower(Math.max(
+                Math.min(
+                        ((-2.0)/(-2*ticksToMaxPower) * turretPos),
+                        1),
+                -1
+                )
+        );
     }
 
     public boolean setAutoAim(boolean autoAim){
