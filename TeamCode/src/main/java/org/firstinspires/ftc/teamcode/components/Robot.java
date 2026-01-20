@@ -291,6 +291,9 @@ public class Robot extends BaseComponent{
     public TelemetryManager getTelemetry(){
         return telemetry;
     }
+    public void setPose(Pose pose){
+        follower.setPose(pose);
+    }
 
     private double computeBatteryVoltage() {
         double result = Double.POSITIVE_INFINITY;
