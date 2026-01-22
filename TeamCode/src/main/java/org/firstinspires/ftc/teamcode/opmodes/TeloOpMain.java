@@ -36,7 +36,7 @@ public class TeloOpMain extends OpMode {
 
     Follower follower;
     
-    UpgradedTransfer transfer;
+    Transfer transfer;
     Endoscope endoscope;
     Turret turret;
     Boolean serving = false;
@@ -133,10 +133,10 @@ public class TeloOpMain extends OpMode {
         }
         //re-localize @ goal zone
         if(meta.isPressed(Controller.Button.NORTH)){
-            robot.getDriveTrain().getFollower().setPose(largeZoneReset);
+            robot.getDriveTrain().getFollower().setPose(new Pose(largeZoneReset.getX(), largeZoneReset.getY(), robot.getPose().getHeading()));
         //re-localize @ far zone
         }if(meta.isPressed(Controller.Button.SOUTH)){
-            robot.getDriveTrain().getFollower().setPose(smallZoneReset);
+            robot.getDriveTrain().getFollower().setPose(new Pose(smallZoneReset.getX(), smallZoneReset.getY(), robot.getPose().getHeading()));
         }
         //manual mode toggle
         if(meta.isPressed(Controller.Button.PS)){

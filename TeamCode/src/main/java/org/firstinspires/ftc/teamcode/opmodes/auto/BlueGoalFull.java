@@ -16,9 +16,8 @@ public class BlueGoalFull extends GoalFull{
 
     @Override
     public void initRobot(){
-        super.initRobot();
         alliance = true;
-        robot.getTurret().setAlliance(true);
+        super.initRobot();
     }
 
 
@@ -26,6 +25,7 @@ public class BlueGoalFull extends GoalFull{
 
         @Override
         public void createPaths(Follower follower) {
+
             shootPreload = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(33.000, 138.000),
@@ -40,17 +40,17 @@ public class BlueGoalFull extends GoalFull{
                             new BezierLine(
                                     new Pose(48.000, 96.000),
 
-                                    new Pose(42.000, 84.000)
+                                    new Pose(42.000, 90.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
-
+                    .setBrakingStart(2)
                     .build();
 
             pickupBallSet1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(42.000, 84.000),
+                                    new Pose(42.000, 90.000),
 
-                                    new Pose(22.000, 84.000)
+                                    new Pose(22.000, 90.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
@@ -58,11 +58,11 @@ public class BlueGoalFull extends GoalFull{
 
             shootBallSet1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(14.000, 72.000),
+                                    new Pose(22.000, 90.000),
 
                                     new Pose(48.000, 96.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
                     .build();
 
@@ -70,17 +70,17 @@ public class BlueGoalFull extends GoalFull{
                             new BezierLine(
                                     new Pose(48.000, 96.000),
 
-                                    new Pose(42.000, 60.000)
+                                    new Pose(42.000, 66.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
-
+                    .setBrakingStart(3)
                     .build();
 
             pickupBallSet2 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(42.000, 60.000),
+                                    new Pose(42.000, 66.000),
 
-                                    new Pose(22.000, 60.000)
+                                    new Pose(15.000, 66.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
@@ -88,7 +88,7 @@ public class BlueGoalFull extends GoalFull{
 
             shootBallSet2 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(22.000, 60.000),
+                                    new Pose(15.000, 66.000),
 
                                     new Pose(48.000, 96.000)
                             )
@@ -100,17 +100,17 @@ public class BlueGoalFull extends GoalFull{
                             new BezierLine(
                                     new Pose(48.000, 96.000),
 
-                                    new Pose(42.000, 36.000)
+                                    new Pose(42.000, 42.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
-
+                    .setBrakingStart(3)
                     .build();
 
             pickupBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(42.000, 36.000),
+                                    new Pose(42.000, 42.000),
 
-                                    new Pose(22.000, 36.000)
+                                    new Pose(15.000, 42.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
@@ -118,7 +118,7 @@ public class BlueGoalFull extends GoalFull{
 
             shootBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(22.000, 36.000),
+                                    new Pose(15.000, 42.000),
 
                                     new Pose(48.000, 96.000)
                             )

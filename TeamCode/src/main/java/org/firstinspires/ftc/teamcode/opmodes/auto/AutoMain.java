@@ -6,6 +6,7 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -37,12 +38,14 @@ public abstract class AutoMain extends LinearOpMode {
         panelsTelemetry.addLine("Waiting for start...");
 
         waitForStart();
+        opmodeTimer.resetTimer();
+
         while(running && opModeIsActive()) {
-            runPath();
             robot.update();
+            runPath();
         }
 
-        robot.saveStateToDisk();
+//        robot.saveStateToDisk();
     }
 
     public void initRobot(){

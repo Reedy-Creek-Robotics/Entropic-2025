@@ -46,10 +46,13 @@ public class Lighthouse extends BaseComponent {
         log = new LogCatUtil("Lighthouse");
         hardwareUtil = new HardwareUtil(log, hardwareMap);
         this.robot = robot;
+    }
 
+    @Override
+    public void init(){
         tagReader = new AprilTagProcessor.Builder()
                 //.setLensIntrinsics(fx, fy, cx, cy);
-                .setCameraPose(new Position(DistanceUnit.INCH, 5.25, 6.25, 7.5, 0), new YawPitchRollAngles(AngleUnit.DEGREES, 0, 0, 90, 0))
+                .setCameraPose(new Position(DistanceUnit.INCH, 5.25, 6.25, 7.5, 0), new YawPitchRollAngles(AngleUnit.DEGREES, 0, 0, 270, 0))
                 .build();
         tagReader.setDecimation(0);
 
@@ -58,49 +61,61 @@ public class Lighthouse extends BaseComponent {
                 .setCameraResolution(new Size(1920, 1080))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .setCamera(hardwareUtil.getWebcamName("Lighthouse"))
+//                .setLiveViewContainerId(1)
                 .build();
     }
 
     @Override
-    public void init(){
-
-    }
-
-    @Override
     public void update(){
+        if(portal.getCameraState() != VisionPortal.CameraState.STREAMING) return;
         detectionList = tagReader.getDetections();
         if(detectionList.isEmpty()) {return;}
         for(AprilTagDetection detection : detectionList){
             if(
                     ((
-                            detection.id == 24 &&
-                            robot.getPose().distanceFrom(redTagPose) > maxRelocalizeDistance
-                    ) ||
+                            detection.id == 24 && //tag id is 24
+                            robot.getPose().distanceFrom(redTagPose) < maxRelocalizeDistance //distance to tag is not over max
+                    )
+                    ||//or
                     (
-                            detection.id == 20 &&
-                            robot.getPose().distanceFrom(blueTagPose) > maxRelocalizeDistance
+                            detection.id == 20 && //tag id is 20
+                            robot.getPose().distanceFrom(blueTagPose) < maxRelocalizeDistance //distance to tag is not over max
                     ))
-                            && enableLighthouse
+                    &&//and
+                            robot.getVelocity() < 3 //velocity is less than 3in/sec
+                    &&//and
+                            robot.getAngVelocity() < 0.2 //angular velocity is less than 0.2rad/sec
+                    &&//and
+                            enableLighthouse //is true
             ) {
-                Pose newPose = poseFromPose3d(detection.robotPose).getAsCoordinateSystem(PedroCoordinates.INSTANCE);
+                Pose newPose = PedroCoordinates.INSTANCE.convertToPedro(poseFromPose3d(detection.robotPose));
+                log.debug("Pedro Pose: " + newPose);
                 robot.setPose(newPose);
                 telemetry.addLine("Re localizing to " + newPose);
             }
         }
     }
 
-//    @Override
+    @Override
+    public void addTelemetry() {
+        telemetry.addData("Velocity Magnitude", robot.getVelocity());
+        telemetry.addData("Lighthouse Enable", enableLighthouse);
+    }
+
+    //    @Override
 //    public void addTelemetry(){
 //
 //    }
 
     private Pose poseFromPose3d(Pose3D pose3D){
-        return new Pose(
+        log.debug("April Tag Pose3D: " + pose3D.toString());
+        Pose newPose = new Pose(
                 pose3D.getPosition().toUnit(DistanceUnit.INCH).x,
                 pose3D.getPosition().toUnit(DistanceUnit.INCH).y,
                 pose3D.getOrientation().getYaw(AngleUnit.RADIANS),
                 InvertedFTCCoordinates.INSTANCE
         );
+        return newPose;
     }
 
     public void setEnableLighthouse(boolean enableLighthouse) {

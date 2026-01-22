@@ -16,8 +16,8 @@ public class BlueGoalSingle extends GoalSingle{
 
     @Override
     public void initRobot(){
-        alliance = true;
         super.initRobot();
+        alliance = true;
     }
 
     public static class Paths extends GoalSingle.Paths{

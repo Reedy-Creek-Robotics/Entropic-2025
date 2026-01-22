@@ -14,8 +14,8 @@ public class BlueFarSingle extends FarSingle {
 
     @Override
     public void initRobot() {
-        alliance = true;
         super.initRobot();
+        alliance = true;
     }
 
     public static class Paths extends FarSingle.Paths{

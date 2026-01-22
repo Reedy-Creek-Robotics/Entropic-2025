@@ -2,9 +2,6 @@ package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.DriveTuner;
 import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.OdometryTuner;
-import static org.firstinspires.ftc.teamcode.pedro.Constants.getAverage;
-import static org.firstinspires.ftc.teamcode.pedro.Constants.linearScalars;
-import static org.firstinspires.ftc.teamcode.pedro.Constants.angularScalars;
 
 import android.annotation.SuppressLint;
 

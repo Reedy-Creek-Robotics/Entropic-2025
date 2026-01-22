@@ -8,12 +8,21 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
+import org.firstinspires.ftc.teamcode.util.LogCatUtil;
+import org.firstinspires.ftc.teamcode.util.log.DataLogger;
+import org.firstinspires.ftc.teamcode.util.log.MotorDataLog;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,6 +30,8 @@ import java.util.List;
 
 public class Robot extends BaseComponent{
     private static final double VOLTAGE_WARNING_THRESHOLD = 12.0;
+    
+    MotorDataLog motorDataLog;
 
     private List<LynxModule> lynxModules;
 
@@ -28,8 +39,9 @@ public class Robot extends BaseComponent{
     private DriveTrain driveTrain;
     private Turret turret;
     private Shooter shooter;
-    private UpgradedTransfer upgradedTransfer;
+    private Transfer transfer;
     private Endoscope endoscope;
+//    private Lighthouse lighthouse;
     private Intake intake;
     // END COMPONENTS
 
@@ -39,7 +51,14 @@ public class Robot extends BaseComponent{
 
     private Follower follower;
 
+    private LogCatUtil log;
+
     private Pose curPose = new Pose();
+
+    double motorCurrent = 0;
+
+    private List<HardwareDevice> devices;
+    private List<DcMotorEx> motors;
 
     public Robot(OpMode opMode){
         this(opMode, false);
@@ -48,18 +67,24 @@ public class Robot extends BaseComponent{
     public Robot(OpMode opMode, boolean alliance) {
         super(createRobotContext(opMode, alliance));
 
+        log = new LogCatUtil("Robot");
+
+        String timeStamp = new SimpleDateFormat("MM\\dd-HH:mm").format(new java.util.Date());
+        motorDataLog = new MotorDataLog("MCD-"+timeStamp);
+
         this.lynxModules = hardwareMap.getAll(LynxModule.class);
 
         // START COMPONENTS
         driveTrain = new DriveTrain(context, this);
         turret = new Turret(context, this);
         shooter = new Shooter(context, this);
-        upgradedTransfer = new UpgradedTransfer(context, this);
+        transfer = new Transfer(context, this);
         endoscope = new Endoscope(context, this);
+//        lighthouse = new Lighthouse(context, this);
         intake = new Intake(context, this);
         // END COMPONENTS
 
-        addSubComponents(driveTrain, intake, upgradedTransfer, turret, shooter, endoscope);
+        addSubComponents(driveTrain, intake, transfer, /*lighthouse, */turret, shooter, endoscope);
     }
 
     public RobotContext getRobotContext() {
@@ -92,6 +117,12 @@ public class Robot extends BaseComponent{
         telemetry.update();
 
         initTime = new ElapsedTime();
+
+        devices = new ArrayList<>();
+        motors = hardwareMap.getAll(DcMotorEx.class);
+        for (HardwareDevice device : hardwareMap) {
+            devices.add(device);
+        }
     }
 
     @SuppressLint("DefaultLocale")
@@ -118,10 +149,61 @@ public class Robot extends BaseComponent{
 
         // Update telemetry once per iteration after all components have been called.
         telemetry.update(ftcTelemetry);
+
+        logCurrents();
+    }
+    
+    private void logCurrents(){
+        motorCurrent = 0;
+
+        for(DataLogger.GenericField field : motorDataLog.fields){
+            field.set(-1);
+        }
+
+        for(DcMotorEx motor : motors){
+            String motorName = hardwareMap.getNamesOf(motor).iterator().next();
+
+            switch (motorName) {
+                case "shooter":
+                    motorDataLog.shooterCurrent.set(motor.getCurrent(CurrentUnit.AMPS));
+                    break;
+                case "turret":
+                    motorDataLog.turretCurrent.set(motor.getCurrent(CurrentUnit.AMPS));
+                    break;
+                case "intake":
+                    motorDataLog.intakeCurrent.set(motor.getCurrent(CurrentUnit.AMPS));
+                    break;
+                case "lf":
+                    motorDataLog.lfCurrent.set(motor.getCurrent(CurrentUnit.AMPS));
+                    break;
+                case "lr":
+                    motorDataLog.lrCurrent.set(motor.getCurrent(CurrentUnit.AMPS));
+                    break;
+                case "rf":
+                    motorDataLog.rfCurrent.set(motor.getCurrent(CurrentUnit.AMPS));
+                    break;
+                case "rr":
+                    motorDataLog.rrCurrent.set(motor.getCurrent(CurrentUnit.AMPS));
+            }
+            
+            motorCurrent += motor.getCurrent(CurrentUnit.AMPS);
+        }
+
+        motorDataLog.batteryVoltage.set(computeBatteryVoltage());
+        motorDataLog.totalMotorCurrent.set(motorCurrent);
+
+        motorDataLog.writeLine();
     }
 
     public Pose getPose(){
         return curPose;
+    }
+
+    public double getVelocity(){
+        return follower.getVelocity().getMagnitude();
+    }
+    public double getAngVelocity(){
+        return follower.getAngularVelocity();
     }
 
     public boolean getUseTelemetry(){
@@ -279,8 +361,8 @@ public class Robot extends BaseComponent{
     public Shooter getShooter() {
         return shooter;
     }
-    public UpgradedTransfer getTransfer(){
-        return upgradedTransfer;
+    public Transfer getTransfer(){
+        return transfer;
     }
     public Intake getIntake(){
         return intake;
@@ -288,6 +370,9 @@ public class Robot extends BaseComponent{
     public Endoscope getEndoscope(){
         return endoscope;
     }
+//    public Lighthouse getLighthouse(){
+//        return lighthouse;
+//    }
     public TelemetryManager getTelemetry(){
         return telemetry;
     }

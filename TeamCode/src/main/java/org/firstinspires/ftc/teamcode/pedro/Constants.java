@@ -60,15 +60,18 @@ public class Constants {
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
 
-    public static double[] linearScalars = {1.294, 1.294};
-    public static double[] angularScalars = {0.9905234043196346, 0.987627529876274, 0.9892674385255185, 0.9897305787120929};
+    public static double[] seLinearScalars = {0.9789450036755697, 0.9713286068563092, 0.984250938654841, 0.967096238198983};
+    public static double[] seAngularScalars = {0.9911039824022719, 0.994369789112311, 0.9939128037010939, 0.9948119413054476};
+
+    public static double seLinearScalar = getAverage(seLinearScalars);
+    public static double seAngularScalar = getAverage(seAngularScalars);
 
     public static OTOSConstants otosNormalLocalizerConstants = new OTOSConstants()
             .hardwareMapName("otos")
             .linearUnit(DistanceUnit.INCH)
             .angleUnit(AngleUnit.RADIANS)
-            .linearScalar(getAverage(linearScalars))
-            .angularScalar(getAverage(angularScalars))
+            .linearScalar(seLinearScalar)
+            .angularScalar(seAngularScalar)
             .offset(new SparkFunOTOS.Pose2D(-2.75, 3, Math.toRadians(180)));
 
     public static DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants()

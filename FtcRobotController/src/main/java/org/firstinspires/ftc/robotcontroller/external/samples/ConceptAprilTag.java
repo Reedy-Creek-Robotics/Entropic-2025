@@ -138,7 +138,6 @@ public class ConceptAprilTag extends LinearOpMode {
             // to load a predefined calibration for your camera.
             //.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
             // ... these parameters are fx, fy, cx, cy.
-
             .build();
 
         // Adjust Image Decimation to trade-off detection-range for detection-rate.

@@ -38,7 +38,7 @@ public class Turret extends BaseComponent{
     HardwareUtil hardwareUtil;
 
     static double PIDF_P = 10;
-    static int ticksToMaxPower;
+    static int ticksToMaxPower = 100;
 
     /**
      * Will be appended to the prefix defined in LogCatUtil
@@ -390,9 +390,9 @@ public class Turret extends BaseComponent{
     private void moveP(){
         turretMotor.setPower(Math.max(
                 Math.min(
-                        ((-2.0)/(-2*ticksToMaxPower) * turretPos),
-                        1),
-                -1
+                        ((-2.0)/(-2*ticksToMaxPower) * (targetPos - turretPos)),
+                        0.2),
+                -0.2
                 )
         );
     }

@@ -817,7 +817,7 @@ public class EmptyObjectUtil {
 
         @Override
         public Pose2D getPosition() {
-            return new Pose2D();
+            return new Pose2D(72, 72, Math.toRadians(90));
         }
     }
 }

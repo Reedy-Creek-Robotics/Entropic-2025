@@ -243,6 +243,7 @@ private class RollersUntilSensor implements Command {
     double powerFront, powerRear;
     int finishState;
     PredominantColorProcessor sensor;
+    int OGBallState = ballState;
 
     public RollersUntilSensor(double powerFront, double powerRear, PredominantColorProcessor sensor, int finishState){
         this.powerFront = powerFront;
@@ -255,6 +256,7 @@ private class RollersUntilSensor implements Command {
     public void start(){
         rollerFront.setPosition((powerFront + 1) / 2);
         rollerRear.setPosition((powerRear + 1) / 2);
+        log.debug("STARTED (" + OGBallState + ")" + powerFront + "' and rear @ '" + powerRear + "' until sensor" + sensor.getName());
     }
 
     @Override
@@ -266,11 +268,12 @@ private class RollersUntilSensor implements Command {
 
         rollerRear.setPosition(0.5);
         rollerFront.setPosition(0.5);
+        log.debug("STOPPED (" + OGBallState + ")" + "moving front @ " + powerFront + " and rear @ " + powerRear + " until " + sensor.getName());
     }
 
     @Override
     public boolean update() {
-        telemetry.addLine("moving front @ '" + powerFront + "' and rear @ '" + powerRear + "' until sensor" + sensor.getName());
+        telemetry.addLine("moving front @ " + powerFront + " and rear @ " + powerRear + " until " + sensor.getName());
         return endoscope.getPresence(sensor.getAnalysis().HSV) > 0;
     }
 }
@@ -290,15 +293,15 @@ private class RollersUntilSensor implements Command {
         @Override
         public void stop() {
             switch (ballState){
-                case 4:
-                    ballState = 3;
+                case 4: // two balls in rear + center
+                    ballState = 3; // two balls in front + center
                     break;
-                case 3:
-                case 2:
-                    ballState = 1;
+                case 3: // two balls in front + Center
+                case 2: // one ball in rear
+                    ballState = 1; // one ball in front
                     break;
-                case 1:
-                    ballState = 0;
+                case 1: // one ball in front
+                    ballState = 0; // no balls
                     break;
             }
 

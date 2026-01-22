@@ -33,13 +33,13 @@ public class Endoscope extends BaseComponent {
     PredominantColorProcessor.Result resultPrelimFront;
     PredominantColorProcessor.Result resultPrelimRear;
 
-    int prelimDetectValue = 100;
+    public int prelimDetectValue = 100;
 
 
     boolean enableArtifactManagement = true;
 
     Robot robot;
-    UpgradedTransfer transfer;
+    Transfer transfer;
     Servo internalLight;
 
     PredominantColorProcessor blobMaker(double left, double top, double right, double bottom, String name){
@@ -70,9 +70,10 @@ public class Endoscope extends BaseComponent {
                 .addProcessor(prelimFrontSensor)
                 .addProcessor(prelimRearSensor)
                 .setCameraResolution(new Size(320, 240))
-                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .setShowStatsOverlay(true)
                 .setCamera(hardwareUtil.getWebcamName("Endoscope"))
+//                .enableLiveView(false)
                 .build();
 
         internalLight = hardwareUtil.getServo("internalLight");
@@ -147,6 +148,14 @@ public class Endoscope extends BaseComponent {
 
     public PredominantColorProcessor getRearBallSensor() {
         return rearBallSensor;
+    }
+
+    public PredominantColorProcessor getPrelimFrontSensor() {
+        return prelimFrontSensor;
+    }
+
+    public PredominantColorProcessor getPrelimRearSensor() {
+        return prelimRearSensor;
     }
 
     public void setEnableArtifactManagement(boolean enableArtifactManagement) {
