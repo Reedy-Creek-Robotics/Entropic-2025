@@ -36,7 +36,7 @@ public class TeloOpMain extends OpMode {
 
     Follower follower;
     
-    Transfer transfer;
+    UpgradedTransfer transfer;
     Endoscope endoscope;
     Turret turret;
     Boolean serving = false;
@@ -57,6 +57,7 @@ public class TeloOpMain extends OpMode {
         transfer = robot.getTransfer();
         endoscope = robot.getEndoscope();
         turret = robot.getTurret();
+
         
         robot.init();
 
@@ -78,8 +79,7 @@ public class TeloOpMain extends OpMode {
         robot.getDriveTrain().drive(drive, strafe, turn);
 
         //intake, outake, purge -.5, and shoot .5
-        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) + (driver.isButtonDown(Controller.Button.SOUTH) ? 0.5:0) + (driver.isButtonDown(Controller.Button.NORTH) ? -0.5:0));
-
+        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER));
 
         //shoot run rollers up
         if(driver.isButtonDown(Controller.Button.SOUTH)){
@@ -112,9 +112,16 @@ public class TeloOpMain extends OpMode {
             }
         }
 
-        if(driver.isPressed(Controller.Button.PS)){
+        //enable telemetry
+        if(driver.isPressed(Controller.Button.SHARE)){
             robot.setUseTelemetry(true);
         }
+
+        //swap artifact storage side
+        if(driver.isPressed(Controller.Button.PS)){
+            transfer.swapSide();
+        }
+
 
 
         /* META CONTROLS */
@@ -155,6 +162,12 @@ public class TeloOpMain extends OpMode {
                 manualMode = true;
             }
         }
+
+        //reset imu
+        if(meta.isPressed(Controller.Button.EAST)){
+            robot.setPose(new Pose(robot.getPose().getX(), robot.getPose().getY(), Math.toRadians(0)));
+        }
+
 
         //manual control turret
         if(manualMode){

@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.game.Controller;
 @TeleOp
 public class BasicIntakeDrive extends OpMode {
     Robot robot;
-    Transfer transfer;
+    UpgradedTransfer transfer;
     Controller controller;
 
     @Override

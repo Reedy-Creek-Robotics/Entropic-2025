@@ -33,13 +33,13 @@ public class Endoscope extends BaseComponent {
     PredominantColorProcessor.Result resultPrelimFront;
     PredominantColorProcessor.Result resultPrelimRear;
 
-    public int prelimDetectValue = 100;
+    public int prelimDetectValue = 40;
 
 
     boolean enableArtifactManagement = true;
 
     Robot robot;
-    Transfer transfer;
+    UpgradedTransfer transfer;
     Servo internalLight;
 
     PredominantColorProcessor blobMaker(double left, double top, double right, double bottom, String name){
@@ -56,10 +56,10 @@ public class Endoscope extends BaseComponent {
         hardwareUtil = new HardwareUtil(log, hardwareMap);
         this.robot = robot;
 
-        frontBallSensor = blobMaker(-0.514867, -0.25, -0.317684, -0.53, "frontBallSensor");
-        centerBallSensor = blobMaker(-0.043, 0.15, 0.06, -.05, "centerBallSensor");
-        rearBallSensor = blobMaker(0.411581, -0.25, 0.605634, -0.53, "rearBallSensor");
-        prelimFrontSensor = blobMaker(-0.984351, 0.043841, -0.837246, -0.077244, "prelimFrontSensor");
+        frontBallSensor = blobMaker(-0.514867, -0.25, -0.317684, -0.35, "frontBallSensor");
+        centerBallSensor = blobMaker(0, 0.15, 0.1, -.05, "centerBallSensor");
+        rearBallSensor = blobMaker(0.411581, -0.25, 0.605634, -0.35, "rearBallSensor");
+        prelimFrontSensor = blobMaker(-0.94, 0.043841, -0.8, -0.077244, "prelimFrontSensor");
         prelimRearSensor = blobMaker(0.809077, 0.018789, 0.968701, -0.089770, "prelimRearSensor");
 
 
@@ -127,11 +127,12 @@ public class Endoscope extends BaseComponent {
      3 = unknown
      **/
     public int getPresence(int[] HSV){
-        if (HSV[1] < 130){
+        if (HSV[2] < 80){
             return 0;
-        } else if (HSV[0] > 100) {
+        // plus or minus 20 from 130
+        } else if (Math.abs(HSV[0] - 130) < 20) {
             return 1;
-        } else if (HSV[0] <= 100){
+        } else if (Math.abs(HSV[0] - 80) < 20){
             return 2;
         } else {
             return 3;

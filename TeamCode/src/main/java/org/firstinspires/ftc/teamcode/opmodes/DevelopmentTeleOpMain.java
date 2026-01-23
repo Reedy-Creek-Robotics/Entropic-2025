@@ -31,7 +31,7 @@ public class DevelopmentTeleOpMain extends OpMode {
 
     Follower follower;
     
-    Transfer transfer;
+    UpgradedTransfer transfer;
     Endoscope endoscope;
     Boolean serving = false;
 
