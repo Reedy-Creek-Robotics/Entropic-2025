@@ -304,6 +304,7 @@ public class Robot extends BaseComponent{
             context.alliance = alliance;
             turret.setPositionTicks(posT);
             //ToDo: Jonathan, add logic here to get pattern and balls into the ball management system
+            //      can now do that via robot context
         }
 
             // Now that the position has been consumed, remove the file
