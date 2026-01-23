@@ -237,12 +237,12 @@ public class Turret extends BaseComponent{
 
     private void setTargetDegrees(){
 //        log.debug("settargetdegrees");
-        while(targetDeg > maxHeading){
+        if(targetDeg > maxHeading){
             log.warn("target over max heading");
             targetDeg = Math.min((targetDeg - 360), maxHeading);
         }
 
-        while(targetDeg < minHeading){
+        if(targetDeg < minHeading){
             log.warn("target under min heading");
             targetDeg = Math.max((targetDeg + 360), minHeading);
         }

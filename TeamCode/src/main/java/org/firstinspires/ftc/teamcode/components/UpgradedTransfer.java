@@ -103,6 +103,8 @@ public class UpgradedTransfer extends BaseComponent {
         switch (ballState){
             case 0:
             case 6:
+                log.debug("swapSide | presuming incorrect ballState, setting to 3");
+                ballState = 3;
                 break;
             case 1:
                 robot.executeCommand(new RollersUntilSensor(1, -1, endoscope.getRearBallSensor(), 2, "swapSide bS=1 | front to rear"));

@@ -83,7 +83,7 @@ public class TeloOpMain extends OpMode {
         robot.getDriveTrain().drive(drive, strafe, turn);
 
         //intake, outake, purge -.5, and shoot .5
-        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER));
+        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) - (driver.isButtonDown(Controller.Button.NORTH) ? -.5 : 0));
 
         //shoot run rollers up
         if(driver.isButtonDown(Controller.Button.SOUTH)){
@@ -174,7 +174,7 @@ public class TeloOpMain extends OpMode {
 
         //reset imu
         if(meta.isPressed(Controller.Button.EAST)){
-            robot.setPose(new Pose(robot.getPose().getX(), robot.getPose().getY(), Math.toRadians(0)));
+            robot.setPose(new Pose(robot.getPose().getX(), robot.getPose().getY(), Math.toRadians(90)));
         }
 
 
