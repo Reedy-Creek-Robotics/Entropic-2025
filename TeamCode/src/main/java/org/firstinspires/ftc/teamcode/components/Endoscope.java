@@ -138,6 +138,12 @@ public class Endoscope extends BaseComponent {
         }
     }
 
+    /*
+        100 black
+        130 P
+        80 G
+     */
+
     public PredominantColorProcessor getFrontBallSensor() {
         return frontBallSensor;
     }
