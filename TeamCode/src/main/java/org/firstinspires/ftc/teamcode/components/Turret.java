@@ -37,8 +37,8 @@ public class Turret extends BaseComponent{
     LogCatUtil log;
     HardwareUtil hardwareUtil;
 
-    static double PIDF_P = 10;
-    static int ticksToMaxPower = 100;
+    static PIDFCoefficients pidf = new PIDFCoefficients(30, 0, 0, 0);
+    static int ticksToMaxPower = 150;
 
     /**
      * Will be appended to the prefix defined in LogCatUtil
@@ -107,7 +107,6 @@ public class Turret extends BaseComponent{
      */
     DcMotorEx turretMotor;
     Follower follower;
-    TouchSensor resetSwitch;
 
     private Position cameraPosition = new Position(DistanceUnit.INCH,
             0, -8.423, 14.97, 0);
@@ -169,7 +168,6 @@ public class Turret extends BaseComponent{
         //initAprilTag();
 
         turretMotor = hardwareUtil.getMotorEx("turret");
-        resetSwitch = hardwareUtil.getTouchSensor("resetSwitch");
 
         this.robot = robot;
     }
@@ -218,8 +216,9 @@ public class Turret extends BaseComponent{
     public void update(){
         curPos = robot.getPose();
         turretPos = turretMotor.getCurrentPosition() + turretOffset;
-//        turretMotor.setPositionPIDFCoefficients(PIDF_P);
+        turretMotor.setVelocityPIDFCoefficients(pidf.p, pidf.i, pidf.d, pidf.f);
 
+        // no change for this whole if block
         if (alliance) {
             if (curPos.getY() < 48) {
                 targetGoal = blueGoalBack;
@@ -236,11 +235,7 @@ public class Turret extends BaseComponent{
 
         if(autoAim) { otosAutoAim(); setTargetDegrees();}
 
-        if(resetSwitch.isPressed()){
-            resetEncoder();
-        }
-
-        // select the goal aim position based on shooting zone and alliance
+//         select the goal aim position based on shooting zone and alliance
         if(autoMove) {
             switch (moveMethod) {
                 case 0:
@@ -263,6 +258,7 @@ public class Turret extends BaseComponent{
         telemetry.addLine(String.format("Real Pos: %d | Offset: %d", turretMotor.getCurrentPosition(), turretOffset));
         telemetry.addLine(String.format("Turret Pos: %3.1f / %3.1f  (deg)", getPositionDegrees(), targetDeg));
         telemetry.addLine(String.format("Theta: %2.2f  (deg)", Math.toDegrees(theta)));
+        telemetry.addData("Turret power", turretMotor.getPower());
     }
 
     /**
@@ -388,13 +384,17 @@ public class Turret extends BaseComponent{
     }
 
     private void moveP(){
-        turretMotor.setPower(Math.max(
-                Math.min(
-                        ((-2.0)/(-2*ticksToMaxPower) * (targetPos - turretPos)),
-                        0.2),
-                -0.2
-                )
-        );
+        if(Math.abs(targetPos - turretPos) > 5){
+            turretMotor.setPower(Math.max(
+                    Math.min(
+                            ((-2.0)/(-2*ticksToMaxPower) * (targetPos - turretPos)),
+                            1),
+                    -1
+                    )
+            );
+        }else{
+            turretMotor.setPower(0);
+        }
     }
 
     public boolean setAutoAim(boolean autoAim){

@@ -20,12 +20,7 @@ public abstract class GoalFull extends AutoMain {
     @Override
     public void runPath() {
 
-        if(opmodeTimer.getElapsedTime() > 28500){
-            robot.stopAllCommands();
-            follower.followPath(follower.pathBuilder().addPath(new BezierLine(
-                    follower.getPose(),
-                    paths.parking.endPose()
-            )).build());
+        if(opmodeTimer.getElapsedTime() > 28500 && pathState < 15){
             pathState = 15;
         }
 
@@ -125,12 +120,21 @@ public abstract class GoalFull extends AutoMain {
                 break;
             case 14:
                 if(!robot.isBusy()){
-                    robot.getIntake().setIntakePower(0);
-                    follower.followPath(paths.parking);
-                    pathState = 999;
+                    pathState = 15;
                 }
                 break;
             case 15:
+                robot.getIntake().setIntakePower(0);
+                follower.followPath(
+                        follower.pathBuilder().addPath(
+                                new BezierLine(
+                                        follower.getPose(),
+                                        paths.parking.endPose()
+                                )
+                        ).build()
+                );
+                pathState = 16;
+            case 16:
                 if(!follower.isBusy()){
                     robot.stopAllCommands();
                     running = false;
