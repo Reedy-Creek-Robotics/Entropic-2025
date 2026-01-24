@@ -37,8 +37,8 @@ public class Turret extends BaseComponent{
     LogCatUtil log;
     HardwareUtil hardwareUtil;
 
-    static double PIDF_P = 10;
-    static int ticksToMaxPower = 100;
+    static PIDFCoefficients pidf = new PIDFCoefficients(30, 0, 0, 0);
+    static int ticksToMaxPower = 150;
 
     /**
      * Will be appended to the prefix defined in LogCatUtil
@@ -107,7 +107,6 @@ public class Turret extends BaseComponent{
      */
     DcMotorEx turretMotor;
     Follower follower;
-    TouchSensor resetSwitch;
 
     private Position cameraPosition = new Position(DistanceUnit.INCH,
             0, -8.423, 14.97, 0);
@@ -151,6 +150,12 @@ public class Turret extends BaseComponent{
 
     boolean autoAim = true;
     boolean autoMove = true;
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     */
+    boolean alliance = false;
+
     public Turret(RobotContext context, Robot robot) {
         super(context);
 
@@ -163,7 +168,6 @@ public class Turret extends BaseComponent{
         //initAprilTag();
 
         turretMotor = hardwareUtil.getMotorEx("turret");
-        resetSwitch = hardwareUtil.getTouchSensor("resetSwitch");
 
         this.robot = robot;
     }
@@ -188,7 +192,23 @@ public class Turret extends BaseComponent{
 
         curPos = robot.getPose();
 
-        updateTargetGoal();
+        if (alliance) {
+            if (curPos.getY() < 48) {
+                targetGoal = blueGoalBack;
+//                log.debug("goal: " + targetGoal.toString());
+            } else {
+                targetGoal = blueGoal;
+//                log.debug("goal: " + targetGoal.toString());
+            }
+        } else {
+            if (curPos.getY() < 48) {
+                targetGoal = redGoalBack;
+//                log.debug("goal: " + targetGoal.toString());
+            } else {
+                targetGoal = redGoal;
+//                log.debug("goal: " + targetGoal.toString());
+            }
+        }
     }
 
     @SuppressLint("DefaultLocale")
@@ -196,17 +216,26 @@ public class Turret extends BaseComponent{
     public void update(){
         curPos = robot.getPose();
         turretPos = turretMotor.getCurrentPosition() + turretOffset;
-//        turretMotor.setPositionPIDFCoefficients(PIDF_P);
+        turretMotor.setVelocityPIDFCoefficients(pidf.p, pidf.i, pidf.d, pidf.f);
 
-        updateTargetGoal();
+        // no change for this whole if block
+        if (alliance) {
+            if (curPos.getY() < 48) {
+                targetGoal = blueGoalBack;
+            } else {
+                targetGoal = blueGoal;
+            }
+        } else {
+            if (curPos.getY() < 48) {
+                targetGoal = redGoalBack;
+            } else {
+                targetGoal = redGoal;
+            }
+        }
 
         if(autoAim) { otosAutoAim(); setTargetDegrees();}
 
-        if(resetSwitch.isPressed()){
-            resetEncoder();
-        }
-
-        // select the goal aim position based on shooting zone and alliance
+//         select the goal aim position based on shooting zone and alliance
         if(autoMove) {
             switch (moveMethod) {
                 case 0:
@@ -229,7 +258,25 @@ public class Turret extends BaseComponent{
         telemetry.addLine(String.format("Real Pos: %d | Offset: %d", turretMotor.getCurrentPosition(), turretOffset));
         telemetry.addLine(String.format("Turret Pos: %3.1f / %3.1f  (deg)", getPositionDegrees(), targetDeg));
         telemetry.addLine(String.format("Theta: %2.2f  (deg)", Math.toDegrees(theta)));
+        telemetry.addData("Turret power", turretMotor.getPower());
     }
+
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     */
+    public void setAlliance(boolean newAlliance){
+        alliance = newAlliance;
+    }
+
+    /**
+     * false - red (tag 24)<br>
+     * true - blue (tag 20)
+     */
+    public boolean getAlliance(){
+        return alliance;
+    }
+
     private void setTargetDegrees(double newTarget){
         targetDeg = newTarget;
         setTargetDegrees();
@@ -237,12 +284,12 @@ public class Turret extends BaseComponent{
 
     private void setTargetDegrees(){
 //        log.debug("settargetdegrees");
-        if(targetDeg > maxHeading){
+        while(targetDeg > maxHeading){
             log.warn("target over max heading");
             targetDeg = Math.min((targetDeg - 360), maxHeading);
         }
 
-        if(targetDeg < minHeading){
+        while(targetDeg < minHeading){
             log.warn("target under min heading");
             targetDeg = Math.max((targetDeg + 360), minHeading);
         }
@@ -268,6 +315,7 @@ public class Turret extends BaseComponent{
     }
 
     private void otosAutoAim(){
+
 //        theta = Math.tanh(((context.alliance ? blueGoal.getY() : redGoal.getY()) - curPos.getY()) / ((context.alliance ? blueGoal.getX() : redGoal.getX()) - curPos.getX()));
         theta = Math.atan2(targetGoal.getY() - curPos.getY(), targetGoal.getX() - curPos.getX());
         // We subtract the theta from the heading to account for robot rotation.
@@ -287,7 +335,7 @@ public class Turret extends BaseComponent{
     }
 
     private void tagAutoAim(){
-        tag = context.getAlliance() ? getTag20() : getTag24();
+        tag = context.alliance ? getTag20() : getTag24();
         if(tag != null){
             targetDeg = tag.ftcPose.bearing;
         } else{
@@ -296,7 +344,7 @@ public class Turret extends BaseComponent{
     }
 
     private void tagOtosAutoAim(){
-        tag = context.getAlliance() ? getTag20() : getTag24();
+        tag = context.alliance ? getTag20() : getTag24();
         // Will use the otos if frame has already been used, or if no tag is found.
         if(tag == null){
             otosAutoAim();
@@ -306,7 +354,7 @@ public class Turret extends BaseComponent{
     }
 
     private void otosRelocalizeAutoAim(){
-        tag = context.getAlliance() ? getTag20() : getTag24();
+        tag = context.alliance ? getTag20() : getTag24();
         // Will use the otos if frame has already been used, or if no tag is found.
         if(tag == null){
             otosAutoAim();
@@ -336,13 +384,17 @@ public class Turret extends BaseComponent{
     }
 
     private void moveP(){
-        turretMotor.setPower(Math.max(
-                Math.min(
-                        ((-2.0)/(-2*ticksToMaxPower) * (targetPos - turretPos)),
-                        0.2),
-                -0.2
-                )
-        );
+        if(Math.abs(targetPos - turretPos) > 5){
+            turretMotor.setPower(Math.max(
+                    Math.min(
+                            ((-2.0)/(-2*ticksToMaxPower) * (targetPos - turretPos)),
+                            1),
+                    -1
+                    )
+            );
+        }else{
+            turretMotor.setPower(0);
+        }
     }
 
     public boolean setAutoAim(boolean autoAim){
@@ -356,21 +408,6 @@ public class Turret extends BaseComponent{
         return autoAim;
     }
 
-    public void updateTargetGoal() {
-        if (context.getAlliance()) {
-            if (curPos.getY() < 48) {
-                targetGoal = blueGoalBack;
-            } else {
-                targetGoal = blueGoal;
-            }
-        } else {
-            if (curPos.getY() < 48) {
-                targetGoal = redGoalBack;
-            } else {
-                targetGoal = redGoal;
-            }
-        }
-    }
     public Pose getTargetGoal(){return targetGoal;};
 
     private void initAprilTag() {

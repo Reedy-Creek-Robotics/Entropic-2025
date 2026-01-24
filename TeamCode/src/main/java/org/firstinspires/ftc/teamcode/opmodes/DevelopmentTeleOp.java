@@ -15,12 +15,11 @@ import org.firstinspires.ftc.teamcode.components.BaseComponent;
 import org.firstinspires.ftc.teamcode.components.Endoscope;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.RobotContext;
-import org.firstinspires.ftc.teamcode.components.Transfer;
 import org.firstinspires.ftc.teamcode.components.UpgradedTransfer;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
 @TeleOp(name = " Development Tele Op", group = "!Main")
-public class DevelopmentTeleOpMain extends OpMode {
+public class DevelopmentTeleOp extends OpMode {
 
     RobotContext robotContext;
     Robot robot;
