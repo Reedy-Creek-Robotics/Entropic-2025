@@ -28,6 +28,17 @@ public class RobotContext {
      */
     public boolean alliance;
 
+    /**
+     * 0 - unknown pattern
+     * 1 - G P P
+     * 2 - P G P
+     * 3 - P P G
+     */
+    public int pattern;
+
+    /** The number of balls in the classifier*/
+    public int ballsClassified;
+
     List<Integer> lastTrackingEncPositions = new ArrayList<>();
     List<Integer> lastTrackingEncVels = new ArrayList<>();
     public RobotContext(OpMode opMode, RobotDescriptor descriptor) {
@@ -66,9 +77,24 @@ public class RobotContext {
      * true - blue (tag 20)
      * @return alliance as a boolean
      */
-    public boolean getAlliance() {
-        return alliance;
-    }
+    public boolean getAlliance() {return alliance;}
+    public void setAlliance(boolean newAlliance) {this.alliance = newAlliance;}
+
+    /**
+     * 0 - unknown pattern <br>
+     * 1 - G P P <br>
+     * 2 - P G P <br>
+     * 3 - P P G
+     */
+    public int getPattern() {return this.pattern;}
+    public void setPattern(int newPattern) {this.pattern = newPattern;}
+
+    /**
+     * @return the number of balls the robot believes are in the classifier
+     */
+    public int getBallsClassified() {return this.ballsClassified;}
+    public void setBallsClassified(int newBallsClassified) {this.ballsClassified = newBallsClassified;}
+    public int incrementBallsClassified(int ballsShot) {return this.ballsClassified += ballsShot;}
 
     /*public enum Alliance{
         BLUE(1,-90),

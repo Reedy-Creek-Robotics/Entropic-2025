@@ -97,7 +97,7 @@ public class Shooter extends BaseComponent {
     @Override
     public void update() {
         // 0.2ms
-        goalPosition = robot.getTurret().getAlliance() ? Turret.blueGoal : Turret.redGoal;
+        goalPosition = robot.getTurret().getTargetGoal();
 
         if(autoSpeed) {
 //             effectively nothing?

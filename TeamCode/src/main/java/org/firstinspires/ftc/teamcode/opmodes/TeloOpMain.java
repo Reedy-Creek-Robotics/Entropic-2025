@@ -42,9 +42,11 @@ public class TeloOpMain extends OpMode {
     Boolean serving = false;
 
     //Pose startPose = new Pose(112, 134.5, Math.toRadians(0)); // Start Pose of our robot.
-    Pose largeZoneReset = new Pose(96, 96, Math.toRadians(90)); // share button
+//    Pose largeZoneReset = new Pose(96, 96, Math.toRadians(90)); // share button
+    Pose largeZoneResetRed = new Pose(96, 96, Math.toRadians(90)); // share button
+    Pose largeZoneResetBlue = new Pose(48, 96, Math.toRadians(90)); // share button
     Pose smallZoneReset = new Pose(72, 24, Math.toRadians(90)); // options button
-    Pose startPose = largeZoneReset;
+    Pose startPose;
 
     @Override
     public void init() {
@@ -63,6 +65,8 @@ public class TeloOpMain extends OpMode {
 
         follower = robot.getDriveTrain().getFollower();
 
+        startPose = robot.getRobotContext().getAlliance() ? largeZoneResetBlue: largeZoneResetRed;
+
         follower.setPose(startPose);
 
 //        robot.loadStateFromDisk();
@@ -79,7 +83,7 @@ public class TeloOpMain extends OpMode {
         robot.getDriveTrain().drive(drive, strafe, turn);
 
         //intake, outake, purge -.5, and shoot .5
-        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER));
+        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) - (driver.isButtonDown(Controller.Button.NORTH) ? -.5 : 0));
 
         //shoot run rollers up
         if(driver.isButtonDown(Controller.Button.SOUTH)){
@@ -131,16 +135,21 @@ public class TeloOpMain extends OpMode {
         }
         // set alliances
         if(meta.isPressed(Controller.Button.SHARE)){
-            robotContext.alliance = true;
-            robot.getTurret().setAlliance(true);
+//            robotContext.alliance = true;
+            robot.getRobotContext().setAlliance(true);
         }
         if(meta.isPressed(Controller.Button.OPTIONS)){
-            robotContext.alliance = false;
-            robot.getTurret().setAlliance(false);
+//            robotContext.alliance = false;
+            robot.getRobotContext().setAlliance(false);
         }
         //re-localize @ goal zone
         if(meta.isPressed(Controller.Button.NORTH)){
-            robot.getDriveTrain().getFollower().setPose(new Pose(largeZoneReset.getX(), largeZoneReset.getY(), robot.getPose().getHeading()));
+            if (robot.getRobotContext().getAlliance()) {
+                robot.getDriveTrain().getFollower().setPose(new Pose(largeZoneResetBlue.getX(), largeZoneResetBlue.getY(), robot.getPose().getHeading()));
+            } else {
+                robot.getDriveTrain().getFollower().setPose(new Pose(largeZoneResetRed.getX(), largeZoneResetRed.getY(), robot.getPose().getHeading()));
+            }
+//            robot.getDriveTrain().getFollower().setPose(new Pose(largeZoneReset.getX(), largeZoneReset.getY(), robot.getPose().getHeading()));
         //re-localize @ far zone
         }if(meta.isPressed(Controller.Button.SOUTH)){
             robot.getDriveTrain().getFollower().setPose(new Pose(smallZoneReset.getX(), smallZoneReset.getY(), robot.getPose().getHeading()));
@@ -165,7 +174,7 @@ public class TeloOpMain extends OpMode {
 
         //reset imu
         if(meta.isPressed(Controller.Button.EAST)){
-            robot.setPose(new Pose(robot.getPose().getX(), robot.getPose().getY(), Math.toRadians(0)));
+            robot.setPose(new Pose(robot.getPose().getX(), robot.getPose().getY(), Math.toRadians(90)));
         }
 
 

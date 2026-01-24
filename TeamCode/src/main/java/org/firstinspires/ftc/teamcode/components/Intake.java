@@ -40,12 +40,6 @@ public class Intake extends BaseComponent{
     Robot robot;
 
     /**
-     * false - red (tag 24)<br>
-     * true - blue (tag 20)
-     */
-    boolean alliance;
-
-    /**
      * Will be appended to the prefix defined in LogCatUtil
      */
     static String logTag = "Intake";
@@ -56,8 +50,6 @@ public class Intake extends BaseComponent{
         log = new LogCatUtil(logTag);
 
         hardwareUtil = new HardwareUtil(log, hardwareMap);
-
-        this.alliance = context.alliance;
 
         this.robot = robot;
 

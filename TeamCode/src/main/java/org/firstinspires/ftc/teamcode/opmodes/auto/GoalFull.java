@@ -12,7 +12,7 @@ public abstract class GoalFull extends AutoMain {
     public void initAuto(){
         robot.getEndoscope().setEnableArtifactManagement(false);
         robot.getTurret().setAutoAim(false);
-        robot.getTurret().setAlliance(alliance);
+        robot.getRobotContext().setAlliance(alliance);
         robot.getShooter().setAutoSpeed(false);
         follower.setStartingPose(paths.shootPreload.getPose(new PathChain.PathT(0, 0)));
     }

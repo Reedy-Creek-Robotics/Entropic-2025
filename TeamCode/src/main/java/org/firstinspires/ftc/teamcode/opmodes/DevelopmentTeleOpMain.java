@@ -122,7 +122,7 @@ public class DevelopmentTeleOpMain extends OpMode {
 
 
         if(driver.isPressed(Controller.Button.TOUCH_PAD)){
-            robotContext.alliance = !robotContext.alliance;
+            robotContext.setAlliance(!robotContext.getAlliance());
         }
 
         telemetry.addData("alliance", robotContext.getAlliance());
