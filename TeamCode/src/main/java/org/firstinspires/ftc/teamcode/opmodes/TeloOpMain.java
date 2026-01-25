@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.*;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,7 +13,6 @@ import org.firstinspires.ftc.teamcode.components.Robot;
 
 import org.firstinspires.ftc.teamcode.components.BaseComponent;
 import org.firstinspires.ftc.teamcode.components.RobotContext;
-import org.firstinspires.ftc.teamcode.components.Transfer;
 import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.components.UpgradedTransfer;
 import org.firstinspires.ftc.teamcode.game.ColorValue;
@@ -42,11 +40,10 @@ public class TeloOpMain extends OpMode {
     Boolean serving = false;
 
     //Pose startPose = new Pose(112, 134.5, Math.toRadians(0)); // Start Pose of our robot.
-//    Pose largeZoneReset = new Pose(96, 96, Math.toRadians(90)); // share button
-    Pose largeZoneResetRed = new Pose(96, 96, Math.toRadians(90)); // share button
-    Pose largeZoneResetBlue = new Pose(48, 96, Math.toRadians(90)); // share button
+    Pose redLargeZoneReset = new Pose(96, 96, Math.toRadians(90)); // share button
+    Pose blueLargeZoneReset = new Pose(48, 96, Math.toRadians(90)); // share button
     Pose smallZoneReset = new Pose(72, 24, Math.toRadians(90)); // options button
-    Pose startPose;
+    Pose startPose = redLargeZoneReset;
 
     @Override
     public void init() {
@@ -65,8 +62,6 @@ public class TeloOpMain extends OpMode {
 
         follower = robot.getDriveTrain().getFollower();
 
-        startPose = robot.getRobotContext().getAlliance() ? largeZoneResetBlue: largeZoneResetRed;
-
         follower.setPose(startPose);
 
 //        robot.loadStateFromDisk();
@@ -83,7 +78,7 @@ public class TeloOpMain extends OpMode {
         robot.getDriveTrain().drive(drive, strafe, turn);
 
         //intake, outake, purge -.5, and shoot .5
-        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER) - (driver.isButtonDown(Controller.Button.NORTH) ? -.5 : 0));
+        robot.getIntake().setIntakePower(driver.analogValue(RIGHT_TRIGGER) - driver.analogValue(LEFT_TRIGGER));
 
         //shoot run rollers up
         if(driver.isButtonDown(Controller.Button.SOUTH)){
@@ -135,21 +130,21 @@ public class TeloOpMain extends OpMode {
         }
         // set alliances
         if(meta.isPressed(Controller.Button.SHARE)){
-//            robotContext.alliance = true;
-            robot.getRobotContext().setAlliance(true);
+            robotContext.alliance = true;
+            robot.getTurret().setAlliance(true);
         }
         if(meta.isPressed(Controller.Button.OPTIONS)){
-//            robotContext.alliance = false;
-            robot.getRobotContext().setAlliance(false);
+            robotContext.alliance = false;
+            robot.getTurret().setAlliance(false);
         }
         //re-localize @ goal zone
         if(meta.isPressed(Controller.Button.NORTH)){
-            if (robot.getRobotContext().getAlliance()) {
-                robot.getDriveTrain().getFollower().setPose(new Pose(largeZoneResetBlue.getX(), largeZoneResetBlue.getY(), robot.getPose().getHeading()));
-            } else {
-                robot.getDriveTrain().getFollower().setPose(new Pose(largeZoneResetRed.getX(), largeZoneResetRed.getY(), robot.getPose().getHeading()));
+            // If alliance is blue, reset for blue. Else reset for red
+            if(robot.getTurret().getAlliance()){
+                robot.getDriveTrain().getFollower().setPose(new Pose(blueLargeZoneReset.getX(), blueLargeZoneReset.getY(), robot.getPose().getHeading()));
+            }else{
+                robot.getDriveTrain().getFollower().setPose(new Pose(redLargeZoneReset.getX(), redLargeZoneReset.getY(), robot.getPose().getHeading()));
             }
-//            robot.getDriveTrain().getFollower().setPose(new Pose(largeZoneReset.getX(), largeZoneReset.getY(), robot.getPose().getHeading()));
         //re-localize @ far zone
         }if(meta.isPressed(Controller.Button.SOUTH)){
             robot.getDriveTrain().getFollower().setPose(new Pose(smallZoneReset.getX(), smallZoneReset.getY(), robot.getPose().getHeading()));

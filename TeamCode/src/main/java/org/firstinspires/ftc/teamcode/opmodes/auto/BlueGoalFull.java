@@ -20,7 +20,6 @@ public class BlueGoalFull extends GoalFull{
         super.initRobot();
     }
 
-
     public static class Paths extends GoalFull.Paths {
 
         @Override
@@ -43,7 +42,8 @@ public class BlueGoalFull extends GoalFull{
                                     new Pose(42.000, 90.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
-                    .setBrakingStart(2)
+                    .setBrakingStart(3)
+                    .setBrakingStrength(2)
                     .build();
 
             pickupBallSet1 = follower.pathBuilder().addPath(
@@ -74,6 +74,7 @@ public class BlueGoalFull extends GoalFull{
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .setBrakingStart(3)
+                    .setBrakingStrength(2)
                     .build();
 
             pickupBallSet2 = follower.pathBuilder().addPath(
@@ -104,36 +105,31 @@ public class BlueGoalFull extends GoalFull{
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .setBrakingStart(3)
+                    .setBrakingStrength(2)
                     .build();
 
             pickupBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(42.000, 42.000),
-
                                     new Pose(15.000, 42.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
-
                     .build();
 
             shootBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(15.000, 42.000),
-
                                     new Pose(48.000, 96.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
-
                     .build();
 
             parking = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(48.000, 96.000),
-
                                     new Pose(24.000, 96.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
-
                     .build();
         }
 

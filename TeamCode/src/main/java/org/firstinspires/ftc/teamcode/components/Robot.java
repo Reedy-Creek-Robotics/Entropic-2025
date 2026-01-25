@@ -150,7 +150,7 @@ public class Robot extends BaseComponent{
         // Update telemetry once per iteration after all components have been called.
         telemetry.update(ftcTelemetry);
 
-        logCurrents();
+//        logCurrents(); //Takes a long time to execute, leave commented when not needed
     }
     
     private void logCurrents(){
