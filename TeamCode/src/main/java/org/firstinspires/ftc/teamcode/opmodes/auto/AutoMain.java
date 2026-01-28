@@ -8,6 +8,7 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
@@ -35,7 +36,11 @@ public abstract class AutoMain extends LinearOpMode {
         initRobot();
         buildPaths();
         initAuto();
-        panelsTelemetry.addLine("Waiting for start...");
+        telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML);
+        for(int i = 0; i < 10; i++) {
+            telemetry.addLine("<font color=\"" + (alliance ? "blue" : "red") + "\"> ALLIANCE </font>");
+        }
+        panelsTelemetry.update(telemetry);
 
         waitForStart();
         opmodeTimer.resetTimer();
