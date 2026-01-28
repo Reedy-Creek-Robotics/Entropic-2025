@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.components.DualShooter;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.Shooter;
 import org.firstinspires.ftc.teamcode.game.Controller;
@@ -27,7 +28,7 @@ public class ShooterTester extends OpMode {
 
     Controller controller;
 
-    Shooter shooter;
+    DualShooter shooter;
 
     Robot robot;
 
@@ -112,7 +113,7 @@ public class ShooterTester extends OpMode {
 
         if(active){
             shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            shooter.setDirection (reversed ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+            shooter.setDirection(reversed ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
             shooter.setVelocity((int) power);
         }else{
             shooter.setVelocity(0);
@@ -124,7 +125,7 @@ public class ShooterTester extends OpMode {
          */
 
         panelsTelem.addData("Velocity", shooter.getVelocity());
-        telemetry.addData("Current", shooter.getShooterCurrent());
+        telemetry.addData("Current", shooter.getCombinedCurrent());
         telemetry.addData("Voltage", voltage.getVoltage());
         telemetry.addData("Avg Inactive", avgInactiveCurrent);
         telemetry.addData("Shoot Timer", shootTimer.milliseconds());

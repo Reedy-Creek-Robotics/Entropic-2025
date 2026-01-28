@@ -46,8 +46,8 @@ public class Turret extends BaseComponent{
     static String logTag = "Turret";
 
     // Must be at least 360 degrees
-    static double maxHeading = 90;
-    static double minHeading = -180;
+    static double maxHeading = 180;
+    static double minHeading = -135;
 
     static double fx = 595.21, fy = 595.21, cx = 984.515, cy = 599.035; //ToDo: Fix these
     /**
@@ -155,6 +155,7 @@ public class Turret extends BaseComponent{
      * true - blue (tag 20)
      */
     boolean alliance = false;
+    boolean inRange = false;
 
     public Turret(RobotContext context, Robot robot) {
         super(context);
@@ -187,6 +188,7 @@ public class Turret extends BaseComponent{
 //        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turretMotor.setVelocityPIDFCoefficients(pidf.p, pidf.i, pidf.d, pidf.f);
 
         follower = robot.getDriveTrain().getFollower();
 
@@ -216,7 +218,7 @@ public class Turret extends BaseComponent{
     public void update(){
         curPos = robot.getPose();
         turretPos = turretMotor.getCurrentPosition() + turretOffset;
-        turretMotor.setVelocityPIDFCoefficients(pidf.p, pidf.i, pidf.d, pidf.f);
+//        turretMotor.setVelocityPIDFCoefficients(pidf.p, pidf.i, pidf.d, pidf.f);
 
         // no change for this whole if block
         if (alliance) {
@@ -261,6 +263,10 @@ public class Turret extends BaseComponent{
         telemetry.addData("Turret power", turretMotor.getPower());
     }
 
+    public boolean isInRange(){
+        return inRange;
+    }
+
     /**
      * false - red (tag 24)<br>
      * true - blue (tag 20)
@@ -284,14 +290,17 @@ public class Turret extends BaseComponent{
 
     private void setTargetDegrees(){
 //        log.debug("settargetdegrees");
-        while(targetDeg > maxHeading){
+        inRange = true;
+        if(targetDeg > maxHeading){
             log.warn("target over max heading");
             targetDeg = Math.min((targetDeg - 360), maxHeading);
+            if((targetDeg - 360) > maxHeading) {inRange = false;}
         }
 
-        while(targetDeg < minHeading){
+        if(targetDeg < minHeading){
             log.warn("target under min heading");
             targetDeg = Math.max((targetDeg + 360), minHeading);
+            if((targetDeg + 360) < minHeading) {inRange = false;}
         }
 
         targetPos = targetDeg * effectiveTicksPerDeg;
@@ -345,7 +354,7 @@ public class Turret extends BaseComponent{
 
     private void tagOtosAutoAim(){
         tag = context.alliance ? getTag20() : getTag24();
-        // Will use the otos if frame has already been used, or if no tag is found.
+        // Will use the otos if frame has already been used, or if no tag is` found.
         if(tag == null){
             otosAutoAim();
         }else{
@@ -384,7 +393,7 @@ public class Turret extends BaseComponent{
     }
 
     private void moveP(){
-        if(Math.abs(targetPos - turretPos) > 5){
+        if(Math.abs(targetPos - turretPos) > 1){
             turretMotor.setPower(Math.max(
                     Math.min(
                             ((-2.0)/(-2*ticksToMaxPower) * (targetPos - turretPos)),

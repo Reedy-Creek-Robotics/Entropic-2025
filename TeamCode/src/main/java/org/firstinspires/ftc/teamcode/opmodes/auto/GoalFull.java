@@ -13,14 +13,15 @@ public abstract class GoalFull extends AutoMain {
         robot.getEndoscope().setEnableArtifactManagement(false);
         robot.getTurret().setAutoAim(false);
         robot.getRobotContext().setAlliance(alliance);
-        robot.getShooter().setAutoSpeed(false);
+//        robot.getShooter().setAutoSpeed(false);
+        robot.setUseTelemetry(true);
         follower.setStartingPose(paths.shootPreload.getPose(new PathChain.PathT(0, 0)));
     }
 
     @Override
     public void runPath() {
 
-        if(opmodeTimer.getElapsedTime() > 28500 && pathState < 15){
+        if(opmodeTimer.getElapsedTime() > 29590 && pathState < 15){
             pathState = 15;
         }
 
@@ -32,13 +33,6 @@ public abstract class GoalFull extends AutoMain {
                 pathState++;
                 break;
             case 1:
-            case 5:
-            case 9:
-            case 13:
-                if(!follower.isBusy() && robot.isBusy()){
-                    robot.getEndoscope().setEnableArtifactManagement(false);
-                    robot.stopAllCommands();
-                }
                 if(!follower.isBusy() && !robot.isBusy()){
                     robot.getTransfer().rollersForTime(1, 1500);
                     robot.getIntake().runIntakeCommand(1);
@@ -48,6 +42,7 @@ public abstract class GoalFull extends AutoMain {
                 break;
             case 2:
                 if(!robot.isBusy()){
+                    robot.getTurret().setAutoAim(true);
                     robot.getIntake().setIntakePower(0);
                     robot.getTurret().setTargetFromPose(paths.shootBallSet1.endPose());
                     follower.followPath(paths.alignWithBallSet1, true);
@@ -58,7 +53,7 @@ public abstract class GoalFull extends AutoMain {
                 if(!follower.isBusy()){
                     robot.getEndoscope().setEnableArtifactManagement(true);
                     robot.getIntake().setIntakePower(1);
-                    follower.followPath(paths.pickupBallSet1, 0.75, true);
+                    follower.followPath(paths.pickupBallSet1, 0.5, true);
                     pathState++;
                 }
                 break;
@@ -70,8 +65,23 @@ public abstract class GoalFull extends AutoMain {
                     pathState++;
                 }
                 break;
+            case 5:
+            case 9:
+            case 13:
+                if(!follower.isBusy()){
+                    robot.getTransfer().rollersForTime(1, 2000);
+                    robot.getIntake().runIntakeCommand(1);
+                    robot.getTransfer().rollersForTime(1, 2000);
+                    pathState++;
+                }
+                break;
             case 6:
                 if(!robot.isBusy()){
+                    robot.getTransfer().runFrontRoller(0);
+                    robot.getTransfer().runRearRoller(0);
+                    robot.getTransfer().setBallState(0);
+                    robot.getTransfer().setWaitForStateChange(false);
+
                     robot.getIntake().setIntakePower(0);
                     robot.getTurret().setTargetFromPose(paths.shootBallSet2.endPose());
                     follower.followPath(paths.alignWithBallSet2, true);
@@ -82,7 +92,7 @@ public abstract class GoalFull extends AutoMain {
                 if(!follower.isBusy()){
                     robot.getEndoscope().setEnableArtifactManagement(true);
                     robot.getIntake().setIntakePower(1);
-                    follower.followPath(paths.pickupBallSet2, 0.75, true);
+                    follower.followPath(paths.pickupBallSet2, 0.5, true);
                     pathState++;
                 }
                 break;
@@ -96,6 +106,11 @@ public abstract class GoalFull extends AutoMain {
                 break;
             case 10:
                 if(!robot.isBusy()){
+                    robot.getTransfer().runFrontRoller(0);
+                    robot.getTransfer().runRearRoller(0);
+                    robot.getTransfer().setBallState(0);
+                    robot.getTransfer().setWaitForStateChange(false);
+
                     robot.getIntake().setIntakePower(0);
                     robot.getTurret().setTargetFromPose(paths.shootBallSet3.endPose());
                     follower.followPath(paths.alignWithBallSet3, true);
@@ -106,7 +121,7 @@ public abstract class GoalFull extends AutoMain {
                 if(!follower.isBusy()){
                     robot.getEndoscope().setEnableArtifactManagement(true);
                     robot.getIntake().setIntakePower(1);
-                    follower.followPath(paths.pickupBallSet3, 0.75, true);
+                    follower.followPath(paths.pickupBallSet3, 0.5, true);
                     pathState++;
                 }
                 break;
@@ -120,6 +135,11 @@ public abstract class GoalFull extends AutoMain {
                 break;
             case 14:
                 if(!robot.isBusy()){
+                    robot.getTransfer().runFrontRoller(0);
+                    robot.getTransfer().runRearRoller(0);
+                    robot.getTransfer().setBallState(0);
+                    robot.getTransfer().setWaitForStateChange(false);
+                    
                     pathState = 15;
                 }
                 break;

@@ -38,7 +38,7 @@ public class Robot extends BaseComponent{
     // START COMPONENTS
     private DriveTrain driveTrain;
     private Turret turret;
-    private Shooter shooter;
+    private DualShooter shooter;
     private UpgradedTransfer transfer;
     private Endoscope endoscope;
 //    private Lighthouse lighthouse;
@@ -77,7 +77,7 @@ public class Robot extends BaseComponent{
         // START COMPONENTS
         driveTrain = new DriveTrain(context, this);
         turret = new Turret(context, this);
-        shooter = new Shooter(context, this);
+        shooter = new DualShooter(context, this);
         transfer = new UpgradedTransfer(context, this);
         endoscope = new Endoscope(context, this);
 //        lighthouse = new Lighthouse(context, this);
@@ -359,7 +359,7 @@ public class Robot extends BaseComponent{
     public Turret getTurret() {
         return turret;
     }
-    public Shooter getShooter() {
+    public DualShooter getShooter() {
         return shooter;
     }
     public UpgradedTransfer getTransfer(){

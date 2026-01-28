@@ -27,7 +27,7 @@ public class Transfer extends BaseComponent {
     private Servo rollerFront;
     private Servo rollerRear;
     private Endoscope endoscope;
-    private Shooter shooter;
+    private DualShooter shooter;
 
     LogCatUtil log;
     HardwareUtil hardwareUtil;
@@ -277,8 +277,8 @@ private class RollerUntilSensor implements Command {
 
         @Override
         public boolean update() {
-            telemetry.addLine("Serving Until Shot (" +  shooter.getShooterCurrent() + "/" + shooter.shotCurrent + ")");
-            return shooter.getShooterCurrent() > shooter.shotCurrent;
+            telemetry.addLine("Serving Until Shot (" +  shooter.getCombinedCurrent() + "/" + shooter.shotCurrent + ")");
+            return shooter.getCombinedCurrent() > shooter.shotCurrent;
         }
     }
 

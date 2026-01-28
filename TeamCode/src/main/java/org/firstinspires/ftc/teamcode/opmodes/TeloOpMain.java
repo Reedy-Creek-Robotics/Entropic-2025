@@ -92,6 +92,7 @@ public class TeloOpMain extends OpMode {
             serving = true;
             transfer.runFrontRoller(-1);
             transfer.runRearRoller(-1);
+            robot.getIntake().setIntakePower(-0.5);
             robot.stopAllCommands();
         }
         else if(driver.isButtonDown(Controller.Button.EAST)){
@@ -105,9 +106,11 @@ public class TeloOpMain extends OpMode {
         else{
             if(serving){
                 serving = false;
+                robot.stopAllCommands();
                 transfer.runFrontRoller(0);
                 transfer.runRearRoller(0);
                 transfer.setBallState(0);
+                transfer.setWaitForStateChange(false);
             }
         }
 
@@ -121,7 +124,11 @@ public class TeloOpMain extends OpMode {
             transfer.swapSide();
         }
 
-
+        if(!robot.getTurret().isInRange()){
+            driver.rumble(1, 1, 99999);
+        }else{
+            driver.rumble(0, 0, 99999);
+        }
 
         /* META CONTROLS */
         //toggle artifact management

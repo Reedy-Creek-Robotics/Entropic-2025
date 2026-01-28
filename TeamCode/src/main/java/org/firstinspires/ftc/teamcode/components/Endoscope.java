@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import android.app.UiModeManager;
 import android.util.Size;
 
 import com.qualcomm.robotcore.hardware.Servo;
@@ -33,14 +34,17 @@ public class Endoscope extends BaseComponent {
     PredominantColorProcessor.Result resultPrelimFront;
     PredominantColorProcessor.Result resultPrelimRear;
 
-    public int prelimDetectValue = 40;
-
+    public int prelimDetectValue = 70;
 
     boolean enableArtifactManagement = true;
+    boolean cameraSettingsSet = false;
 
     Robot robot;
     UpgradedTransfer transfer;
     Servo internalLight;
+
+    static int exposureMs = 32;
+    static int gain = 10;
 
     PredominantColorProcessor blobMaker(double left, double top, double right, double bottom, String name){
         return new PredominantColorProcessor.Builder()
@@ -77,7 +81,7 @@ public class Endoscope extends BaseComponent {
                 .build();
 
         internalLight = hardwareUtil.getServo("internalLight");
-        internalLight.setPosition(10);
+        internalLight.setPosition(1);
     }
 
     @Override
@@ -92,6 +96,16 @@ public class Endoscope extends BaseComponent {
         resultRear = rearBallSensor.getAnalysis();
         resultPrelimFront = prelimFrontSensor.getAnalysis();
         resultPrelimRear = prelimRearSensor.getAnalysis();
+
+        if(!cameraSettingsSet && portal.getCameraState() == VisionPortal.CameraState.STREAMING){
+            log.debug("Camera set. Expos: " + exposureMs + " Gain: " + gain);
+            portal.getCameraControl(ExposureControl.class).setMode(ExposureControl.Mode.Manual);
+            portal.getCameraControl(ExposureControl.class).setExposure(exposureMs, TimeUnit.MILLISECONDS);
+            portal.getCameraControl(GainControl.class).setGain(gain);
+            cameraSettingsSet = true;
+        }
+
+        internalLight.setPosition(1);
 
         if((enableArtifactManagement)  && (resultPrelimFront.HSV[2] > prelimDetectValue) && (getPresence(resultFront.HSV) == 0)){
             transfer.incomingFront();
@@ -127,7 +141,7 @@ public class Endoscope extends BaseComponent {
      3 = unknown
      **/
     public int getPresence(int[] HSV){
-        if (HSV[2] < 80){
+        if (HSV[2] < 100){
             return 0;
         // plus or minus 20 from 130
         } else if (Math.abs(HSV[0] - 130) < 20) {

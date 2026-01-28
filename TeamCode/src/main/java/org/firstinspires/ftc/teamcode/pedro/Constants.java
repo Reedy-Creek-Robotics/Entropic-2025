@@ -66,12 +66,24 @@ public class Constants {
     public static double seLinearScalar = getAverage(seLinearScalars);
     public static double seAngularScalar = getAverage(seAngularScalars);
 
+    public static double[] forgeKnockoffLinearScalars = {0.9824118847467875, 0.9704312520059731, 0.9787130448192772, 0.9856402352275025};
+    public static double[] forgeKnockoffAngularScalars = {0.9898946473570761, 0.9940595749870434, 0.9954860771861248, 0.98909885176028};
+
+   public static double forgeKnockoffLinearScalar = getAverage(forgeKnockoffLinearScalars);
+   public static double forgeKnockoffAngularScalar = getAverage(forgeKnockoffAngularScalars);
+
+    public static double[] houseKnockoffLinearScalars = {0.9856931190332324, 0.9773272762855715, 0.9859413419289847, 0.976595926365677};
+    public static double[] houseKnockoffAngularScalars = {0.9890610210191966, 0.990370537208948, 0.9936367911564411, 0.990400681804348};
+
+    public static double houseKnockoffLinearScalar = getAverage(houseKnockoffLinearScalars);
+    public static double houseKnockoffAngularScalar = getAverage(houseKnockoffAngularScalars);
+
     public static OTOSConstants otosNormalLocalizerConstants = new OTOSConstants()
             .hardwareMapName("otos")
             .linearUnit(DistanceUnit.INCH)
             .angleUnit(AngleUnit.RADIANS)
-            .linearScalar(seLinearScalar)
-            .angularScalar(seAngularScalar)
+            .linearScalar(houseKnockoffLinearScalar)
+            .angularScalar(houseKnockoffAngularScalar)
             .offset(new SparkFunOTOS.Pose2D(-2.75, 3, Math.toRadians(180)));
 
     public static DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants()
@@ -99,7 +111,7 @@ public class Constants {
             1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
-            .maxPower(0.5)
+            .maxPower(1)
             .rightFrontMotorName("rf")
             .rightRearMotorName("rr")
             .leftRearMotorName("lr")

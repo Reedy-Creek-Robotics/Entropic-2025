@@ -35,6 +35,7 @@ public class EndoscopeTest extends OpMode {
 
         endoscope.setEnableArtifactManagement(false);
         robot.getTurret().setAutoAim(false);
+        robot.getTurret().setAutoMove(false);
         robot.getShooter().setAutoSpeed(false);
         robot.getShooter().setVelocity(0);
     }
@@ -47,7 +48,7 @@ public class EndoscopeTest extends OpMode {
         resultPrelimFront = endoscope.getPrelimFrontSensor().getAnalysis();
         resultPrelimRear = endoscope.getPrelimRearSensor().getAnalysis();
 
-        telemetry.addData("Artifact Management Enabled: ", endoscope.getEnableArtifactManagement());
+        telemetry.addData("Artifact Management Enabled", endoscope.getEnableArtifactManagement());
         telemetry.addLine("");
         telemetry.addData("Front HSV", Arrays.toString(resultFront.HSV));
         telemetry.addData("Center HSV", Arrays.toString(resultCenter.HSV));
