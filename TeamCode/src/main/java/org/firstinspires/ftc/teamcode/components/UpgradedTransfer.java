@@ -281,6 +281,7 @@ private class RollersUntilSensor implements Command {
     String description;
     int finishState;
     PredominantColorProcessor sensor;
+    ElapsedTime timeout;
 
     public RollersUntilSensor(double powerFront, double powerRear, PredominantColorProcessor sensor, int finishState){
         this.powerFront = powerFront;
@@ -302,6 +303,7 @@ private class RollersUntilSensor implements Command {
         rollerFront.setPosition((powerFront + 1) / 2);
         rollerRear.setPosition((powerRear + 1) / 2);
         log.debug("STARTED (" + description + ") running front @ " + powerFront + "' and rear @ " + powerRear + " until sensor" + sensor.getName());
+        timeout = new ElapsedTime();
     }
 
     @Override
@@ -313,12 +315,18 @@ private class RollersUntilSensor implements Command {
 
         rollerRear.setPosition(0.5);
         rollerFront.setPosition(0.5);
-        log.debug("STOPPED (" + description + ") running front @ " + powerFront + "' and rear @ " + powerRear + " until sensor" + sensor.getName());    }
+        String msg = "STOPPED (" + description + ") running front @ " + powerFront + "' and rear @ " + powerRear + " until sensor" + sensor.getName() + "(took " + timeout.milliseconds() + "ms)";
+        if (timeout.milliseconds() > 3000){
+            log.warn(msg);
+        } else {
+            log.debug(msg);
+        }
+    }
 
     @Override
     public boolean update() {
         telemetry.addLine("(" + description + ") moving front @ " + powerFront + " and rear @ " + powerRear + " until " + sensor.getName());
-        return endoscope.getPresence(sensor.getAnalysis().HSV) > 0;
+        return (endoscope.getPresence(sensor.getAnalysis().HSV) > 0) || (timeout.milliseconds() > 3000);
     }
 }
 
