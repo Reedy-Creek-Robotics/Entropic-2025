@@ -102,11 +102,11 @@ public class UpgradedTransfer extends BaseComponent {
 
 
     public void rollerForTime(Servo roller, double power, double timeMs){
-        super.executeCommand(new RollerForTime(roller, power, timeMs));
+        robot.executeCommand(new RollerForTime(roller, power, timeMs));
     }
 
     public void rollersForTime(double power, double timeMs){
-        super.executeCommand(new RollersForTime(power, timeMs));
+        robot.executeCommand(new RollersForTime(power, timeMs));
     }
 
 
