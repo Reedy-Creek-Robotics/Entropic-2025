@@ -26,7 +26,7 @@ public class Constants {
     static boolean dualPID = false;
 
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(9) // kg
+            .mass(11.34) // kg
             .forwardZeroPowerAcceleration(-39.928058898966064)
             .lateralZeroPowerAcceleration(-82.48594579185915)
             .centripetalScaling(0.0009)
@@ -60,8 +60,8 @@ public class Constants {
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
 
-    public static double[] seLinearScalars = {0.9789450036755697, 0.9713286068563092, 0.984250938654841, 0.967096238198983};
-    public static double[] seAngularScalars = {0.9911039824022719, 0.994369789112311, 0.9939128037010939, 0.9948119413054476};
+    public static double[] seLinearScalars = {0.9754259616907011};
+    public static double[] seAngularScalars = {0.9957986704653361};
 
     public static double seLinearScalar = getAverage(seLinearScalars);
     public static double seAngularScalar = getAverage(seAngularScalars);
@@ -82,9 +82,9 @@ public class Constants {
             .hardwareMapName("otos")
             .linearUnit(DistanceUnit.INCH)
             .angleUnit(AngleUnit.RADIANS)
-            .linearScalar(houseKnockoffLinearScalar)
-            .angularScalar(houseKnockoffAngularScalar)
-            .offset(new SparkFunOTOS.Pose2D(-2.75, 3, Math.toRadians(180)));
+            .linearScalar(seLinearScalar)
+            .angularScalar(seAngularScalar)
+            .offset(new SparkFunOTOS.Pose2D(2.7, 2.34, Math.toRadians(-90)));
 
     public static DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants()
             .rightFrontMotorName("rf")

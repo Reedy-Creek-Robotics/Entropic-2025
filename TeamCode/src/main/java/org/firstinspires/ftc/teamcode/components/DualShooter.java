@@ -319,6 +319,7 @@ public class DualShooter extends BaseComponent {
 //
 //        log.debug("Auto Speed: " + autoSpeed);
 
+        // if velocity is less than set velocity - tolerance or if velocity is greater than set velocity + tolerance then return true
         return (getVelocity() < (setVelocity - velocityTolerance)) && (getVelocity() > (setVelocity + velocityTolerance));
 
     }

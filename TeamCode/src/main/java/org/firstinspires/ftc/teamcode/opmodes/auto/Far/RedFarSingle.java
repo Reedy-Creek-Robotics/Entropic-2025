@@ -1,25 +1,28 @@
-package org.firstinspires.ftc.teamcode.opmodes.auto;
+package org.firstinspires.ftc.teamcode.opmodes.auto.Far;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+@Disabled
 @Autonomous
-public class RedGoalSingle extends GoalSingle{
+public class RedFarSingle extends FarSingle {
 
     @Override
-    public void buildPaths(){
+    public void buildPaths() {
         paths = new Paths(follower);
     }
 
     @Override
-    public void initRobot() {
+    public void initRobot(){
         alliance = false;
         super.initRobot();
     }
 
-    public static class Paths extends GoalSingle.Paths{
+    public static class Paths extends FarSingle.Paths {
+
         public Paths(Follower follower) {
             super(follower);
         }
@@ -28,57 +31,43 @@ public class RedGoalSingle extends GoalSingle{
         public void createPaths(Follower follower) {
             shootPreload = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(114.000, 137.000),
-
-                                    new Pose(96.000, 96.000)
+                                    new Pose(90.000, 6.000),
+                                    new Pose(90.000, 12.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
-
                     .build();
 
-            alignWithBallSet1 = follower.pathBuilder().addPath(
+            alignWithBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(96.000, 96.000),
-
-                                    new Pose(102.000, 89.000)
+                                    new Pose(90.000, 12.000),
+                                    new Pose(102.000, 30.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
-
                     .build();
 
-            pickupBallSet1 = follower.pathBuilder().addPath(
+            pickupBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(102.000, 89.000),
-
-                                    new Pose(122.000, 89.000)
+                                    new Pose(102.000, 26.000),
+                                    new Pose(122.000, 30.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
-
                     .build();
 
-            shootBallSet1 = follower.pathBuilder().addPath(
+            shootBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(122.000, 89.000),
-
-                                    new Pose(96.000, 96.000)
+                                    new Pose(122.000, 30.000),
+                                    new Pose(84.000, 12.000)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
-
                     .build();
 
             parking = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(96.000, 96.000),
-
-                                    new Pose(96.000, 64.000)
+                                    new Pose(84.000, 12.000),
+                                    new Pose(108.000, 12.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
-
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(90))
                     .build();
         }
     }
-
 }
-
-
-
