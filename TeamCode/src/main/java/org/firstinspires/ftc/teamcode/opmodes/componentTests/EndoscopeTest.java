@@ -77,17 +77,17 @@ public class EndoscopeTest extends OpMode {
             serving = true;
             transfer.runFrontRoller(-1);
             transfer.runRearRoller(-1);
-            robot.stopAllCommands();
+            robot.getTransfer().stopAllCommands();
         }
         else if(driver.isButtonDown(Controller.Button.EAST)){
             serving = true;
             transfer.runRearRoller(1);
-            robot.stopAllCommands();
+            robot.getTransfer().stopAllCommands();
         }
         else if(driver.isButtonDown(Controller.Button.WEST)){
             serving = true;
             transfer.runFrontRoller(1);
-            robot.stopAllCommands();
+            robot.getTransfer().stopAllCommands();
         }
         else{
             if(serving){
