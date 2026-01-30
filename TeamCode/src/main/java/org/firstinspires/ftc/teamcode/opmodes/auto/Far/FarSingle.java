@@ -1,7 +1,9 @@
-package org.firstinspires.ftc.teamcode.opmodes.auto;
+package org.firstinspires.ftc.teamcode.opmodes.auto.Far;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
+
+import org.firstinspires.ftc.teamcode.opmodes.auto.AutoMain;
 
 public abstract class FarSingle extends AutoMain {
     Paths paths;

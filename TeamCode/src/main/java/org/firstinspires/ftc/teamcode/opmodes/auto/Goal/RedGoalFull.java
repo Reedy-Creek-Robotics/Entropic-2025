@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.auto;
+package org.firstinspires.ftc.teamcode.opmodes.auto.Goal;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;

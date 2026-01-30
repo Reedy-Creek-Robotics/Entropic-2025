@@ -56,7 +56,6 @@ public class TeloOpMain extends OpMode {
         transfer = robot.getTransfer();
         endoscope = robot.getEndoscope();
         turret = robot.getTurret();
-
         
         robot.init();
 
@@ -124,7 +123,7 @@ public class TeloOpMain extends OpMode {
             transfer.swapSide();
         }
 
-        if(!robot.getTurret().isInRange()){
+        if(!robot.getTurret().isInRange() || !robot.getShooter().isBusy()){
             driver.rumble(1, 1, 99999);
         }else{
             driver.rumble(0, 0, 99999);

@@ -68,6 +68,11 @@ public class UpgradedTransfer extends BaseComponent {
             return super.isBusy();
     }
 
+    @Override
+    public boolean isBusy(){
+        return false;
+    }
+
     public void stopAllTransferCommands(){
         super.stopAllCommands();
     }
