@@ -147,6 +147,12 @@ public abstract class PredominantColorProcessor implements VisionProcessor
             this(Swatch.BLACK, 0, new int[3], new int[3], new int[3]) ;
         }
 
+        public Result(int[] HSV)
+        {
+            // Create an empty result.
+            this(Swatch.BLACK, 0, new int[3], HSV, new int[3]) ;
+        }
+
         // legacy constructor
         @Deprecated
         public Result(Swatch closestSwatch, int rgb)
