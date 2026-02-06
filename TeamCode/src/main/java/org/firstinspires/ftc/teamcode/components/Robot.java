@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.components;
 import android.annotation.SuppressLint;
 
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
@@ -20,6 +23,7 @@ import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 import org.firstinspires.ftc.teamcode.util.log.DataLogger;
 import org.firstinspires.ftc.teamcode.util.log.MotorDataLog;
+import org.firstinspires.ftc.vision.VisionPortal;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -41,9 +45,11 @@ public class Robot extends BaseComponent{
     private DualShooter shooter;
     private UpgradedTransfer transfer;
     private Endoscope endoscope;
-//    private Lighthouse lighthouse;
+    private Lighthouse lighthouse;
     private Intake intake;
     // END COMPONENTS
+
+    private int[] liveViewContainerIds;
 
     private int updateCount;
     private ElapsedTime initTime;
@@ -60,31 +66,43 @@ public class Robot extends BaseComponent{
     private List<HardwareDevice> devices;
     private List<DcMotorEx> motors;
 
+
+
     public Robot(OpMode opMode){
         this(opMode, false);
     }
 
-    public Robot(OpMode opMode, boolean alliance) {
+    public Robot(OpMode opMode, boolean alliance){
+        this(opMode, alliance, null);
+    }
+
+    public Robot(OpMode opMode, boolean alliance, @Nullable Component... components) {
         super(createRobotContext(opMode, alliance));
+
+        liveViewContainerIds = VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.VERTICAL);
 
         log = new LogCatUtil("Robot");
 
-        String timeStamp = new SimpleDateFormat("MM\\dd-HH:mm").format(new java.util.Date());
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("MM\\dd-HH:mm").format(new java.util.Date());
         motorDataLog = new MotorDataLog("MCD-"+timeStamp);
 
         this.lynxModules = hardwareMap.getAll(LynxModule.class);
 
-        // START COMPONENTS
-        driveTrain = new DriveTrain(context, this);
-        turret = new Turret(context, this);
-        shooter = new DualShooter(context, this);
-        transfer = new UpgradedTransfer(context, this);
-        endoscope = new Endoscope(context, this);
-//        lighthouse = new Lighthouse(context, this);
-        intake = new Intake(context, this);
-        // END COMPONENTS
+        if(components == null) {
+            // START COMPONENTS
+            driveTrain = new DriveTrain(context, this);
+            turret = new Turret(context, this);
+            shooter = new DualShooter(context, this);
+            transfer = new UpgradedTransfer(context, this);
+            endoscope = new Endoscope(context, this, liveViewContainerIds[0]);
+            lighthouse = new Lighthouse(context, this, liveViewContainerIds[1]);
+            intake = new Intake(context, this);
+            // END COMPONENTS
 
-        addSubComponents(driveTrain, intake, transfer, /*lighthouse, */turret, shooter, endoscope);
+            addSubComponents(driveTrain, turret, shooter, transfer, endoscope, lighthouse, intake);
+        }else{
+            addSubComponents(components);
+        }
     }
 
     public RobotContext getRobotContext() {
@@ -371,9 +389,9 @@ public class Robot extends BaseComponent{
     public Endoscope getEndoscope(){
         return endoscope;
     }
-//    public Lighthouse getLighthouse(){
-//        return lighthouse;
-//    }
+    public Lighthouse getLighthouse(){
+        return lighthouse;
+    }
     public TelemetryManager getTelemetry(){
         return telemetry;
     }
