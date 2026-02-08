@@ -30,9 +30,14 @@ import static org.firstinspires.ftc.teamcode.game.Controller.Button.*;
 
 @TeleOp(name = "Logging: AprilTag Position", group = "Logging")
 public class AprilTagPositionLogging extends LinearOpMode {
+
+//    private static Position cameraPos = new Position(DistanceUnit.INCH, -2.5, 6.5, 11.75, 0);
+    private static Position cameraPos = new Position(DistanceUnit.INCH, 0, 0, 11.75, 0);
+    private static YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES, 0, -90, 0, 0);
+
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
-    static double fx = 1818.71, fy = 1818.71, cx = 633.815, cy = 383.896;
+    static double fx = 1035.48, fy = 1035.48, cx = 933.549, cy = 564.851;
 
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
@@ -214,7 +219,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        float decimationValue = 1;
+        float decimationValue = 0;
         initAprilTag(decimationValue);
 
         this.controller = new Controller(gamepad1);
@@ -321,7 +326,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
 
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
-//                .setLensIntrinsics(fx, fy, cx, cy)
+                .setLensIntrinsics(fx, fy, cx, cy)
                 /*
                  * Camera axes:
                  * Origin location: Center of the lens
@@ -343,7 +348,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
                  * it's pointing straight left, -90 degrees for straight right, etc. You can also set the roll
                  * to +/-90 degrees if it's vertical, or 180 degrees if it's upside-down.
                  */
-                .setCameraPose(new Position(DistanceUnit.INCH, -2.5, 6.5, 11.75, 0), new YawPitchRollAngles(AngleUnit.DEGREES, 0, -90, 0, 0))
+                .setCameraPose(cameraPos, cameraOrientation)
                 .build();
 
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
@@ -366,7 +371,7 @@ public class AprilTagPositionLogging extends LinearOpMode {
         }
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(new Size(1280, 720));
+        builder.setCameraResolution(new Size(1920, 1080));
 
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
