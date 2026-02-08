@@ -6,6 +6,8 @@ import android.graphics.ImageFormat;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.firstinspires.ftc.teamcode.lib.GoBildaPrismDriver;
+
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -50,6 +52,13 @@ public class EmptyObjectUtil {
             return getEmptyHardwareDevice();
         }
     }
+
+    @NonNull
+    @Contract(" -> new")
+    public static GoBildaPrismDriver getEmptyGoBildaPrismDriver(){
+        return new GoBildaPrismDriver(getEmptyI2cDeviceSynch(), false);
+    }
+
 
     @NonNull
     @Contract(" -> new")

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.custom.PredominantColorProcessor;
 
 import java.util.Arrays;
 
+@Configurable
 public class UpgradedTransfer extends BaseComponent {
 
     /**
@@ -33,6 +35,8 @@ public class UpgradedTransfer extends BaseComponent {
     Robot robot;
     Command transferCommand;
     Boolean waitForStateChange = false;
+
+    static int extraMoveMs = 100;
 
     public UpgradedTransfer(RobotContext context, Robot robot) {
         super(context);
@@ -110,8 +114,12 @@ public class UpgradedTransfer extends BaseComponent {
         robot.executeCommand(new RollerForTime(roller, power, timeMs));
     }
 
-    public void rollersForTime(double power, double timeMs){
-        robot.executeCommand(new RollersForTime(power, timeMs));
+    public void rollersForTime(double powerBoth, double timeMs){
+        robot.executeCommand(new RollersForTime(powerBoth, powerBoth, timeMs));
+    }
+
+    public void rollersForTime(double powerFront, double powerRear, double timeMs){
+        robot.executeCommand(new RollersForTime(powerFront, powerRear, timeMs));
     }
 
 
@@ -305,6 +313,7 @@ private class RollersUntilSensor implements Command {
 
     @Override
     public void start(){
+        robot.getTransfer().executeCommand(new RollersForTime(powerFront, powerRear, extraMoveMs));
         rollerFront.setPosition((powerFront + 1) / 2);
         rollerRear.setPosition((powerRear + 1) / 2);
         log.debug("STARTED (" + description + ") running front @ " + powerFront + "' and rear @ " + powerRear + " until sensor" + sensor.getName());
@@ -404,18 +413,19 @@ private class RollersUntilSensor implements Command {
 
     private class RollersForTime implements Command {
 
-        double power, time;
+        double powerFront, powerRear, time;
         ElapsedTime timer;
 
-        public RollersForTime(double power, double timeMs){
-            this.power = power;
+        public RollersForTime(double powerFront, double powerRear, double timeMs){
+            this.powerFront = powerFront;
+            this.powerRear = powerRear;
             this.time = timeMs;
         }
 
         @Override
         public void start(){
-            runFrontRoller(power);
-            runRearRoller(power);
+            runFrontRoller(powerFront);
+            runRearRoller(powerRear);
             timer = new ElapsedTime();
         }
 

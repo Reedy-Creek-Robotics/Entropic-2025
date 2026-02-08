@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import org.firstinspires.ftc.teamcode.lib.GoBildaPrismDriver;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
@@ -18,6 +19,18 @@ public class HardwareUtil {
     public HardwareUtil(LogCatUtil log, HardwareMap map){
         this.log = log;
         this.map = map;
+    }
+
+    public GoBildaPrismDriver getGoBildaPrismDriver(String deviceName){
+        GoBildaPrismDriver result;
+        try{
+            result = map.get(GoBildaPrismDriver.class, deviceName);
+        }catch(Exception e){
+            log.hardwareCatch(deviceName, e);
+            result = EmptyObjectUtil.getEmptyGoBildaPrismDriver();
+        }
+
+        return result;
     }
 
     public DcMotorEx getMotorEx(String deviceName) {

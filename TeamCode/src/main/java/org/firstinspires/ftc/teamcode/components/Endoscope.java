@@ -1,21 +1,21 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import android.app.UiModeManager;
 import android.util.Size;
 
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcontroller.external.samples.ConceptLEDStick;
 import org.firstinspires.ftc.teamcode.custom.ImageRegion;
 import org.firstinspires.ftc.teamcode.custom.PredominantColorProcessor;
+import org.firstinspires.ftc.teamcode.lib.*;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.opencv.ColorRange;
 
 import java.util.Arrays;
+import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 public class Endoscope extends BaseComponent {
@@ -28,11 +28,19 @@ public class Endoscope extends BaseComponent {
     PredominantColorProcessor prelimFrontSensor;
     PredominantColorProcessor prelimRearSensor;
 
-    PredominantColorProcessor.Result resultFront;
-    PredominantColorProcessor.Result resultCenter;
-    PredominantColorProcessor.Result resultRear;
-    PredominantColorProcessor.Result resultPrelimFront;
-    PredominantColorProcessor.Result resultPrelimRear;
+    PredominantColorProcessor.Result resultFront = new PredominantColorProcessor.Result(new int[3]);
+    PredominantColorProcessor.Result resultCenter = new PredominantColorProcessor.Result(new int[3]);
+    PredominantColorProcessor.Result resultRear = new PredominantColorProcessor.Result(new int[3]);
+    PredominantColorProcessor.Result resultPrelimFront = new PredominantColorProcessor.Result(new int[3]);
+    PredominantColorProcessor.Result resultPrelimRear = new PredominantColorProcessor.Result(new int[3]);
+
+    PredominantColorProcessor.Result previousResultFront = new PredominantColorProcessor.Result(new int[3]);
+    PredominantColorProcessor.Result previousResultCenter = new PredominantColorProcessor.Result(new int[3]);
+    PredominantColorProcessor.Result previousResultRear = new PredominantColorProcessor.Result(new int[3]);
+    PredominantColorProcessor.Result previousResultPrelimFront = new PredominantColorProcessor.Result(new int[3]);
+    PredominantColorProcessor.Result previousResultPrelimRear = new PredominantColorProcessor.Result(new int[3]);
+
+    PrismAnimations.Solid solid = new PrismAnimations.Solid(Color.WHITE);
 
     public int prelimDetectValue = 70;
 
@@ -42,6 +50,7 @@ public class Endoscope extends BaseComponent {
     Robot robot;
     UpgradedTransfer transfer;
     Servo internalLight;
+    GoBildaPrismDriver lights;
 
     static int exposureMs = 32;
     static int gain = 10;
@@ -60,9 +69,10 @@ public class Endoscope extends BaseComponent {
         hardwareUtil = new HardwareUtil(log, hardwareMap);
         this.robot = robot;
 
-        frontBallSensor = blobMaker(-0.514867, -0.25, -0.317684, -0.35, "frontBallSensor");
+
+        frontBallSensor = blobMaker(-0.45, -0.25, -0.317684, -0.35, "frontBallSensor");
         centerBallSensor = blobMaker(0, 0.15, 0.1, -.05, "centerBallSensor");
-        rearBallSensor = blobMaker(0.411581, -0.25, 0.605634, -0.35, "rearBallSensor");
+        rearBallSensor = blobMaker(0.411581, -0.25, 0.55, -0.35, "rearBallSensor");
         prelimFrontSensor = blobMaker(-0.94, 0.043841, -0.8, -0.077244, "prelimFrontSensor");
         prelimRearSensor = blobMaker(0.809077, 0.018789, 0.968701, -0.089770, "prelimRearSensor");
 
@@ -82,6 +92,11 @@ public class Endoscope extends BaseComponent {
 
         internalLight = hardwareUtil.getServo("internalLight");
         internalLight.setPosition(1);
+
+        lights = hardwareUtil.getGoBildaPrismDriver("lightStrip");
+
+        lights.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_0);
+        lights.updateAllAnimations();
     }
 
     @Override
@@ -91,11 +106,17 @@ public class Endoscope extends BaseComponent {
 
     @Override
     public void update(){
-        resultFront = frontBallSensor.getAnalysis();
-        resultCenter = centerBallSensor.getAnalysis();
-        resultRear = rearBallSensor.getAnalysis();
-        resultPrelimFront = prelimFrontSensor.getAnalysis();
-        resultPrelimRear = prelimRearSensor.getAnalysis();
+        resultFront = averageResult(frontBallSensor.getAnalysis(), previousResultFront);
+        resultCenter = averageResult(centerBallSensor.getAnalysis(), previousResultCenter);
+        resultRear = averageResult(rearBallSensor.getAnalysis(), previousResultRear);
+        resultPrelimFront = averageResult(prelimFrontSensor.getAnalysis(), previousResultPrelimFront);
+        resultPrelimRear = averageResult(prelimRearSensor.getAnalysis(), previousResultPrelimRear);
+
+        previousResultFront = frontBallSensor.getAnalysis();
+        previousResultCenter = centerBallSensor.getAnalysis();
+        previousResultRear = rearBallSensor.getAnalysis();
+        previousResultPrelimFront = prelimFrontSensor.getAnalysis();
+        previousResultPrelimRear = prelimRearSensor.getAnalysis();
 
         if(!cameraSettingsSet && portal.getCameraState() == VisionPortal.CameraState.STREAMING){
             log.debug("Camera set. Expos: " + exposureMs + " Gain: " + gain);
@@ -110,10 +131,13 @@ public class Endoscope extends BaseComponent {
         if((enableArtifactManagement)  && (resultPrelimFront.HSV[2] > prelimDetectValue) && (getPresence(resultFront.HSV) == 0)){
             transfer.incomingFront();
             telemetry.addLine("incoming Front!");
+//            log.debug("incoming Front! HSV: " + Arrays.toString(resultPrelimFront.HSV));
         }
+
         if((enableArtifactManagement) && (resultPrelimRear.HSV[2] > prelimDetectValue) && (getPresence(resultRear.HSV) == 0)){
             transfer.incomingRear();
             telemetry.addLine("incoming Rear!");
+//            log.debug("incoming Rear! HSV: " + Arrays.toString(resultPrelimRear.HSV));
         }
     }
 
@@ -141,7 +165,7 @@ public class Endoscope extends BaseComponent {
      3 = unknown
      **/
     public int getPresence(int[] HSV){
-        if (HSV[2] < 100){
+        if (HSV[0] < 50 || HSV[0] > 160){
             return 0;
         // plus or minus 20 from 130
         } else if (Math.abs(HSV[0] - 130) < 20) {
@@ -184,5 +208,33 @@ public class Endoscope extends BaseComponent {
     }
     public boolean getEnableArtifactManagement(){
         return enableArtifactManagement;
+    }
+
+    private int[] averageHSV(Vector<int[]> HSVs){
+        int[] result = new int[3];
+
+        for(int[] list : HSVs){
+            for(int i = 0; i < 3; i++) {
+                result[i] += list[i];
+            }
+        }
+
+        for(int i = 0; i <= 2; i++) {
+            result[i] /= HSVs.size();
+        }
+
+        return(result);
+    }
+
+    private PredominantColorProcessor.Result averageResult(PredominantColorProcessor.Result... results){
+//        int[][] hsvs = new int[3][results.length];
+
+        Vector<int[]> hsvs = new Vector<>();
+
+        for(PredominantColorProcessor.Result result : results){
+            hsvs.add(result.HSV);
+        }
+
+        return new PredominantColorProcessor.Result(averageHSV(hsvs));
     }
 }
