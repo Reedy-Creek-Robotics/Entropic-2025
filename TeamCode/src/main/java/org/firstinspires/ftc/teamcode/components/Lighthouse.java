@@ -44,6 +44,7 @@ public class Lighthouse extends BaseComponent {
 
     static double fx = 1035.48, fy = 1035.48, cx = 933.549, cy = 564.851;
 
+
     Robot robot;
 
     int liveViewContainerId;
@@ -117,7 +118,7 @@ public class Lighthouse extends BaseComponent {
                     &&//and
                             robot.getAngVelocity() < 0.2 //angular velocity is less than 0.2rad/sec
                     &&//and
-                            relocalizeTimer.time() > 5000 //it's been at least 5 seconds since last relocalizing
+                            relocalizeTimer.time() > 1000 //it's been at least 5 seconds since last relocalizing
             ) {
                 relocalizeTimer.reset();
                 Pose newPose = pedroPoseFromFtcPose3d(detection.robotPose);
