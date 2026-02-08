@@ -42,7 +42,7 @@ public class Lighthouse extends BaseComponent {
 
     boolean enableLighthouse = true;
 
-    static double fx = 1053.4817364724083, fy = 1047.382048068429, cx = 936.4208777661142, cy = 552.4701938724438;
+    static double fx = 1035.48, fy = 1035.48, cx = 933.549, cy = 564.851;
 
     Robot robot;
 

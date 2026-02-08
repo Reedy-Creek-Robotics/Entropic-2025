@@ -28,5 +28,7 @@ public class BareboneDrive extends OpMode {
         turn = controller.rightStickX();
 
         driveTrain.drive(drive,strafe,turn,1);
+//        telemetry.addLine(driveTrain.getFollower().getPose().toString());
+        telemetry.update();
     }
 }
