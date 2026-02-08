@@ -32,10 +32,7 @@ import static org.firstinspires.ftc.teamcode.game.Controller.Button.*;
 public class AprilTagPositionLogging extends LinearOpMode {
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
-    private Position cameraPosition = new Position(DistanceUnit.INCH,
-            0, 0, 0, 0);
-    private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
-            0, -90, 0, 0);
+    static double fx = 1818.71, fy = 1818.71, cx = 633.815, cy = 383.896;
 
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
@@ -324,23 +321,29 @@ public class AprilTagPositionLogging extends LinearOpMode {
 
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
-
-                // The following default settings are available to un-comment and edit as needed.
-                //.setDrawAxes(false)
-                //.setDrawCubeProjection(false)
-                //.setDrawTagOutline(true)
-                //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
-                //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
-                //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-
-                // == CAMERA CALIBRATION ==
-                // If you do not manually specify calibration parameters, the SDK will attempt
-                // to load a predefined calibration for your camera.
-                //.setLensIntrinsics(1040.34, 1040.34, 929.692, 558.489)
-                .setCameraPose(cameraPosition, cameraOrientation)
-                .setLensIntrinsics(593.186, 593.186, 985.272, 539.561)
-                // ... these parameters are fx, fy, cx, cy.
-
+//                .setLensIntrinsics(fx, fy, cx, cy)
+                /*
+                 * Camera axes:
+                 * Origin location: Center of the lens
+                 * Axes orientation: +x right, +y down, +z forward (from camera's perspective)
+                 *
+                 * Robot axes (this is typical, but you can define this however you want):
+                 * Origin location: Center of the robot at field height
+                 * Axes orientation: +x right, +y forward, +z upward
+                 *
+                 * Position:
+                 * If all values are zero (no translation), that implies the camera is at the center of the
+                 * robot. Suppose your camera is positioned 5 inches to the left, 7 inches forward, and 12
+                 * inches above the ground - you would need to set the position to (-5, 7, 12).
+                 *
+                 * Orientation:
+                 * If all values are zero (no rotation), that implies the camera is pointing straight up. In
+                 * most cases, you'll need to set the pitch to -90 degrees (rotation about the x-axis), meaning
+                 * the camera is horizontal. Use a yaw of 0 if the camera is pointing forwards, +90 degrees if
+                 * it's pointing straight left, -90 degrees for straight right, etc. You can also set the roll
+                 * to +/-90 degrees if it's vertical, or 180 degrees if it's upside-down.
+                 */
+                .setCameraPose(new Position(DistanceUnit.INCH, -2.5, 6.5, 11.75, 0), new YawPitchRollAngles(AngleUnit.DEGREES, 0, -90, 0, 0))
                 .build();
 
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
@@ -357,13 +360,13 @@ public class AprilTagPositionLogging extends LinearOpMode {
 
         // Set the camera (webcam vs. built-in RC phone camera).
         if (USE_WEBCAM) {
-            builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+            builder.setCamera(hardwareMap.get(WebcamName.class, "Lighthouse"));
         } else {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(new Size(1920, 1200));
+        builder.setCameraResolution(new Size(1280, 720));
 
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
