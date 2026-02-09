@@ -6,6 +6,12 @@ import android.graphics.ImageFormat;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Quaternion;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.lib.GoBildaPrismDriver;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
@@ -15,6 +21,7 @@ import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cWaitControl;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -39,18 +46,70 @@ import java.util.Collections;
 import java.util.List;
 
 public class EmptyObjectUtil {
-    public static HardwareDevice getEmpty(String name){
-        if(name.equals(DcMotorEx.class.getSimpleName())){
-            return getEmptyMotorEx();
-        } else if(name.equals(Servo.class.getSimpleName())){
-            return getEmptyServo();
-        } else if(name.equals(WebcamName.class.getSimpleName())){
-            return getEmptyWebcamName();
-        } else if(name.equals(SparkFunOTOS.class.getSimpleName())){
-            return getEmptySparkFunOTOS();
-        } else{
-            return getEmptyHardwareDevice();
-        }
+    @NonNull
+    @Contract(" -> new")
+    public static IMU getEmptyImu(){
+        return new IMU() {
+            @Override
+            public boolean initialize(Parameters parameters) {
+                return false;
+            }
+
+            @Override
+            public void resetYaw() {
+
+            }
+
+            @Override
+            public YawPitchRollAngles getRobotYawPitchRollAngles() {
+                return new YawPitchRollAngles(AngleUnit.RADIANS, 0, 0, 0, 0);
+            }
+
+            @Override
+            public Orientation getRobotOrientation(AxesReference reference, AxesOrder order, AngleUnit angleUnit) {
+                return null;
+            }
+
+            @Override
+            public Quaternion getRobotOrientationAsQuaternion() {
+                return null;
+            }
+
+            @Override
+            public AngularVelocity getRobotAngularVelocity(AngleUnit angleUnit) {
+                return new AngularVelocity();
+            }
+
+            @Override
+            public Manufacturer getManufacturer() {
+                return null;
+            }
+
+            @Override
+            public String getDeviceName() {
+                return "";
+            }
+
+            @Override
+            public String getConnectionInfo() {
+                return "";
+            }
+
+            @Override
+            public int getVersion() {
+                return 0;
+            }
+
+            @Override
+            public void resetDeviceConfigurationForOpMode() {
+
+            }
+
+            @Override
+            public void close() {
+
+            }
+        };
     }
 
     @NonNull

@@ -6,6 +6,7 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.firstinspires.ftc.teamcode.lib.GoBildaPrismDriver;
@@ -19,6 +20,17 @@ public class HardwareUtil {
     public HardwareUtil(LogCatUtil log, HardwareMap map){
         this.log = log;
         this.map = map;
+    }
+
+    public IMU getImu(String deviceName){
+        IMU result;
+        try{
+            result = map.get(IMU.class, deviceName);
+        }catch(Exception e){
+            log.hardwareCatch(deviceName, e);
+            result = EmptyObjectUtil.getEmptyImu();
+        }
+        return result;
     }
 
     public GoBildaPrismDriver getGoBildaPrismDriver(String deviceName){

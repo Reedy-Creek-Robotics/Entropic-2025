@@ -43,6 +43,8 @@ public class DriveTrain extends BaseComponent {
 
     private Robot robot;
 
+    private SparkFunOTOS otos;
+
     public static DriveTuner driveTuner;
     public static OdometryTuner odometryTuner;
 
@@ -61,17 +63,19 @@ public class DriveTrain extends BaseComponent {
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
+        leftFront = hardwareUtil.getMotorEx("lf");
+        leftRear = hardwareUtil.getMotorEx("lr");
+        rightRear = hardwareUtil.getMotorEx("rr");
+        rightFront = hardwareUtil.getMotorEx("rf");
+
+        otos = hardwareUtil.getOtos("otos");
+
         follower = Constants.createFollower(hardwareMap);
     }
 
     @Override
     public void init() {
         super.init();
-
-        leftFront = hardwareUtil.getMotorEx("lf");
-        leftRear = hardwareUtil.getMotorEx("lr");
-        rightRear = hardwareUtil.getMotorEx("rr");
-        rightFront = hardwareUtil.getMotorEx("rf");
 
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
