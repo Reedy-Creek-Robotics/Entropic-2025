@@ -273,7 +273,6 @@ public class Robot extends BaseComponent{
 
         // if there is no file, do nothing
         if (lines.isEmpty()) {
-            FileUtil.removeFile(filename);
             return;
         }
 
