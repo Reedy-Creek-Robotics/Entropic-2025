@@ -63,8 +63,7 @@ public class TeloOpMain extends OpMode {
 
         follower.setPose(startPose);
 
-//        robot.loadStateFromDisk();
-
+        robot.loadStateFromDisk();
     }
 
     @Override

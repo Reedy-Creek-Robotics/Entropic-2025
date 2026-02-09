@@ -50,7 +50,7 @@ public abstract class AutoMain extends LinearOpMode {
             runPath();
         }
 
-//        robot.saveStateToDisk();
+        robot.saveStateToDisk();
     }
 
     public void initRobot(){
