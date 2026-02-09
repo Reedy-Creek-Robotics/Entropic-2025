@@ -240,9 +240,10 @@ public class Robot extends BaseComponent{
         saveStateToDisk(filename, new RobotState(
                 follower.getPose(),
                 turret.getPositionTicks(),
-                0, //ToDo get pattern from AMS
-                new int[] {}, //ToDo get balls from AMS
-                context.alliance
+                context.getPattern(),
+                context.getBallsClassified(),
+//                context.getAlliance()
+                turret.getAlliance()
         ));
     }
 
@@ -257,9 +258,9 @@ public class Robot extends BaseComponent{
                 state.posY(),
                 state.posH(),
                 state.alliance(),
-                state.posT(),
-                state.pattern(),
-                state.balls()
+                state.posT()
+//                state.pattern(),
+//                state.balls()
         );
     }
 
@@ -269,64 +270,39 @@ public class Robot extends BaseComponent{
 
     public void loadStateFromDisk(String filename) {
         List<String> lines = FileUtil.readLines(filename);
-        if (!lines.isEmpty()) {
-            try {
-                if (lines.size() != 7) {
-                    throw new IllegalArgumentException("Expected 7 lines but found [" + lines.size() + "]");
-                }
-            } catch (Exception e) {
-                telemetry.addData("Error loading robot state", ErrorUtil.convertToString(e));
-            }
 
-            double posX = 0;
-            double posY = 0;
-            double posH = 0;
-            boolean alliance = false;
-            int posT = 0;
-            int pattern = 0;
-            int[] balls = {};
-            String line = "";
-            for(int i = 0; i < lines.size(); i++){
-                line = lines.get(i);
-                switch(i){
-                    case 0:
-                        posX = Double.parseDouble(line);
-                        break;
-                    case 1:
-                        posY = Double.parseDouble(line);
-                        break;
-                    case 2:
-                        posH = Double.parseDouble(line);
-                        break;
-                    case 3:
-                        alliance = Boolean.parseBoolean(line);
-                        break;
-                    case 4:
-                        posT = Integer.parseInt(line);
-                        break;
-//                    case 5:
-//                        pattern = Integer.parseInt(line);
-//                        break;
-//                    case 6:
-//                        balls = Arrays.stream(line.split(","))
-//                                .mapToInt(Integer::parseInt)
-//                                .toArray();
-                    }
-                }
-
-            follower.setPose(new Pose(
-                    posX,
-                    posY,
-                    posH
-            ));
-            context.alliance = alliance;
-            turret.setPositionTicks(posT);
-            //ToDo: Jonathan, add logic here to get pattern and balls into the ball management system
-            //      can now do that via robot context
+        // if there is no file, do nothing
+        if (lines.isEmpty()) {
+            FileUtil.removeFile(filename);
+            return;
         }
 
-            // Now that the position has been consumed, remove the file
-            FileUtil.removeFile(filename);
+        try {
+            if (lines.size() != 5) {
+                throw new IllegalArgumentException("Expected 5 lines but found [" + lines.size() + "]");
+            }
+
+            this.curPose = new Pose (
+                    Double.parseDouble(lines.get(0)),
+                    Double.parseDouble(lines.get(1)),
+                    Double.parseDouble(lines.get(2)));
+
+            boolean alliance = Boolean.parseBoolean(lines.get(3));
+            context.setAlliance(alliance);
+            turret.setAlliance(alliance);
+
+            turret.setPositionTicks(Integer.parseInt(lines.get(4)));
+
+//            context.setPattern(Integer.parseInt(lines.get(5)));
+//            context.setBallsClassified(Integer.parseInt(lines.get(6)));
+
+        } catch (Exception e) {
+            telemetry.addData("Error loading robot state", ErrorUtil.convertToString(e));
+            telemetry.addData("File contents", lines.toString());
+        }
+
+        // Now that the position has been consumed, remove the file
+        FileUtil.removeFile(filename);
     }
 
 
@@ -414,6 +390,10 @@ public class Robot extends BaseComponent{
 
     public static class RobotState {
         Pose pose;
+        /**
+         * false - Red<br>
+         * true - Blue
+         */
         boolean alliance;
         int turretPos;
         /**
@@ -423,9 +403,10 @@ public class Robot extends BaseComponent{
          * 3 - PPG<br>
          */
         int pattern;
-        int[] balls;
+        /** the number of balls in the classifier*/
+        int balls;
 
-        public RobotState(Pose pose, int turretPos, int pattern, int[] balls, boolean alliance){
+        public RobotState(Pose pose, int turretPos, int pattern, int balls, boolean alliance){
             this.pose = pose;
             this.alliance = alliance;
             this.turretPos = turretPos;
@@ -457,7 +438,7 @@ public class Robot extends BaseComponent{
             return pattern;
         }
 
-        public int[] balls() {
+        public int balls() {
             return balls;
         }
     }

@@ -57,6 +57,9 @@ public class RobotContext {
         //new TwoWheelTrackingLocalizer(opMode.hardwareMap,this.descriptor);
         //blue is true, red is false
         this.alliance = alliance;
+
+        this.pattern = 0;
+        this.ballsClassified = 0;
     }
 
     public OpMode getOpMode() {
