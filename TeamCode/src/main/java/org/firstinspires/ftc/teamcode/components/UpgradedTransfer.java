@@ -316,7 +316,7 @@ private class RollersUntilSensor implements Command {
         robot.getTransfer().executeCommand(new RollersForTime(powerFront, powerRear, extraMoveMs));
         rollerFront.setPosition((powerFront + 1) / 2);
         rollerRear.setPosition((powerRear + 1) / 2);
-        log.debug("STARTED (" + description + ") running front @ " + powerFront + "' and rear @ " + powerRear + " until sensor" + sensor.getName());
+        log.debug("STARTED (" + description + ") running front @ " + powerFront + "' and rear @ " + powerRear + " until sensor " + sensor.getName());
         timeout = new ElapsedTime();
     }
 
@@ -329,7 +329,7 @@ private class RollersUntilSensor implements Command {
 
         rollerRear.setPosition(0.5);
         rollerFront.setPosition(0.5);
-        String msg = "STOPPED (" + description + ") running front @ " + powerFront + "' and rear @ " + powerRear + " until sensor" + sensor.getName() + "(took " + timeout.milliseconds() + "ms)";
+        String msg = "STOPPED (" + description + ") running front @ " + powerFront + "' and rear @ " + powerRear + " until sensor" + sensor.getName() + " (" + timeout.milliseconds() + "ms)";
         if (timeout.milliseconds() > 3000){
             log.warn("TIMEOUT!! " + msg);
         } else {

@@ -33,7 +33,10 @@ public class Shooter extends BaseComponent {
 
     double degPerTick = 12.8571428571;
 
-    static Dictionary<Integer, Integer> speeds = new Hashtable<>();
+    static Dictionary<Integer, Integer> tunedSpeedValues = new Hashtable<>();
+
+    Dictionary<Integer, Integer> speeds = new Hashtable<>();
+    int lookupTableInterval = 1; //inches PLEASE DON'T CHANGE THIS STUFF WILL BREAK
 
     int velocityTolerance = 60;
     int stabilizationTime = 750;
@@ -48,8 +51,6 @@ public class Shooter extends BaseComponent {
     private final Robot robot;
 
     ElapsedTime shootTimer;
-
-    Follower follower;
     
     VoltageSensor batteryVoltageSensor;
     
@@ -80,17 +81,17 @@ public class Shooter extends BaseComponent {
         shootTimer = new ElapsedTime();
 
         // All distances were measured to the april tag, 18in is added for the distance to the corner from the tag
-        speeds.put(46+18, 1260);
-        speeds.put(56+18, 1260);
-        speeds.put(66+18, 1200);
-        speeds.put(76+18, 1240);
-        speeds.put(86+18, 1280);
-        speeds.put(96+18, 1300);
-        speeds.put(116+18, 1380);
-        speeds.put(126+18, 1440);
-        speeds.put(134+18, 1480);
+        tunedSpeedValues.put(46+18, 1260);
+        tunedSpeedValues.put(56+18, 1260);
+        tunedSpeedValues.put(66+18, 1200);
+        tunedSpeedValues.put(76+18, 1240);
+        tunedSpeedValues.put(86+18, 1280);
+        tunedSpeedValues.put(96+18, 1300);
+        tunedSpeedValues.put(116+18, 1380);
+        tunedSpeedValues.put(126+18, 1440);
+        tunedSpeedValues.put(134+18, 1480);
 
-        follower = robot.getDriveTrain().getFollower();
+        createSpeedDictionary();
     }
 
     @SuppressLint("DefaultLocale")
@@ -183,26 +184,38 @@ public class Shooter extends BaseComponent {
     }
 
     public int velocityFromDistance(double distance){
-//        log.debug("distance : " + distance + " | speed : " + speeds.get(findClosestByStream(speeds.keys(), distance)) + " | real : " + shooter.getVelocity());
-//         return speeds.get(findClosestByStream(speeds.keys(), distance));
+        if(distance < 0) distance = 0;
+        if(distance > 204) distance = 204;
 
-        if (distance < 46+18) {
-            distance = 46+18;
+        return speeds.get(distance);
+    }
+
+    private void createSpeedDictionary(){
+        for(int i = 0; i <= 204; i += lookupTableInterval) {
+            int distance = i;
+            //        log.debug("distance : " + distance + " | speed : " + speeds.get(findClosestByStream(speeds.keys(), distance)) + " | real : " + shooter.getVelocity());
+            //        return speeds.get(findClosestByStream(speeds.keys(), distance));
+
+            if (distance < tunedSpeedValues.keys().asIterator().next()) {
+                distance = tunedSpeedValues.keys().asIterator().next();
+            }
+
+            // search through speeds values to find the 2 neighbouring values
+            int lowerBound = findClosestSmallerByStream(tunedSpeedValues.keys(), distance);
+            int upperBound = findClosestLargerByStream(tunedSpeedValues.keys(), distance);
+
+            // if the bot is exactly on a distance (or beyond the boundaries), return that speed to prevent division by 0
+            if (lowerBound == upperBound) {
+                speeds.put(i, lowerBound);
+                continue;
+            }
+
+            // interpolate values with point slope
+            double slope = (double) (tunedSpeedValues.get(upperBound) - tunedSpeedValues.get(lowerBound)) / (upperBound - lowerBound);
+            double expectedTPS = slope * (distance - lowerBound) + tunedSpeedValues.get(lowerBound);
+
+            speeds.put(i, (int) expectedTPS);
         }
-
-        // search through speeds values to find the 2 neighbouring values
-        int lowerBound = findClosestSmallerByStream(speeds.keys(), distance);
-        int upperBound = findClosestLargerByStream(speeds.keys(), distance);
-
-        // if the bot is exactly on a distance (or beyond the boundaries), return that speed to prevent division by 0
-        if (lowerBound == upperBound) {
-            return speeds.get(lowerBound);
-        }
-
-        // interpolate values with point slope
-        double slope = (double) (speeds.get(upperBound) - speeds.get(lowerBound)) / (upperBound - lowerBound);
-        double expectedTPS = slope * (distance - lowerBound) + speeds.get(lowerBound);
-        return (int) expectedTPS;
     }
 
     private int findClosestByStream(Enumeration<Integer> sortedNumbers, double target) {

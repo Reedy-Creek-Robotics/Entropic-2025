@@ -9,12 +9,9 @@ import com.pedropathing.ftc.InvertedFTCCoordinates;
 import com.pedropathing.ftc.PoseConverter;
 import com.pedropathing.geometry.PedroCoordinates;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -244,7 +241,7 @@ public class Turret extends BaseComponent{
                     moveRtp();
                     break;
                 case 1:
-                    movePid();
+                    moveBad();
                     break;
                 case 2:
                     moveP();
@@ -382,7 +379,7 @@ public class Turret extends BaseComponent{
         turretMotor.setPower(0.6);
     }
 
-    private void movePid(){
+    private void moveBad(){
         if (Math.abs(turretPos - targetPos) <= 2) {
             turretMotor.setPower(0);
         } else if (Math.abs(turretPos - targetPos) <= 60) {
@@ -394,23 +391,20 @@ public class Turret extends BaseComponent{
 
     private void moveP(){
         if(Math.abs(targetPos - turretPos) > 1){
-            turretMotor.setPower(Math.max(
-                    Math.min(
-                            ((-2.0)/(-2*ticksToMaxPower) * (targetPos - turretPos)),
-                            1),
-                    -1
-                    )
-            );
+            double setPower = ((-2.0)/(-2*ticksToMaxPower) * (targetPos - turretPos));
+            if(setPower < 0){setPower = Math.min(setPower, -0.1);}
+            if(setPower > 0){setPower = Math.max(setPower, 0.1);}
+            turretMotor.setPower(setPower);
         }else{
             turretMotor.setPower(0);
         }
     }
 
-    public boolean setAutoAim(boolean autoAim){
-        return this.autoAim = autoAim;
+    public void setAutoAim(boolean autoAim){
+        this.autoAim = autoAim;
     }
-    public boolean setAutoMove(boolean autoMove){
-        return this.autoMove = autoMove;
+    public void setAutoMove(boolean autoMove){
+        this.autoMove = autoMove;
     }
 
     public boolean getAutoAim(){

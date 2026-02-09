@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainCon
 import org.firstinspires.ftc.teamcode.util.HardwareUtil;
 import org.firstinspires.ftc.teamcode.util.LogCatUtil;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.openftc.easyopencv.OpenCvCameraFactory;
 
 import java.util.Arrays;
 import java.util.Vector;
@@ -55,6 +56,8 @@ public class Endoscope extends BaseComponent {
     static int exposureMs = 32;
     static int gain = 10;
 
+    int liveViewContainerId;
+
     PredominantColorProcessor blobMaker(double left, double top, double right, double bottom, String name){
         return new PredominantColorProcessor.Builder()
                 .setRoi(ImageRegion.asUnityCenterCoordinates(left, top, right, bottom))
@@ -63,19 +66,21 @@ public class Endoscope extends BaseComponent {
                 .build();
     }
 
-    public Endoscope(RobotContext context, Robot robot) {
+    public Endoscope(RobotContext context, Robot robot, int liveViewContainerId) {
         super(context);
         log = new LogCatUtil("Endoscope");
         hardwareUtil = new HardwareUtil(log, hardwareMap);
         this.robot = robot;
+        this.liveViewContainerId = liveViewContainerId;
+    }
 
-
+    @Override
+    public void init(){
         frontBallSensor = blobMaker(-0.45, -0.25, -0.317684, -0.35, "frontBallSensor");
         centerBallSensor = blobMaker(0, 0.15, 0.1, -.05, "centerBallSensor");
         rearBallSensor = blobMaker(0.411581, -0.25, 0.55, -0.35, "rearBallSensor");
         prelimFrontSensor = blobMaker(-0.94, 0.043841, -0.8, -0.077244, "prelimFrontSensor");
         prelimRearSensor = blobMaker(0.809077, 0.018789, 0.968701, -0.089770, "prelimRearSensor");
-
 
         portal = new VisionPortal.Builder()
                 .addProcessor(frontBallSensor)
@@ -88,6 +93,7 @@ public class Endoscope extends BaseComponent {
                 .setShowStatsOverlay(true)
                 .setCamera(hardwareUtil.getWebcamName("Endoscope"))
 //                .enableLiveView(false)
+                .setLiveViewContainerId(liveViewContainerId)
                 .build();
 
         internalLight = hardwareUtil.getServo("internalLight");
@@ -97,10 +103,7 @@ public class Endoscope extends BaseComponent {
 
         lights.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_0);
         lights.updateAllAnimations();
-    }
 
-    @Override
-    public void init(){
         transfer = robot.getTransfer();
     }
 
