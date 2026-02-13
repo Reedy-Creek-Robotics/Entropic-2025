@@ -206,10 +206,6 @@ public class Endoscope extends BaseComponent {
         return prelimRearSensor;
     }
 
-    public VisionPortal getVisionPortal(){
-        return portal;
-    }
-
     public void setEnableArtifactManagement(boolean enableArtifactManagement) {
         this.enableArtifactManagement = enableArtifactManagement;
     }

@@ -92,7 +92,7 @@ public class Constants {
             .angleUnit(AngleUnit.RADIANS)
             .linearScalar(seLinearScalar)
 //            .angularScalar(seAngularScalar)
-            .offset(new SparkFunOTOS.Pose2D(2.7, 2.34, Math.toRadians(180)));
+            .offset(new SparkFunOTOS.Pose2D(2.7, 2.34, Math.toRadians(0)));
 
     public static DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants()
             .rightFrontMotorName("rf")
@@ -129,9 +129,7 @@ public class Constants {
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .xVelocity(81.78650863527312)
-            .yVelocity(65.83266370878444)
-//            .useVoltageCompensation(true) TODO try this out???
-            ;
+            .yVelocity(65.83266370878444);
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)

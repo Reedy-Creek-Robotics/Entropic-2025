@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto.Far;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.paths.PathChain;
 
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoMain;
@@ -13,30 +12,28 @@ public abstract class FarSingle extends AutoMain {
     public void initAuto() {
         robot.getEndoscope().setEnableArtifactManagement(false);
         robot.getTurret().setAutoAim(false);
-        robot.getRobotContext().setAlliance(alliance);
         robot.getShooter().setAutoSpeed(false);
-        robot.setUseTelemetry(true);
-        follower.setStartingPose(paths.alignWithBallSet3.getPose(new PathChain.PathT(0, 0)));
+        follower.setStartingPose(paths.shootPreload.getPose(new PathChain.PathT(0, 0)));
     }
 
     @Override
     public void runPath() {
-
-        if(opmodeTimer.getElapsedTime() > 29500 && pathState < 15){
-            pathState = 6;
-        }
-
         switch(pathState){
             case 0:
-                robot.getTurret().setTargetFromPose(paths.shootBallSet3.endPose());
-                robot.getShooter().setVelocity(robot.getShooter().velocityFromDistance(paths.shootBallSet3.endPose().distanceFrom(robot.getTurret().getTargetGoal())));
+                follower.followPath(paths.shootPreload, true);
+                robot.getTurret().setTargetFromPose(paths.shootPreload.endPose());
+                robot.getShooter().setVelocity(1386);
                 pathState++;
                 break;
             case 1:
-                if(!robot.getShooter().isBusy()){
-//                    robot.getDriveTrain().nothingForTime(1000);
-                    robot.getTransfer().rollersForTime(1, 1750);
-                    robot.getIntake().runIntakeCommand(1);
+            case 5:
+                if(!follower.isBusy() && robot.isBusy()){
+                    robot.getEndoscope().setEnableArtifactManagement(false);
+                    robot.stopAllCommands();
+                }
+                if(!follower.isBusy() && !robot.isBusy()){
+                    robot.getTransfer().rollersForTime(0.75, 1500);
+                    robot.getIntake().runIntakeCommand(0.5);
                     robot.getTransfer().rollersForTime(1, 1000);
                     pathState++;
                 }
@@ -45,6 +42,7 @@ public abstract class FarSingle extends AutoMain {
                 if(!robot.isBusy()){
                     robot.getIntake().setIntakePower(0);
                     robot.getTurret().setTargetFromPose(paths.shootBallSet3.endPose());
+                    robot.getShooter().setVelocity(1386);
                     follower.followPath(paths.alignWithBallSet3, true);
                     pathState++;
                 }
@@ -60,35 +58,17 @@ public abstract class FarSingle extends AutoMain {
             case 4:
                 if(!follower.isBusy()){
                     robot.getIntake().setIntakePower(0);
-                    robot.getEndoscope().setEnableArtifactManagement(false);
-                    robot.getTransfer().stopAllTransferCommands();
                     follower.followPath(paths.shootBallSet3);
                     pathState++;
                 }
                 break;
-            case 5:
-                if(!follower.isBusy()){
-                    robot.getEndoscope().setEnableArtifactManagement(false);
-                    robot.getDriveTrain().nothingForTime(1000);
-                    robot.getTransfer().rollersForTime(1, 2000);
-                    robot.getIntake().runIntakeCommand(1);
-                    robot.getTransfer().rollersForTime(1, 2000);
+            case 6:
+                if(!robot.isBusy()){
+                    robot.getIntake().setIntakePower(0);
+                    follower.followPath(paths.parking);
                     pathState++;
                 }
                 break;
-            case 6:
-                robot.getIntake().setIntakePower(0);
-                robot.stopAllCommands();
-                robot.getTransfer().stopAllTransferCommands();
-                follower.followPath(
-                        follower.pathBuilder().addPath(
-                                new BezierLine(
-                                        follower.getPose(),
-                                        paths.parking.endPose()
-                                )
-                        ).build()
-                );
-                pathState++;
             case 7:
                 if(!follower.isBusy()){
                     robot.stopAllCommands();
@@ -98,6 +78,7 @@ public abstract class FarSingle extends AutoMain {
     }
 
     public abstract static class Paths{
+        public PathChain shootPreload;
         public PathChain alignWithBallSet3;
         public PathChain pickupBallSet3;
         public PathChain shootBallSet3;

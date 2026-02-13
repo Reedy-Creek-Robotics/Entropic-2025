@@ -61,10 +61,10 @@ public class TeloOpMain extends OpMode {
 
         follower = robot.getDriveTrain().getFollower();
 
-        follower.setPose(startPose);
+        follower.setStartingPose(startPose);
 
-//        robot.getShooter().setAutoSpeed(false);
-//        robot.getShooter().setVelocity(0);
+        robot.getShooter().setAutoSpeed(false);
+        robot.getShooter().setVelocity(0);
 
 //        robot.loadStateFromDisk();
     }
@@ -131,10 +131,7 @@ public class TeloOpMain extends OpMode {
 //            driver.rumble(0, 0, 99999);
 //        }
 
-
         /* META CONTROLS */
-
-
         //toggle artifact management
         if(meta.isPressed(Controller.Button.WEST)){
             endoscope.setEnableArtifactManagement(!endoscope.getEnableArtifactManagement());
@@ -160,12 +157,6 @@ public class TeloOpMain extends OpMode {
         }if(meta.isPressed(Controller.Button.SOUTH)){
             robot.getDriveTrain().getFollower().setPose(new Pose(smallZoneReset.getX(), smallZoneReset.getY(), robot.getPose().getHeading()));
         }
-
-        if(meta.isPressed(Controller.Button.DPAD_DOWN)){
-            robot.getTurret().setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            robot.getTurret().setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
         //manual mode toggle
         if(meta.isPressed(Controller.Button.PS)){
             if (manualMode){
@@ -189,11 +180,6 @@ public class TeloOpMain extends OpMode {
             robot.setPose(new Pose(robot.getPose().getX(), robot.getPose().getY(), Math.toRadians(90)));
         }
 
-        if(meta.isPressed(Controller.Button.DPAD_RIGHT)){
-            robot.getTurret().incTurretExtraMove();
-        }else if(meta.isPressed(Controller.Button.DPAD_LEFT)){
-            robot.getTurret().decTurretExtraMove();
-        }
 
         //manual control turret
         if(manualMode){

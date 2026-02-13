@@ -53,7 +53,7 @@ public class Robot extends BaseComponent{
     private DualShooter shooter;
     private UpgradedTransfer transfer;
     private Endoscope endoscope;
-    private Lighthouse lighthouse;
+//    private Lighthouse lighthouse;
     private Intake intake;
     // END COMPONENTS
 
@@ -106,7 +106,7 @@ public class Robot extends BaseComponent{
             shooter = new DualShooter(context, this);
             transfer = new UpgradedTransfer(context, this);
             endoscope = new Endoscope(context, this, liveViewContainerIds[0]);
-            lighthouse = new Lighthouse(context, this, liveViewContainerIds[1]);
+//            lighthouse = new Lighthouse(context, this, liveViewContainerIds[1]);
             intake = new Intake(context, this);
             // END COMPONENTS
 
@@ -124,7 +124,7 @@ public class Robot extends BaseComponent{
                 }else if(component instanceof Endoscope){
                     endoscope = (Endoscope) component;
                 }else if(component instanceof Lighthouse){
-                    lighthouse = (Lighthouse) component;
+//                    lighthouse = (Lighthouse) component;
                 }else if(component instanceof Intake){
                     intake = (Intake) component;
                 }
@@ -161,27 +161,16 @@ public class Robot extends BaseComponent{
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-//        while(
-//                !Thread.currentThread().isInterrupted() ||
-//                getTurret().getVisionPortal() == null ||
-//                getEndoscope().getVisionPortal() == null ||
-//                getTurret().getVisionPortal().getCameraState()    != VisionPortal.CameraState.STREAMING ||
-//                getEndoscope().getVisionPortal().getCameraState() != VisionPortal.CameraState.STREAMING)
-//        {
-//            telemetry.addLine("Waiting on cameras...");
-//            telemetry.update();
-//        }
-
         telemetry.addLine("Robot is initialized");
         telemetry.update();
 
         initTime = new ElapsedTime();
 
-//        devices = new ArrayList<>();
-//        motors = hardwareMap.getAll(DcMotorEx.class);
-//        for (HardwareDevice device : hardwareMap) {
-//            devices.add(device);
-//        }
+        devices = new ArrayList<>();
+        motors = hardwareMap.getAll(DcMotorEx.class);
+        for (HardwareDevice device : hardwareMap) {
+            devices.add(device);
+        }
     }
 
     @SuppressLint("DefaultLocale")
@@ -411,9 +400,9 @@ public class Robot extends BaseComponent{
     public Endoscope getEndoscope(){
         return endoscope;
     }
-    public Lighthouse getLighthouse(){
-        return lighthouse;
-    }
+//    public Lighthouse getLighthouse(){
+//        return lighthouse;
+//    }
     public TelemetryManager getTelemetry(){
         return telemetry;
     }

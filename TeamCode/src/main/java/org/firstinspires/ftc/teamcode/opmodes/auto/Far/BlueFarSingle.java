@@ -6,6 +6,7 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+@Disabled
 @Autonomous
 public class BlueFarSingle extends FarSingle {
     @Override
@@ -15,9 +16,8 @@ public class BlueFarSingle extends FarSingle {
 
     @Override
     public void initRobot() {
-        alliance = true;
         super.initRobot();
-//        robot.getTurret().setTurretExtraMove(2);
+        alliance = true;
     }
 
     public static class Paths extends FarSingle.Paths{
@@ -28,44 +28,48 @@ public class BlueFarSingle extends FarSingle {
 
         @Override
         public void createPaths(Follower follower) {
+            shootPreload = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(54.000, 6.000),
+                                    new Pose(60.000, 12.000)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                    .build();
+
             alignWithBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(56.000, 8.000),
+                                    new Pose(60.000, 12.000),
 
-                                    new Pose(48.000, 36.000)
+                                    new Pose(42.000, 36.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
-
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
 
             pickupBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(48.000, 36.000),
+                                    new Pose(42.000, 36.000),
 
-                                    new Pose(10.000, 36.000)
+                                    new Pose(22.000, 36.000)
                             )
-                    ).setTangentHeadingInterpolation()
-
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
 
             shootBallSet3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(10.000, 36.000),
+                                    new Pose(22.000, 36.000),
 
-                                    new Pose(56.000, 16.000)
+                                    new Pose(60.000, 12.000)
                             )
-                    ).setTangentHeadingInterpolation()
-                    .setReversed()
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
 
             parking = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(56.000, 16.000),
+                                    new Pose(60.000, 12.000),
 
-                                    new Pose(26.000, 16.000)
+                                    new Pose(36.000, 12.000)
                             )
-                    ).setTangentHeadingInterpolation()
-
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(90))
                     .build();
         }
     }

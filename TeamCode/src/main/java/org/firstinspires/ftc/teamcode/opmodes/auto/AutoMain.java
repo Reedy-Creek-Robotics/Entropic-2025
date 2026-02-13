@@ -60,7 +60,7 @@ public abstract class AutoMain extends LinearOpMode {
         follower = robot.getDriveTrain().getFollower();
         robot.getTurret().setAlliance(alliance);
         robot.setUseTelemetry(true);
-        robot.getLighthouse().setEnableLighthouse(false);
+//        robot.getLighthouse().setEnableLighthouse(false);
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         log = new LogCatUtil("Autonomous", false);
         pathTimer = new Timer();
