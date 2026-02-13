@@ -80,7 +80,7 @@ public class Endoscope extends BaseComponent {
         centerBallSensor = blobMaker(0, 0.15, 0.1, -.05, "centerBallSensor");
         rearBallSensor = blobMaker(0.411581, -0.25, 0.55, -0.35, "rearBallSensor");
         prelimFrontSensor = blobMaker(-0.94, 0.043841, -0.8, -0.077244, "prelimFrontSensor");
-        prelimRearSensor = blobMaker(0.809077, 0.018789, 0.968701, -0.089770, "prelimRearSensor");
+        prelimRearSensor = blobMaker(0.809077, 0.02, 0.968701, -0.04, "prelimRearSensor");
 
         portal = new VisionPortal.Builder()
                 .addProcessor(frontBallSensor)
@@ -204,6 +204,10 @@ public class Endoscope extends BaseComponent {
 
     public PredominantColorProcessor getPrelimRearSensor() {
         return prelimRearSensor;
+    }
+
+    public VisionPortal getVisionPortal(){
+        return portal;
     }
 
     public void setEnableArtifactManagement(boolean enableArtifactManagement) {

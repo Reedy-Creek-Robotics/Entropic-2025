@@ -9,16 +9,20 @@ import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.Encoder;
 import com.pedropathing.ftc.localization.constants.DriveEncoderConstants;
-import com.pedropathing.ftc.localization.constants.OTOSConstants;
 import com.pedropathing.ftc.localization.constants.ThreeWheelIMUConstants;
 import com.pedropathing.paths.PathConstraints;
+import com.qualcomm.hardware.rev.Rev9AxisImuOrientationOnRobot;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+import org.firstinspires.ftc.teamcode.custom.OtosImuConstants;
+import org.firstinspires.ftc.teamcode.custom.OtosImuLocalizer;
 
 @Configurable
 public class Constants {
@@ -58,33 +62,37 @@ public class Constants {
             .rightEncoderDirection(Encoder.FORWARD)
             .strafeEncoderDirection(Encoder.REVERSE)
             .IMU_HardwareMapName("imu")
-            .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
+            .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP));
 
-    public static double[] seLinearScalars = {0.9754259616907011};
-    public static double[] seAngularScalars = {0.9957986704653361};
+    public static double[] seLinearScalars = {1.0010764494377409, 1.0133037345530145, 1.0005626816936104, 1.01993009954486};
+    public static double[] seAngularScalars = {0.9978221801411064, 0.997928858342879, 0.9971521533437077, 0.9980355593572452};
 
     public static double seLinearScalar = getAverage(seLinearScalars);
     public static double seAngularScalar = getAverage(seAngularScalars);
 
-    public static double[] forgeKnockoffLinearScalars = {0.9824118847467875, 0.9704312520059731, 0.9787130448192772, 0.9856402352275025};
-    public static double[] forgeKnockoffAngularScalars = {0.9898946473570761, 0.9940595749870434, 0.9954860771861248, 0.98909885176028};
+    public static double[] forgeKnockoffLinearScalars = {0};
+    public static double[] forgeKnockoffAngularScalars = {0};
 
    public static double forgeKnockoffLinearScalar = getAverage(forgeKnockoffLinearScalars);
    public static double forgeKnockoffAngularScalar = getAverage(forgeKnockoffAngularScalars);
 
-    public static double[] houseKnockoffLinearScalars = {0.9856931190332324, 0.9773272762855715, 0.9859413419289847, 0.976595926365677};
-    public static double[] houseKnockoffAngularScalars = {0.9890610210191966, 0.990370537208948, 0.9936367911564411, 0.990400681804348};
+    public static double[] houseKnockoffLinearScalars = {0};
+    public static double[] houseKnockoffAngularScalars = {0};
 
     public static double houseKnockoffLinearScalar = getAverage(houseKnockoffLinearScalars);
     public static double houseKnockoffAngularScalar = getAverage(houseKnockoffAngularScalars);
 
-    public static OTOSConstants otosNormalLocalizerConstants = new OTOSConstants()
-            .hardwareMapName("otos")
+    public static OtosImuConstants otosImuConstants = new OtosImuConstants()
+            .otosHardwareMapName("otos")
+//            .imuHardwareMapName("extImu")
+//            .imuParameters(new IMU.Parameters(new Rev9AxisImuOrientationOnRobot(Rev9AxisImuOrientationOnRobot.LogoFacingDirection.LEFT, Rev9AxisImuOrientationOnRobot.I2cPortFacingDirection.FORWARD)))
+            .imuHardwareMapName("imu")
+            .imuParameters(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP)))
             .linearUnit(DistanceUnit.INCH)
             .angleUnit(AngleUnit.RADIANS)
             .linearScalar(seLinearScalar)
-            .angularScalar(seAngularScalar)
-            .offset(new SparkFunOTOS.Pose2D(2.7, 2.34, Math.toRadians(-90)));
+//            .angularScalar(seAngularScalar)
+            .offset(new SparkFunOTOS.Pose2D(2.7, 2.34, Math.toRadians(180)));
 
     public static DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants()
             .rightFrontMotorName("rf")
@@ -121,12 +129,14 @@ public class Constants {
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .xVelocity(81.78650863527312)
-            .yVelocity(65.83266370878444);
+            .yVelocity(65.83266370878444)
+//            .useVoltageCompensation(true) TODO try this out???
+            ;
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
                 //.setLocalizer(new otosAprilTagLocalizer(hardwareMap, otosLocalizerConstants))
-                .OTOSLocalizer(otosNormalLocalizerConstants)
+                .setLocalizer(new OtosImuLocalizer(hardwareMap, otosImuConstants))
                 //.threeWheelIMULocalizer(localizerConstants)
 //                .driveEncoderLocalizer(driveEncoderConstants)
                 .pathConstraints(pathConstraints)

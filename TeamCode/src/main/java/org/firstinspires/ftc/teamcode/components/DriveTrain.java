@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.DriveTun
 import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.OdometryTuner;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
@@ -14,6 +15,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -165,4 +167,32 @@ public class DriveTrain extends BaseComponent {
 
     }
 
+    public void nothingForTime(double timeMs){
+        robot.executeCommand(new NothingForTime(timeMs));
+    }
+
+    private class NothingForTime implements Command {
+
+        double time;
+        ElapsedTime timer;
+
+        public NothingForTime(double timeMs){
+            this.time = timeMs;
+        }
+
+        @Override
+        public void start(){
+            timer = new ElapsedTime();
+        }
+
+        @Override
+        public void stop() {
+
+        }
+
+        @Override
+        public boolean update() {
+            return timer.milliseconds() > time;
+        }
+    }
 }

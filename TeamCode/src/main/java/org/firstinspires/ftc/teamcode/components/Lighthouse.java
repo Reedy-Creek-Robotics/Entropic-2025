@@ -122,7 +122,7 @@ public class Lighthouse extends BaseComponent {
             ) {
                 relocalizeTimer.reset();
                 Pose newPose = pedroPoseFromFtcPose3d(detection.robotPose);
-                log.debug("Pedro Pose: " + newPose);
+                log.debug("Relocalizing To: " + newPose);
                 if(enableLighthouse) robot.setPose(newPose);
                 telemetry.addLine("Re localizing to " + newPose);
             }
@@ -130,17 +130,17 @@ public class Lighthouse extends BaseComponent {
     }
 
     private Pose pedroPoseFromFtcPose3d(Pose3D robotPose) {
-        log.debug("April Tag Pose3D: " + robotPose.toString());
         Pose ftcPose = poseFromPose3d(robotPose);
         double convertedX;
         double convertedY;
-//        double convertedH;
+        double convertedH;
 
         convertedX = ftcPose.getY() + 72;
         convertedY = -ftcPose.getX() + 72;
-//        convertedH = ftcPose.getHeading();
+//        convertedH = ftcPose.getHeading(); //relocalize the imu from the april tag
+        convertedH = robot.getPose().getHeading(); //assume imu has correct heading
 
-        return new Pose(convertedX, convertedY, robot.getPose().getHeading());
+        return new Pose(convertedX, convertedY, convertedH);
     }
 
     @Override

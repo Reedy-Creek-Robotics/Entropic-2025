@@ -6,9 +6,17 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bylazar.configurables.annotations.IgnoreConfigurable;
+import com.bylazar.field.FieldManager;
+import com.bylazar.field.PanelsField;
+import com.bylazar.field.Style;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Vector;
+import com.pedropathing.paths.Path;
+import com.pedropathing.paths.PathChain;
+import com.pedropathing.util.PoseHistory;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -55,7 +63,8 @@ public class Robot extends BaseComponent{
     private ElapsedTime initTime;
     private ElapsedTime firstUpdateTime;
 
-    private Follower follower;
+    @IgnoreConfigurable
+    private static Follower follower;
 
     private LogCatUtil log;
 
@@ -66,6 +75,8 @@ public class Robot extends BaseComponent{
     private List<HardwareDevice> devices;
     private List<DcMotorEx> motors;
 
+    @IgnoreConfigurable
+    private static PoseHistory poseHistory;
 
 
     public Robot(OpMode opMode){
@@ -99,8 +110,26 @@ public class Robot extends BaseComponent{
             intake = new Intake(context, this);
             // END COMPONENTS
 
-            addSubComponents(driveTrain, turret, shooter, transfer, endoscope, lighthouse, intake);
+            addSubComponents(driveTrain, turret, shooter, transfer, endoscope, /*lighthouse, */intake);
         }else{
+            for(Component component : components){
+                if(component instanceof DriveTrain){
+                    driveTrain = (DriveTrain) component;
+                }else if(component instanceof Turret){
+                    turret = (Turret) component;
+                }else if(component instanceof DualShooter){
+                    shooter = (DualShooter) component;
+                }else if(component instanceof UpgradedTransfer){
+                    transfer = (UpgradedTransfer) component;
+                }else if(component instanceof Endoscope){
+                    endoscope = (Endoscope) component;
+                }else if(component instanceof Lighthouse){
+                    lighthouse = (Lighthouse) component;
+                }else if(component instanceof Intake){
+                    intake = (Intake) component;
+                }
+            }
+
             addSubComponents(components);
         }
     }
@@ -114,6 +143,7 @@ public class Robot extends BaseComponent{
         super.init();
 
         follower = driveTrain.getFollower();
+        Drawing.init();
 
         double voltage = computeBatteryVoltage();
         if (voltage < VOLTAGE_WARNING_THRESHOLD) {
@@ -131,16 +161,27 @@ public class Robot extends BaseComponent{
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
+//        while(
+//                !Thread.currentThread().isInterrupted() ||
+//                getTurret().getVisionPortal() == null ||
+//                getEndoscope().getVisionPortal() == null ||
+//                getTurret().getVisionPortal().getCameraState()    != VisionPortal.CameraState.STREAMING ||
+//                getEndoscope().getVisionPortal().getCameraState() != VisionPortal.CameraState.STREAMING)
+//        {
+//            telemetry.addLine("Waiting on cameras...");
+//            telemetry.update();
+//        }
+
         telemetry.addLine("Robot is initialized");
         telemetry.update();
 
         initTime = new ElapsedTime();
 
-        devices = new ArrayList<>();
-        motors = hardwareMap.getAll(DcMotorEx.class);
-        for (HardwareDevice device : hardwareMap) {
-            devices.add(device);
-        }
+//        devices = new ArrayList<>();
+//        motors = hardwareMap.getAll(DcMotorEx.class);
+//        for (HardwareDevice device : hardwareMap) {
+//            devices.add(device);
+//        }
     }
 
     @SuppressLint("DefaultLocale")
@@ -161,6 +202,12 @@ public class Robot extends BaseComponent{
 
         follower.update();
         curPose = follower.getPose();
+
+        if(useTelemetry){
+            poseHistory = follower.getPoseHistory();
+            drawCurrentAndHistory();
+        }
+
 
         // Allow all the subcomponents to do their work.
         super.update();
@@ -385,7 +432,19 @@ public class Robot extends BaseComponent{
         return result;
     }
 
+    public static void drawCurrent() {
+        try {
+            Drawing.drawRobot(follower.getPose());
+            Drawing.sendPacket();
+        } catch (Exception e) {
+            throw new RuntimeException("Drawing failed " + e);
+        }
+    }
 
+    public static void drawCurrentAndHistory() {
+        Drawing.drawPoseHistory(poseHistory);
+        drawCurrent();
+    }
 
     public static class RobotState {
         Pose pose;
@@ -440,5 +499,145 @@ public class Robot extends BaseComponent{
         public int balls() {
             return balls;
         }
+    }
+}
+
+class Drawing {
+    public static final double ROBOT_RADIUS = 17/2.0; // woah
+    private static final FieldManager panelsField = PanelsField.INSTANCE.getField();
+
+    private static final Style robotLook = new Style(
+            "", "#3F51B5", 0.75
+    );
+    private static final Style historyLook = new Style(
+            "", "#4CAF50", 0.25
+    );
+
+    /**
+     * This prepares Panels Field for using Pedro Offsets
+     */
+    public static void init() {
+        panelsField.setOffsets(PanelsField.INSTANCE.getPresets().getPEDRO_PATHING());
+    }
+
+    /**
+     * This draws everything that will be used in the Follower's telemetryDebug() method. This takes
+     * a Follower as an input, so an instance of the DashbaordDrawingHandler class is not needed.
+     *
+     * @param follower Pedro Follower instance.
+     */
+    public static void drawDebug(Follower follower) {
+        if (follower.getCurrentPath() != null) {
+            drawPath(follower.getCurrentPath(), robotLook);
+            Pose closestPoint = follower.getPointFromPath(follower.getCurrentPath().getClosestPointTValue());
+            drawRobot(new Pose(closestPoint.getX(), closestPoint.getY(), follower.getCurrentPath().getHeadingGoal(follower.getCurrentPath().getClosestPointTValue())), robotLook);
+        }
+        drawPoseHistory(follower.getPoseHistory(), historyLook);
+        drawRobot(follower.getPose(), historyLook);
+
+        sendPacket();
+    }
+
+    /**
+     * This draws a robot at a specified Pose with a specified
+     * look. The heading is represented as a line.
+     *
+     * @param pose  the Pose to draw the robot at
+     * @param style the parameters used to draw the robot with
+     */
+    public static void drawRobot(Pose pose, Style style) {
+        if (pose == null || Double.isNaN(pose.getX()) || Double.isNaN(pose.getY()) || Double.isNaN(pose.getHeading())) {
+            return;
+        }
+
+        panelsField.setStyle(style);
+        panelsField.moveCursor(pose.getX(), pose.getY());
+        panelsField.circle(ROBOT_RADIUS);
+
+        Vector v = pose.getHeadingAsUnitVector();
+        v.setMagnitude(v.getMagnitude() * ROBOT_RADIUS);
+        double x1 = pose.getX() + v.getXComponent() / 2, y1 = pose.getY() + v.getYComponent() / 2;
+        double x2 = pose.getX() + v.getXComponent(), y2 = pose.getY() + v.getYComponent();
+
+        panelsField.setStyle(style);
+        panelsField.moveCursor(x1, y1);
+        panelsField.line(x2, y2);
+    }
+
+    /**
+     * This draws a robot at a specified Pose. The heading is represented as a line.
+     *
+     * @param pose the Pose to draw the robot at
+     */
+    public static void drawRobot(Pose pose) {
+        drawRobot(pose, robotLook);
+    }
+
+    /**
+     * This draws a Path with a specified look.
+     *
+     * @param path  the Path to draw
+     * @param style the parameters used to draw the Path with
+     */
+    public static void drawPath(Path path, Style style) {
+        double[][] points = path.getPanelsDrawingPoints();
+
+        for (int i = 0; i < points[0].length; i++) {
+            for (int j = 0; j < points.length; j++) {
+                if (Double.isNaN(points[j][i])) {
+                    points[j][i] = 0;
+                }
+            }
+        }
+
+        panelsField.setStyle(style);
+        panelsField.moveCursor(points[0][0], points[0][1]);
+        panelsField.line(points[1][0], points[1][1]);
+    }
+
+    /**
+     * This draws all the Paths in a PathChain with a
+     * specified look.
+     *
+     * @param pathChain the PathChain to draw
+     * @param style     the parameters used to draw the PathChain with
+     */
+    public static void drawPath(PathChain pathChain, Style style) {
+        for (int i = 0; i < pathChain.size(); i++) {
+            drawPath(pathChain.getPath(i), style);
+        }
+    }
+
+    /**
+     * This draws the pose history of the robot.
+     *
+     * @param poseTracker the PoseHistory to get the pose history from
+     * @param style       the parameters used to draw the pose history with
+     */
+    public static void drawPoseHistory(PoseHistory poseTracker, Style style) {
+        panelsField.setStyle(style);
+
+        int size = poseTracker.getXPositionsArray().length;
+        for (int i = 0; i < size - 1; i++) {
+
+            panelsField.moveCursor(poseTracker.getXPositionsArray()[i], poseTracker.getYPositionsArray()[i]);
+            panelsField.line(poseTracker.getXPositionsArray()[i + 1], poseTracker.getYPositionsArray()[i + 1]);
+        }
+    }
+
+    /**
+     * This draws the pose history of the robot.
+     *
+     * @param poseTracker the PoseHistory to get the pose history from
+     */
+    public static void drawPoseHistory(PoseHistory poseTracker) {
+        drawPoseHistory(poseTracker, historyLook);
+    }
+
+    /**
+     * This tries to send the current packet to FTControl Panels.
+     */
+    public static void sendPacket() {
+        panelsField.update();
     }
 }

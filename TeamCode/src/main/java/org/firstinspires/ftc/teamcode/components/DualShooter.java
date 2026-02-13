@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -34,6 +35,8 @@ public class DualShooter extends BaseComponent {
     DcMotorEx shooter2;
     List<DcMotorEx> shooters;
 
+    TouchSensor shootSwitch;
+
     double degPerTick = 12.8571428571;
 
     static Dictionary<Integer, Integer> speeds = new Hashtable<>();
@@ -41,12 +44,14 @@ public class DualShooter extends BaseComponent {
     int velocityTolerance = 60;
     int stabilizationTime = 750;
     int holdVelocity = 1600;
+    int shootCount = 0;
 
     double shotCurrent = 4;
 
     private int setVelocity;
 
     boolean autoSpeed = true;
+    boolean lastShootSwitch = false;
 
     private final Robot robot;
 
@@ -72,6 +77,7 @@ public class DualShooter extends BaseComponent {
         shooter1 = hardwareUtil.getMotorEx("shooter1");
         shooter2 = hardwareUtil.getMotorEx("shooter2");
         shooters = Arrays.asList(shooter1, shooter2);
+        shootSwitch = hardwareUtil.getTouchSensor("shootSwitch");
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
     }
 
@@ -108,12 +114,27 @@ public class DualShooter extends BaseComponent {
         // 0.2ms
         goalPosition = robot.getTurret().getAlliance() ? Turret.blueGoal : Turret.redGoal;
 
+//        if(shootSwitch.isPressed()) log.debug("SWITCH TRUE");
+
+        if(lastShootSwitch && !shootSwitch.isPressed()){
+            shootCount++;
+        }
+        lastShootSwitch = shootSwitch.isPressed();
+
         if(autoSpeed) {
 //             effectively nothing?
             distanceToGoal = robot.getPose().distanceFrom(goalPosition);
 //             5-10ms
             setVelocity(velocityFromDistance(distanceToGoal));
         }
+    }
+
+    public void resetShootCount(){
+        shootCount = 0;
+    }
+
+    public int getShootCount(){
+        return shootCount;
     }
 
     public double velocityTicksToDegrees(int ticks) {
@@ -132,6 +153,7 @@ public class DualShooter extends BaseComponent {
         telemetry.addData("Shooter 1 Current", getShooter1Current());
         telemetry.addData("Shooter 2 Current", getShooter2Current());
         telemetry.addData("Shooters Current", getCombinedCurrent());
+        telemetry.addData("Shoot Count", shootCount);
     }
 
     /**
@@ -320,7 +342,8 @@ public class DualShooter extends BaseComponent {
 //        log.debug("Auto Speed: " + autoSpeed);
 
         // if velocity is less than set velocity - tolerance or if velocity is greater than set velocity + tolerance then return true
-        return (getVelocity() < (setVelocity - velocityTolerance)) && (getVelocity() > (setVelocity + velocityTolerance));
+        return (getVelocity() < (setVelocity - velocityTolerance)) &&
+               (getVelocity() > (setVelocity + velocityTolerance));
 
     }
 

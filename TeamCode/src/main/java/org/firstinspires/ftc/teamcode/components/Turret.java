@@ -91,10 +91,10 @@ public class Turret extends BaseComponent{
     //824 ticks per 360 deg
 
     //TODO Setup aim positions for when at back of field
-    static Pose redGoal = new Pose(140, 144 , 0);
-    static Pose redGoalBack = new Pose(144, 140 , 0);
-    static Pose blueGoal = new Pose(4, 144, 0);
-    static Pose blueGoalBack = new Pose(0, 140, 0);
+    static Pose redGoal = new Pose(144, 144 , 0);
+//    static Pose redGoalBack = new Pose(144, 140 , 0);
+    static Pose blueGoal = new Pose(0, 144, 0);
+//    static Pose blueGoalBack = new Pose(0, 140, 0);
 
     Pose curPos = new Pose();
     Pose targetGoal;
@@ -125,6 +125,11 @@ public class Turret extends BaseComponent{
     double theta;
 
     int turretOffset;
+    /**
+     * Extra ticks added at the end of all math for turret code, used to counteract drift or inaccuracies<br>
+     * <b>IMPORTANT:</b> This ignores the turret limits set in the code, DO NOT SET TO HIGH VALUES
+     */
+    int turretExtraMove = 0;
     int turretPos;
 
     Robot robot;
@@ -192,22 +197,42 @@ public class Turret extends BaseComponent{
         curPos = robot.getPose();
 
         if (alliance) {
-            if (curPos.getY() < 48) {
-                targetGoal = blueGoalBack;
-//                log.debug("goal: " + targetGoal.toString());
-            } else {
+//            if (curPos.getY() < 48) {
+//                targetGoal = blueGoalBack;
+////                log.debug("goal: " + targetGoal.toString());
+//            } else {
                 targetGoal = blueGoal;
 //                log.debug("goal: " + targetGoal.toString());
-            }
+//            }
         } else {
-            if (curPos.getY() < 48) {
-                targetGoal = redGoalBack;
-//                log.debug("goal: " + targetGoal.toString());
-            } else {
+//            if (curPos.getY() < 48) {
+//                targetGoal = redGoalBack;
+////                log.debug("goal: " + targetGoal.toString());
+//            } else {
                 targetGoal = redGoal;
 //                log.debug("goal: " + targetGoal.toString());
-            }
+//            }
         }
+    }
+
+    public void setTurretExtraMove(int turretExtraMove){
+        this.turretExtraMove = turretExtraMove;
+    }
+
+    public void incTurretExtraMove(){
+        turretExtraMove++;
+    }
+
+    public void decTurretExtraMove(){
+        turretExtraMove--;
+    }
+
+    public int getTurretExtraMove(){
+        return turretExtraMove;
+    }
+
+    public VisionPortal getVisionPortal(){
+        return visionPortal;
     }
 
     @SuppressLint("DefaultLocale")
@@ -219,17 +244,21 @@ public class Turret extends BaseComponent{
 
         // no change for this whole if block
         if (alliance) {
-            if (curPos.getY() < 48) {
-                targetGoal = blueGoalBack;
-            } else {
-                targetGoal = blueGoal;
-            }
+//            if (curPos.getY() < 48) {
+//                targetGoal = blueGoalBack;
+////                log.debug("goal: " + targetGoal.toString());
+//            } else {
+            targetGoal = blueGoal;
+//                log.debug("goal: " + targetGoal.toString());
+//            }
         } else {
-            if (curPos.getY() < 48) {
-                targetGoal = redGoalBack;
-            } else {
-                targetGoal = redGoal;
-            }
+//            if (curPos.getY() < 48) {
+//                targetGoal = redGoalBack;
+////                log.debug("goal: " + targetGoal.toString());
+//            } else {
+            targetGoal = redGoal;
+//                log.debug("goal: " + targetGoal.toString());
+//            }
         }
 
         if(autoAim) { otosAutoAim(); setTargetDegrees();}
@@ -258,6 +287,10 @@ public class Turret extends BaseComponent{
         telemetry.addLine(String.format("Turret Pos: %3.1f / %3.1f  (deg)", getPositionDegrees(), targetDeg));
         telemetry.addLine(String.format("Theta: %2.2f  (deg)", Math.toDegrees(theta)));
         telemetry.addData("Turret power", turretMotor.getPower());
+    }
+
+    public void setRunMode(DcMotor.RunMode runMode){
+        turretMotor.setMode(runMode);
     }
 
     public boolean isInRange(){
@@ -374,24 +407,24 @@ public class Turret extends BaseComponent{
     }
 
     private void moveRtp(){
-        turretMotor.setTargetPosition((int) targetPos);
+        turretMotor.setTargetPosition((int) (targetPos + turretExtraMove));
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turretMotor.setPower(0.6);
     }
 
     private void moveBad(){
-        if (Math.abs(turretPos - targetPos) <= 2) {
+        if (Math.abs(turretPos - (targetPos + turretExtraMove)) <= 2) {
             turretMotor.setPower(0);
-        } else if (Math.abs(turretPos - targetPos) <= 60) {
-            turretMotor.setPower(turretPos < (int) targetPos ? 0.2 : -0.2);
+        } else if (Math.abs(turretPos - (targetPos + turretExtraMove)) <= 60) {
+            turretMotor.setPower(turretPos < (int) (targetPos + turretExtraMove) ? 0.2 : -0.2);
         } else {
-            turretMotor.setPower(turretPos < (int) targetPos ? 0.4 : -0.4);
+            turretMotor.setPower(turretPos < (int) (targetPos + turretExtraMove) ? 0.4 : -0.4);
         }
     }
 
     private void moveP(){
-        if(Math.abs(targetPos - turretPos) > 1){
-            double setPower = ((-2.0)/(-2*ticksToMaxPower) * (targetPos - turretPos));
+        if(Math.abs((targetPos + turretExtraMove) - turretPos) > 1){
+            double setPower = ((-2.0)/(-2*ticksToMaxPower) * ((targetPos + turretExtraMove) - turretPos));
             if(setPower < 0){setPower = Math.min(setPower, -0.1);}
             if(setPower > 0){setPower = Math.max(setPower, 0.1);}
             turretMotor.setPower(setPower);
