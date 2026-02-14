@@ -51,6 +51,9 @@ public abstract class AutoMain extends LinearOpMode {
         }
 
         robot.saveStateToDisk();
+
+        blackboard.clear();
+        blackboard.put("pose", robot.getPose());
     }
 
     public void initRobot(){
