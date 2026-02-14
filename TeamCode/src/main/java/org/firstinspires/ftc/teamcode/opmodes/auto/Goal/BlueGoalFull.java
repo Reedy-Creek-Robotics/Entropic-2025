@@ -18,6 +18,7 @@ public class BlueGoalFull extends GoalFull{
     public void initRobot(){
         alliance = true;
         super.initRobot();
+        robot.getTurret().setTurretExtraMove(5);
     }
 
     public static class Paths extends GoalFull.Paths {

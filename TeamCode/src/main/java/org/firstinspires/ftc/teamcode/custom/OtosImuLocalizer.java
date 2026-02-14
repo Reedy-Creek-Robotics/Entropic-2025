@@ -98,11 +98,20 @@ public class OtosImuLocalizer implements Localizer {
      */
     @Override
     public Pose getPose() {
+//        log.debug("start getPose");
         Pose pose = new Pose(otosPose.x, otosPose.y, otosPose.h);
-
+//        log.debug("pose: " + pose);
         Vector vec = pose.getAsVector();
-        vec.rotateVector(startPose.getHeading());
 
+//        log.debug("vec: " + vec);
+
+        vec.rotateVector(startPose.getHeading() - (Math.PI / 2));
+
+        log.debug("adjusted vec: " + vec);
+
+        log.debug("returned pose: " + startPose.plus(new Pose(vec.getXComponent(), vec.getYComponent(), pose.getHeading())));
+
+//        log.debug("end getPose");
         return startPose.plus(new Pose(vec.getXComponent(), vec.getYComponent(), pose.getHeading()));
     }
 
@@ -145,9 +154,13 @@ public class OtosImuLocalizer implements Localizer {
      */
     @Override
     public void setPose(Pose setPose) {
+        log.debug("origin setPose: " + setPose);
+        setPose = new Pose(setPose.getX(), setPose.getY(), setPose.getHeading() - (Math.PI / 2));
+        log.debug("adjusted setPose: " + setPose);
         resetOTOS();
         imu.resetYaw();
         Pose setOTOSPose = setPose.minus(startPose);
+        log.debug("setOtosPose: " + setOTOSPose);
         imuDifference = setPose.getHeading() - imu.getRobotYawPitchRollAngles().getYaw(imuUnit);
         otos.setPosition(new SparkFunOTOS.Pose2D(setOTOSPose.getX(), setOTOSPose.getY(), setOTOSPose.getHeading() + imuDifference));
     }
@@ -159,6 +172,7 @@ public class OtosImuLocalizer implements Localizer {
     public void update() {
         otos.getPosVelAcc(otosPose,otosVel,otosAcc);
         otosPose = new SparkFunOTOS.Pose2D(otosPose.x, otosPose.y, (imu.getRobotYawPitchRollAngles().getYaw(imuUnit) + imuDifference) * angularScalar);
+        log.debug("otosPose: " + otosPose);
         otosVel = new SparkFunOTOS.Pose2D(otosVel.x, otosVel.y, imu.getRobotAngularVelocity(imuUnit).zRotationRate);
         // Thank you to GoldenElf58 of FTC Team 16657 for spotting a bug here; it was resolved by adding the turn direction.
         totalHeading += MathFunctions.getSmallestAngleDifference(otosPose.h, previousHeading) * MathFunctions.getTurnDirection(previousHeading, otosPose.h);

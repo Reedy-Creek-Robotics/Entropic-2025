@@ -10,6 +10,7 @@ import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.Encoder;
 import com.pedropathing.ftc.localization.constants.DriveEncoderConstants;
 import com.pedropathing.ftc.localization.constants.ThreeWheelIMUConstants;
+import com.pedropathing.ftc.localization.localizers.OTOSLocalizer;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.rev.Rev9AxisImuOrientationOnRobot;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -64,8 +65,8 @@ public class Constants {
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP));
 
-    public static double[] seLinearScalars = {1.0010764494377409, 1.0133037345530145, 1.0005626816936104, 1.01993009954486};
-    public static double[] seAngularScalars = {0.9978221801411064, 0.997928858342879, 0.9971521533437077, 0.9980355593572452};
+    public static double[] seLinearScalars = {0.9784053958834951};
+    public static double[] seAngularScalars = {1.0052457992062687};
 
     public static double seLinearScalar = getAverage(seLinearScalars);
     public static double seAngularScalar = getAverage(seAngularScalars);

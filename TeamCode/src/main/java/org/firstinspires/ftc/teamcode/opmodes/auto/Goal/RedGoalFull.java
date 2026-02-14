@@ -17,6 +17,7 @@ public class RedGoalFull extends GoalFull{
     public void initRobot() {
         alliance = false;
         super.initRobot();
+        robot.getTurret().setTurretExtraMove(-5);
     }
 
     public static class Paths extends GoalFull.Paths{
@@ -87,7 +88,7 @@ public class RedGoalFull extends GoalFull{
             shootBallSet2 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(130.000, 64.000),
-                                    new Pose(84.000, 108.000)
+                                    new Pose(96.000, 108.000)
                             )
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))

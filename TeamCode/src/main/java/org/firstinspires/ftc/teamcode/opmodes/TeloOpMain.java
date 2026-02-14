@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.*;
 
+import android.util.Log;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -63,8 +65,8 @@ public class TeloOpMain extends OpMode {
 
         follower.setStartingPose(startPose);
 
-        robot.getShooter().setAutoSpeed(false);
-        robot.getShooter().setVelocity(0);
+//        robot.getShooter().setAutoSpeed(false);
+//        robot.getShooter().setVelocity(0);
 
 //        robot.loadStateFromDisk();
     }
@@ -155,6 +157,7 @@ public class TeloOpMain extends OpMode {
             }
         //re-localize @ far zone
         }if(meta.isPressed(Controller.Button.SOUTH)){
+//            Log.println(Log.DEBUG, "Comp-TeleOp", "SOUTH CODE RUN");
             robot.getDriveTrain().getFollower().setPose(new Pose(smallZoneReset.getX(), smallZoneReset.getY(), robot.getPose().getHeading()));
         }
         //manual mode toggle
