@@ -69,6 +69,10 @@ public class TeloOpMain extends OpMode {
 //        robot.getShooter().setVelocity(0);
 
 //        robot.loadStateFromDisk();
+
+        if (blackboard.size() >= 1) {
+            follower.setPose((Pose) blackboard.get("pose"));
+        }
     }
 
     @Override
